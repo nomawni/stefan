@@ -19,7 +19,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends AbstractController
 {
-   
+    /**
+     * @Route("/", methods="GET", name="user_profile")
+     */
     public function index()
     {
         return $this->render('user/index.html.twig', [
