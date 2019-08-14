@@ -1,0 +1,12 @@
+{{ form_start(form) }}
+    {{ form_widget(form) }}
+
+    {% for category in form.categories %}
+
+    {{ form_row(category.name) }}
+
+    {% endfor %}
+
+    {{ form_row(form.tags)}}
+    <button class="btn">{{ button_label|default('Save') }}</button>
+{{ form_end(form) }}
