@@ -73,6 +73,11 @@ class Avatar
      */
     private $originalName;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $destination;
+
     public function getAvatarSize(): ?int
     {
         return $this->avatarSize;
@@ -182,6 +187,18 @@ class Avatar
     public function setOriginalName(?string $originalName): self
     {
         $this->originalName = $originalName;
+
+        return $this;
+    }
+
+    public function getDestination(): ?string
+    {
+        return $this->destination;
+    }
+
+    public function setDestination(?string $destination): self
+    {
+        $this->destination = $destination;
 
         return $this;
     }

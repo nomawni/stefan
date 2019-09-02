@@ -19,20 +19,9 @@ class Cart
     private $id;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Customer", mappedBy="cart", cascade={"persist", "remove"})
-     */
-    private $customer;
-
-    /**
      * @ORM\ManyToMany(targetEntity="App\Entity\Product", mappedBy="carts")
      */
     private $products;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Orders", inversedBy="cart")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $orders;
 
     /**
      * @ORM\Column(type="datetime")
@@ -40,9 +29,15 @@ class Cart
     private $createdAt;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Shipment", inversedBy="cart")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Orders", inversedBy="cart")
      */
-    private $shipment;
+    private $orders;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\User")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $client;
 
     public function __construct()
     {
@@ -52,23 +47,6 @@ class Cart
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getCustomer(): ?Customer
-    {
-        return $this->customer;
-    }
-
-    public function setCustomer(Customer $customer): self
-    {
-        $this->customer = $customer;
-
-        // set the owning side of the relation if necessary
-        if ($this !== $customer->getCart()) {
-            $customer->setCart($this);
-        }
-
-        return $this;
     }
 
     /**
@@ -99,18 +77,6 @@ class Cart
         return $this;
     }
 
-    public function getOrders(): ?Orders
-    {
-        return $this->orders;
-    }
-
-    public function setOrders(?Orders $orders): self
-    {
-        $this->orders = $orders;
-
-        return $this;
-    }
-
     public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->createdAt;
@@ -123,14 +89,26 @@ class Cart
         return $this;
     }
 
-    public function getShipment(): ?Shipment
+    public function getOrders(): ?Orders
     {
-        return $this->shipment;
+        return $this->orders;
     }
 
-    public function setShipment(?Shipment $shipment): self
+    public function setOrders(?Orders $orders): self
     {
-        $this->shipment = $shipment;
+        $this->orders = $orders;
+
+        return $this;
+    }
+
+    public function getClient(): ?User
+    {
+        return $this->client;
+    }
+
+    public function setClient(?User $client): self
+    {
+        $this->client = $client;
 
         return $this;
     }

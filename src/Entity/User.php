@@ -54,9 +54,21 @@ class User implements UserInterface, \Serializable
      */
     private $addresses;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Shop", mappedBy="owner")
+     */
+    private $shops;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\WhishLists", mappedBy="customer", orphanRemoval=true)
+     */
+    private $whishLists;
+
     public function __construct()
     {
         $this->addresses = new ArrayCollection();
+        $this->shops = new ArrayCollection();
+        $this->whishLists = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -195,6 +207,68 @@ class User implements UserInterface, \Serializable
     {
         if ($this->addresses->contains($address)) {
             $this->addresses->removeElement($address);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Shop[]
+     */
+    public function getShops(): Collection
+    {
+        return $this->shops;
+    }
+
+    public function addShop(Shop $shop): self
+    {
+        if (!$this->shops->contains($shop)) {
+            $this->shops[] = $shop;
+            $shop->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeShop(Shop $shop): self
+    {
+        if ($this->shops->contains($shop)) {
+            $this->shops->removeElement($shop);
+            // set the owning side to null (unless already changed)
+            if ($shop->getOwner() === $this) {
+                $shop->setOwner(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|WhishLists[]
+     */
+    public function getWhishLists(): Collection
+    {
+        return $this->whishLists;
+    }
+
+    public function addWhishList(WhishLists $whishList): self
+    {
+        if (!$this->whishLists->contains($whishList)) {
+            $this->whishLists[] = $whishList;
+            $whishList->setCustomer($this);
+        }
+
+        return $this;
+    }
+
+    public function removeWhishList(WhishLists $whishList): self
+    {
+        if ($this->whishLists->contains($whishList)) {
+            $this->whishLists->removeElement($whishList);
+            // set the owning side to null (unless already changed)
+            if ($whishList->getCustomer() === $this) {
+                $whishList->setCustomer(null);
+            }
         }
 
         return $this;

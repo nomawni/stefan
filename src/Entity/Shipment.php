@@ -23,11 +23,6 @@ class Shipment
      */
     private $address;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Cart", mappedBy="shipment")
-     */
-    private $cart;
-
     public function __construct()
     {
         $this->address = new ArrayCollection();
@@ -70,34 +65,5 @@ class Shipment
         return $this;
     }
 
-    /**
-     * @return Collection|Cart[]
-     */
-    public function getCart(): Collection
-    {
-        return $this->cart;
-    }
-
-    public function addCart(Cart $cart): self
-    {
-        if (!$this->cart->contains($cart)) {
-            $this->cart[] = $cart;
-            $cart->setShipment($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCart(Cart $cart): self
-    {
-        if ($this->cart->contains($cart)) {
-            $this->cart->removeElement($cart);
-            // set the owning side to null (unless already changed)
-            if ($cart->getShipment() === $this) {
-                $cart->setShipment(null);
-            }
-        }
-
-        return $this;
-    }
+    
 }

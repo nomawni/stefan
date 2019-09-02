@@ -13,7 +13,7 @@ class AvatarListener {
 
     public function __construct(UploaderHelper $uploaderHelper)
     {
-        $this->helper = $uploaderHelper;
+        $this->helper = $uploaderHelper; 
     }
 
     /**
@@ -28,7 +28,7 @@ class AvatarListener {
              $entity->setFinalName($entity->getAvatarFile()->getFilename());
              $entity->setAvatarSize($entity->getAvatarFile()->getSize());
              $entity->setExtension($entity->getAvatarFile()->getExtension());
-            // $entity->setBasename($entity->getAvatarFile()->getBasename());
+             $entity->setDestination($entity->getAvatarFile()->getPath());
              $entity->setFinalPath($this->helper->asset($entity, 'avatarFile'));
              $entity->setMimeType($entity->getAvatarFile()->getMimeType());
          }
@@ -44,6 +44,13 @@ class AvatarListener {
 
         if($entity instanceof Avatar) {
             $entity->setFinalName($entity->getAvatarFile()->getFilename());
+            
+            $entity->setAvatarSize($entity->getAvatarFile()->getSize());
+            $entity->setExtension($entity->getAvatarFile()->getExtension());
+           // $entity->setBasename($entity->getAvatarFile()->getBasename());
+           $entity->setDestination($entity->getAvatarFile()->getPathname());
+            $entity->setFinalPath($this->helper->asset($entity, 'avatarFile'));
+            $entity->setMimeType($entity->getAvatarFile()->getMimeType());
         }
 
     }

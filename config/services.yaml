@@ -27,6 +27,10 @@ services:
             - { name: doctrine.event_listener, event: prePersist }
             - { name: doctrine.event_listener, event: preUpdate }
             - { name: kernel.event_listener, event: vich_uploader.pre_upload }
+    App\EventListener\ProductImageListener:
+        tags:
+            - { name: doctrine.event_listener, event: prePersist }
+
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

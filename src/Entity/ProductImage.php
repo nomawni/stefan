@@ -81,9 +81,13 @@ class ProductImage
         return $this->productImage;
     }
 
-    public function setProductImage(string $productImage): self
+    public function setProductImage(File $productImage): self
     {
         $this->productImage = $productImage;
+
+        if(null !== $productImage) {
+            $this->dateUploaded = new \DateTimeImmutable();
+        }
 
         return $this;
     }

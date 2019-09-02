@@ -21,22 +21,6 @@ class Orders
     /**
      * @ORM\Column(type="datetime")
      */
-    private $dateOrdered;
-
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private $dateOrderUpdated;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Product", inversedBy="orders")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $product;
-
-    /**
-     * @ORM\Column(type="datetime")
-     */
     private $orderedAt;
 
     /**
@@ -44,38 +28,37 @@ class Orders
      */
     private $cart;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Shipment")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $shipment;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Customer")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $customer;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Product")
+     */
+    private $products;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $quantity;
+
     public function __construct()
     {
         $this->cart = new ArrayCollection();
+        $this->products = new ArrayCollection();
     }
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getDateOrdered(): ?\DateTimeInterface
-    {
-        return $this->dateOrdered;
-    }
-
-    public function setDateOrdered(\DateTimeInterface $dateOrdered): self
-    {
-        $this->dateOrdered = $dateOrdered;
-
-        return $this;
-    }
-
-    public function getDateOrderUpdated(): ?\DateTimeInterface
-    {
-        return $this->dateOrderUpdated;
-    }
-
-    public function setDateOrderUpdated(?\DateTimeInterface $dateOrderUpdated): self
-    {
-        $this->dateOrderUpdated = $dateOrderUpdated;
-
-        return $this;
     }
 
     public function getProduct(): ?Product
@@ -132,4 +115,67 @@ class Orders
 
         return $this;
     }
-}
+
+    public function getShipment(): ?Shipment
+    {
+        return $this->shipment;
+    }
+
+    public function setShipment(?Shipment $shipment): self
+    {
+        $this->shipment = $shipment;
+
+        return $this;
+    }
+
+    public function getCustomer(): ?Customer
+    {
+        return $this->customer;
+    }
+
+    public function setCustomer(?Customer $customer): self
+    {
+        $this->customer = $customer;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Product[]
+     */
+    public function getProducts(): Collection
+    {
+        return $this->products;
+    }
+
+    public function addProduct(Product $product): self
+    {
+        if (!$this->products->contains($product)) {
+            $this->products[] = $product;
+        }
+
+        return $this;
+    }
+
+    public function removeProduct(Product $product): self
+    {
+        if ($this->products->contains($product)) {
+            $this->products->removeElement($product);
+        }
+
+        return $this;
+    }
+
+    public function getQuantity(): ?int
+    {
+        return $this->quantity;
+    }
+
+    public function setQuantity(int $quantity): self
+    {
+        $this->quantity = $quantity;
+
+        return $this;
+    }
+
+   }

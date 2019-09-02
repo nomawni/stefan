@@ -3,6 +3,9 @@
 namespace App\Form;
 
 use App\Entity\Product;
+use App\Entity\Category;
+use Doctrine\ORM\EntityRepository;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -18,10 +21,14 @@ class Product1Type extends AbstractType
             ->add('quantity')
             ->add('size')
             ->add('description')
-            ->add('categories', CollectionType::class, [
-                'entry_type' => CategoryType::class,
-                'entry_options' => ['label' => false],
-                'allow_add' => true,
+            ->add('category', EntityType::class, [
+                'class' => Category::class,
+                'query_builder' => function(EntityRepository $er) {
+                    return $er->createQueryBuilder('c')
+                       ->orderBy('c.name', 'ASC');
+                },
+                'choice_label' => "name",
+            
             ])
             ->add('tags', TagsInputType::class, [
                 'label' => 'The Tags',

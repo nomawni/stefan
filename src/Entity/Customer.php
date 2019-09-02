@@ -19,12 +19,6 @@ class Customer
     private $id;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Cart", inversedBy="customer", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $cart;
-
-    /**
      * @ORM\OneToMany(targetEntity="App\Entity\Address", mappedBy="customer", orphanRemoval=true)
      */
     private $addresses;
@@ -43,18 +37,6 @@ class Customer
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getCart(): ?Cart
-    {
-        return $this->cart;
-    }
-
-    public function setCart(Cart $cart): self
-    {
-        $this->cart = $cart;
-
-        return $this;
     }
 
     /**

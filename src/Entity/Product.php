@@ -49,12 +49,15 @@ class Product
     private $carts;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Category")
+     * @var Categories[]|ArrayCollection
+     * @ORM\ManyToMany(targetEntity="App\Entity\Category", cascade={"persist"})
      */
-    private $categories;
+    //private $categories;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Tag")
+     * @var Tag[]|ArrayCollection
+     * @ORM\ManyToMany(targetEntity="App\Entity\Tag", cascade={"persist"})
+     * @ORM\OrderBy({"name": "ASC"})
      */
     private $tags;
 
@@ -65,16 +68,32 @@ class Product
     private $productImage;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Orders", mappedBy="product")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Category")
+     * @ORM\JoinColumn(nullable=false)
      */
-    private $orders;
+    private $category;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Shop", inversedBy="product")
+     */
+    private $shop;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\WhishLists", mappedBy="products")
+     */
+    private $whishLists;
 
     public function __construct()
     {
         $this->carts = new ArrayCollection();
         $this->categories = new ArrayCollection();
         $this->tags = new ArrayCollection();
-        $this->orders = new ArrayCollection();
+        $this->whishLists = new ArrayCollection();
+    }
+
+    public function __toString()
+    {
+        return $this->getName();
     }
 
     public function getId(): ?int
@@ -171,7 +190,7 @@ class Product
     /**
      * @return Collection|Category[]
      */
-    public function getCategories(): Collection
+   /* public function getCategories(): Collection
     {
         return $this->categories;
     }
@@ -202,11 +221,13 @@ class Product
         return $this->tags;
     }
 
-    public function addTag(Tag $tag): self
+    public function addTag(Tag ...$tags): self
     {
+        foreach($tags as $tag) {
         if (!$this->tags->contains($tag)) {
             $this->tags[] = $tag;
         }
+    }
 
         return $this;
     }
@@ -231,33 +252,53 @@ class Product
 
         return $this;
     }
-
-    /**
-     * @return Collection|Orders[]
-     */
-    public function getOrders(): Collection
+    public function getCategory(): ?Category
     {
-        return $this->orders;
+        return $this->category;
     }
 
-    public function addOrder(Orders $order): self
+    public function setCategory(?Category $category): self
     {
-        if (!$this->orders->contains($order)) {
-            $this->orders[] = $order;
-            $order->setProduct($this);
+        $this->category = $category;
+
+        return $this;
+    }
+
+    public function getShop(): ?Shop
+    {
+        return $this->shop;
+    }
+
+    public function setShop(?Shop $shop): self
+    {
+        $this->shop = $shop;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|WhishLists[]
+     */
+    public function getWhishLists(): Collection
+    {
+        return $this->whishLists;
+    }
+
+    public function addWhishList(WhishLists $whishList): self
+    {
+        if (!$this->whishLists->contains($whishList)) {
+            $this->whishLists[] = $whishList;
+            $whishList->addProduct($this);
         }
 
         return $this;
     }
 
-    public function removeOrder(Orders $order): self
+    public function removeWhishList(WhishLists $whishList): self
     {
-        if ($this->orders->contains($order)) {
-            $this->orders->removeElement($order);
-            // set the owning side to null (unless already changed)
-            if ($order->getProduct() === $this) {
-                $order->setProduct(null);
-            }
+        if ($this->whishLists->contains($whishList)) {
+            $this->whishLists->removeElement($whishList);
+            $whishList->removeProduct($this);
         }
 
         return $this;

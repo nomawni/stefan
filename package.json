@@ -1,9 +1,37 @@
 {
   "devDependencies": {
+    "@babel/preset-react": "^7.0.0",
     "@symfony/webpack-encore": "^0.28.0",
     "bootstrap": "^4.3.1"
   },
   "dependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-react-app": "^3.1.2",
+    "core-js": "^3.2.1",
+    "prop-types": "^15.7.2",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
     "webpack-notifier": "^1.6.0"
-  }
+  },
+  "name": "mineral",
+  "version": "1.0.0",
+  "main": "webpack.config.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nomawni/stefan.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nomawni/stefan/issues"
+  },
+  "homepage": "https://github.com/nomawni/stefan#readme",
+  "description": ""
 }
