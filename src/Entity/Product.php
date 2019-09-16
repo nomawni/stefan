@@ -44,17 +44,6 @@ class Product
     private $description;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Cart", inversedBy="products")
-     */
-    private $carts;
-
-    /**
-     * @var Categories[]|ArrayCollection
-     * @ORM\ManyToMany(targetEntity="App\Entity\Category", cascade={"persist"})
-     */
-    //private $categories;
-
-    /**
      * @var Tag[]|ArrayCollection
      * @ORM\ManyToMany(targetEntity="App\Entity\Tag", cascade={"persist"})
      * @ORM\OrderBy({"name": "ASC"})
@@ -79,21 +68,52 @@ class Product
     private $shop;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\WhishLists", mappedBy="products")
+     * @ORM\Column(type="datetime", nullable=true)
      */
-    private $whishLists;
+    private $addedAt;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $modifiedAt;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Star", mappedBy="product", orphanRemoval=true)
+     */
+    private $stars;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Cart", inversedBy="products")
+     */
+    private $cart;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\WhishLists", inversedBy="products")
+     */
+    private $whishlist;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\ProductCart", inversedBy="product")
+     */
+    private $productCart;
 
     public function __construct()
     {
-        $this->carts = new ArrayCollection();
+        $this->addedAt = new \DateTimeImmutable();
+       // $this->carts = new ArrayCollection();
         $this->categories = new ArrayCollection();
         $this->tags = new ArrayCollection();
-        $this->whishLists = new ArrayCollection();
+       // $this->whishLists = new ArrayCollection();
+        $this->stars = new ArrayCollection();
+       $this->productCarts = new ArrayCollection();
     }
 
     public function __toString()
     {
-        return $this->getName();
+        if(is_null($this->name)) {
+            return 'NULL';
+        }
+        return $this->name;
     }
 
     public function getId(): ?int
@@ -162,58 +182,6 @@ class Product
     }
 
     /**
-     * @return Collection|Cart[]
-     */
-    public function getCarts(): Collection
-    {
-        return $this->carts;
-    }
-
-    public function addCart(Cart $cart): self
-    {
-        if (!$this->carts->contains($cart)) {
-            $this->carts[] = $cart;
-        }
-
-        return $this;
-    }
-
-    public function removeCart(Cart $cart): self
-    {
-        if ($this->carts->contains($cart)) {
-            $this->carts->removeElement($cart);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|Category[]
-     */
-   /* public function getCategories(): Collection
-    {
-        return $this->categories;
-    }
-
-    public function addCategory(Category $category): self
-    {
-        if (!$this->categories->contains($category)) {
-            $this->categories[] = $category;
-        }
-
-        return $this;
-    }
-
-    public function removeCategory(Category $category): self
-    {
-        if ($this->categories->contains($category)) {
-            $this->categories->removeElement($category);
-        }
-
-        return $this;
-    }
-
-    /**
      * @return Collection|Tag[]
      */
     public function getTags(): Collection
@@ -276,30 +244,93 @@ class Product
         return $this;
     }
 
-    /**
-     * @return Collection|WhishLists[]
-     */
-    public function getWhishLists(): Collection
+    public function getAddedAt(): ?\DateTimeInterface
     {
-        return $this->whishLists;
+        return $this->addedAt;
     }
 
-    public function addWhishList(WhishLists $whishList): self
+    public function setAddedAt(\DateTimeInterface $addedAt): self
     {
-        if (!$this->whishLists->contains($whishList)) {
-            $this->whishLists[] = $whishList;
-            $whishList->addProduct($this);
+        $this->addedAt = $addedAt;
+
+        return $this;
+    }
+
+    public function getModifiedAt(): ?\DateTimeInterface
+    {
+        return $this->modifiedAt;
+    }
+
+    public function setModifiedAt(?\DateTimeInterface $modifiedAt): self
+    {
+        $this->modifiedAt = $modifiedAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Star[]
+     */
+    public function getStars(): Collection
+    {
+        return $this->stars;
+    }
+
+    public function addStar(Star $star): self
+    {
+        if (!$this->stars->contains($star)) {
+            $this->stars[] = $star;
+            $star->setProduct($this);
         }
 
         return $this;
     }
 
-    public function removeWhishList(WhishLists $whishList): self
+    public function removeStar(Star $star): self
     {
-        if ($this->whishLists->contains($whishList)) {
-            $this->whishLists->removeElement($whishList);
-            $whishList->removeProduct($this);
+        if ($this->stars->contains($star)) {
+            $this->stars->removeElement($star);
+            // set the owning side to null (unless already changed)
+            if ($star->getProduct() === $this) {
+                $star->setProduct(null);
+            }
         }
+
+        return $this;
+    }
+
+    public function getCart(): ?Cart
+    {
+        return $this->cart;
+    }
+
+    public function setCart(?Cart $cart): self
+    {
+        $this->cart = $cart;
+
+        return $this;
+    }
+
+    public function getWhishlist(): ?WhishLists
+    {
+        return $this->whishlist;
+    }
+
+    public function setWhishlist(?WhishLists $whishlist): self
+    {
+        $this->whishlist = $whishlist;
+
+        return $this;
+    }
+
+    public function getProductCart(): ?ProductCart
+    {
+        return $this->productCart;
+    }
+
+    public function setProductCart(?ProductCart $productCart): self
+    {
+        $this->productCart = $productCart;
 
         return $this;
     }

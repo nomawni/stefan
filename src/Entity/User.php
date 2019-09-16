@@ -64,11 +64,40 @@ class User implements UserInterface, \Serializable
      */
     private $whishLists;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Cart", mappedBy="client")
+     */
+    private $cart;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $dateRegistration;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $dateModified;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Star", mappedBy="client", orphanRemoval=true)
+     */
+    private $stars;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Product", mappedBy="client", orphanRemoval=true)
+     */
+    private $products;
+
     public function __construct()
     {
+        $this->dateRegistration = new \DateTimeImmutable();
         $this->addresses = new ArrayCollection();
         $this->shops = new ArrayCollection();
         $this->whishLists = new ArrayCollection();
+        $this->cart = new ArrayCollection();
+        $this->stars = new ArrayCollection();
+        $this->products = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -268,6 +297,123 @@ class User implements UserInterface, \Serializable
             // set the owning side to null (unless already changed)
             if ($whishList->getCustomer() === $this) {
                 $whishList->setCustomer(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Cart[]
+     */
+    public function getCart(): Collection
+    {
+        return $this->cart;
+    }
+
+    public function addCart(Cart $cart): self
+    {
+        if (!$this->cart->contains($cart)) {
+            $this->cart[] = $cart;
+            $cart->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCart(Cart $cart): self
+    {
+        if ($this->cart->contains($cart)) {
+            $this->cart->removeElement($cart);
+            // set the owning side to null (unless already changed)
+            if ($cart->getUser() === $this) {
+                $cart->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getDateRegistration(): ?\DateTimeInterface
+    {
+        return $this->dateRegistration;
+    }
+
+    public function setDateRegistration(?\DateTimeInterface $dateRegistration): self
+    {
+        $this->dateRegistration = $dateRegistration;
+
+        return $this;
+    }
+
+    public function getDateModified(): ?\DateTimeInterface
+    {
+        return $this->dateModified;
+    }
+
+    public function setDateModified(?\DateTimeInterface $dateModified): self
+    {
+        $this->dateModified = $dateModified;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Star[]
+     */
+    public function getStars(): Collection
+    {
+        return $this->stars;
+    }
+
+    public function addStar(Star $star): self
+    {
+        if (!$this->stars->contains($star)) {
+            $this->stars[] = $star;
+            $star->setClient($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStar(Star $star): self
+    {
+        if ($this->stars->contains($star)) {
+            $this->stars->removeElement($star);
+            // set the owning side to null (unless already changed)
+            if ($star->getClient() === $this) {
+                $star->setClient(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Product[]
+     */
+    public function getProducts(): Collection
+    {
+        return $this->products;
+    }
+
+    public function addProduct(Product $product): self
+    {
+        if (!$this->products->contains($product)) {
+            $this->products[] = $product;
+            $product->setClient($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProduct(Product $product): self
+    {
+        if ($this->products->contains($product)) {
+            $this->products->removeElement($product);
+            // set the owning side to null (unless already changed)
+            if ($product->getClient() === $this) {
+                $product->setClient(null);
             }
         }
 

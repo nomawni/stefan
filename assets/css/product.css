@@ -1,0 +1,12 @@
+.cart-selected {
+    color: blue;
+}
+
+.cart-removed {
+   
+}
+
+#productItemImg {
+    width: 400px;
+    height: 300px;
+}

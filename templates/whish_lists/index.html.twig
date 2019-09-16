@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}WhishLists index{% endblock %}
+
+{% block body %}
+    <h1>WhishLists index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>DateAdded</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for whish_list in whish_lists %}
+            <tr>
+                <td>{{ whish_list.id }}</td>
+                <td>{{ whish_list.dateAdded ? whish_list.dateAdded|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a href="{{ path('whish_lists_show', {'id': whish_list.id}) }}">show</a>
+                    <a href="{{ path('whish_lists_edit', {'id': whish_list.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="3">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('whish_lists_new') }}">Create new</a>
+{% endblock %}

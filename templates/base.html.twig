@@ -10,7 +10,14 @@
         
         {% endblock %}
         <script>
+             window.cartAll = "{{path('cart_show_all')}}";
+             window.whishlistAll = "{{path('whishlists_show_all')}}";
              window.cardNew = "{{path('cart_new')}}";
+             window.wishlistNew = "{{path('whish_lists_new')}}";
+             window.starNew = "{{path('star_new')}}";
+             window.searchItem = "{{path('search_item')}}";
+            
+             
         </script>
         <script src="https://kit.fontawesome.com/a076d05399.js"></script>
           <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>

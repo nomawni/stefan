@@ -61,7 +61,7 @@ class Avatar
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $FinalPath;
+    private $finalPath;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -157,12 +157,12 @@ class Avatar
 
     public function getFinalPath(): ?string
     {
-        return $this->FinalPath;
+        return $this->finalPath;
     }
 
-    public function setFinalPath(string $FinalPath): self
+    public function setFinalPath(string $finalPath): self
     {
-        $this->FinalPath = $FinalPath;
+        $this->finalPath = $finalPath;
 
         return $this;
     }

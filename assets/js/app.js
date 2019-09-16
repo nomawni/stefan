@@ -11,10 +11,17 @@ import react from 'react';
 import ReactDom from 'react-dom';
 //require('react-dom');
 require('../css/app.css');
+require('../css/product.css');
 
 require('../../react-src/cart.js');
 
 require('./add_cart.js');
+require('./whish_list.js');
+require('./product_item.js');
+require('./list_cart.js');
+require('./user_whish_lists.js');
+require('./search.js');
+require('./star_product.js');
 
 // Need jQuery? Install it with "yarn add jquery", then uncomment to require it.
 // const $ = require('jquery');
