@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Cart;
 use App\Entity\Product;
 use App\Entity\Star;
 use App\Form\StarType;
@@ -36,12 +37,42 @@ class StarController extends AbstractController
 
         $content = $request->getContent();
 
+        $entityManager = $this->getDoctrine()->getManager();
+
+       // $repository = $this->getDoctrine()->getManager();
+
         $data = json_decode($content);
 
-        $starValue = intval($data->star);
-        $productId = $data->productId;
+        $type = null;
 
-        $prodRep = $this->getDoctrine()->getManager()->getRepository(Product::class);
+        $starContent = null;
+
+        $starValue = intval($data->star);
+        $productId = intval($data->productId);
+
+        $starId = intval($data->starId);
+
+       // var_dump($starId);
+
+        if($starId) {
+          
+            $starElem = $entityManager->getRepository(Star::class)->find($starId);
+
+            if($starElem) {
+
+                $starElem->setValue($starValue);
+
+                $entityManager->flush();
+
+                $starContent = $starElem;
+
+                $type = "Updated";
+
+            }
+
+        }else {
+
+        $prodRep = $entityManager->getRepository(Product::class);
 
         $star->setClient($this->getUser());
 
@@ -55,13 +86,24 @@ class StarController extends AbstractController
       //  $form->handleRequest($request);
 
        // if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($star);
-            $entityManager->flush();
+            $entityManager->flush(); 
 
-            $all = $this->getDoctrine()->getManager()->findAll();
+            $starContent = $star;
 
-            $response = new Response($all);
+            $type = "Added";
+
+           }
+
+           // $all = $this->getDoctrine()->getManager()->findAll();
+
+           // $allStars = json_encode($all);
+
+           $responseContainer = array("response" => $starContent, "type" => $type);
+
+           $responseContainer = json_encode($responseContainer);
+
+            $response = new Response($responseContainer);
 
             $response->headers->set("Content-Type", "application/json");
 

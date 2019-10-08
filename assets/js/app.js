@@ -22,6 +22,16 @@ require('./list_cart.js');
 require('./user_whish_lists.js');
 require('./search.js');
 require('./star_product.js');
+require('./product_new.js');
+
+require('./delete_product.js');
+require('./edit_product.js');
+require('./share_product.js');
+
+
+require("./add_comment.js");
+
+require("./remove_product_from_cart.js");
 
 // Need jQuery? Install it with "yarn add jquery", then uncomment to require it.
 // const $ = require('jquery');

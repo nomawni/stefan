@@ -53,7 +53,6 @@ class Shop
     public function __construct()
     {
         $this->products = new ArrayCollection();
-        $this->product = new ArrayCollection();
     }
 
     public function getId(): ?int

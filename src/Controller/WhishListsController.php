@@ -10,9 +10,14 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Serializer\Normalizer\JsonSerializableNormalizer;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 /**
- * @Route("/whish/lists")
+ * @Route("/whishlists")
  */
 class WhishListsController extends AbstractController
 {
@@ -31,35 +36,79 @@ class WhishListsController extends AbstractController
      */
     public function new(Request $request): Response
     {
+
+        $type = null;
+
+        $responseId = null;
         
         $data = $request->getContent();
 
-        var_dump($data);
+        //var_dump($data);
 
-        $requestId = json_decode($data);
+        $data = json_decode($data);
 
-        $Id = $requestId->Id;
+        $Id = $data->Id;
+
+        $WhishlistId = $data->WhishlistId;
+
+        $entityManager = $this->getDoctrine()->getManager();
 
         //var_dump($data);
 
-        $product = $this->get("serializer")->deserialize($data, Product::class, 'json');
+       // $product = $this->get("serializer")->deserialize($data, Product::class, 'json');
 
-        $prodRep = $this->getDoctrine()->getManager()->getRepository(Product::class);
+        $prodRep = $entityManager->getRepository(Product::class);
 
-        $whishList = new WhishLists();
+        $whishListRep = $entityManager->getRepository(WhishLists::class);
+
+        $product = $prodRep->find($Id);
+
+        if($WhishlistId) {
+
+            $whishListElem = $whishListRep->find($WhishlistId);
+
+            if($whishListElem) {
+
+                $whishListElem->removeProduct($product);
+
+                $entityManager->remove($whishListElem);
+
+                $entityManager->flush();
+
+                $type = "removed";
+                 }
+            }
+            else {
+
+                $whishList = new WhishLists();
+
+                $whishList->setCustomer($this->getUser());
+
+                $whishList->addProduct($product);
+
+                $entityManager->persist($whishList);
+
+                $entityManager->flush();
+
+                $type = "added";
+
+                $responseId = $whishList->getId();
+
+        }
+
+      /*  $whishList = new WhishLists();
 
         $whishList->setCustomer($this->getUser());
         $whishList->setDateAdded(new \DateTimeImmutable());
         $whishList->addProduct($prodRep->find($Id));
 
-            $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($whishList);
-            $entityManager->flush();
+            $entityManager->flush(); */
 
-         $nWhishlist = $this->getDoctrine()->getManager()->getRepository(WhishLists::class)
+         $nWhishlist = $entityManager->getRepository(WhishLists::class)
                             ->countUserWishlist($this->getUser());
          
-            $encoded = json_encode(array("numberWhishlists" => $nWhishlist));
+            $encoded = json_encode(array("numberWhishlists" => $nWhishlist, "Id" => $responseId, "type" => $type));
 
             $response = new Response($encoded);
 
@@ -77,11 +126,32 @@ class WhishListsController extends AbstractController
 
         $whishListsRepository = $this->getDoctrine()->getManager()->getRepository(WhishLists::class);
 
-        $allWhishlists = $whishListsRepository->allWhishlists($this->getUser());
+       // $allWhishlists = $whishListsRepository->allWhishlists($this->getUser());
 
-        $data = json_encode($allWhishlists);
+        $allWhishlists = $whishListsRepository->findBy(array('customer' => $this->getUser()));
+
+       //$allWhishlists = $whishListsRepository->findBy(array("client",$this->getUser()));
+
+        //$data = json_encode($allWhishlists);
+
+        //$data = $this->get("serializer")->serialize($allWhishlists, "json");
+
+        $encoder = new JsonEncoder();
+
+       $normalizer = new ObjectNormalizer();
+
+       $serializer = new Serializer([$normalizer], [$encoder]);
+
+       $data = $serializer->serialize($allWhishlists, 'json', [
+           AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER => function($object) {
+
+            return $object->getId();
+           }
+       ]); 
 
         $response = new Response($data);
+
+        $response->headers->set("Content-Type", "application/json");
 
         return $response;
 
@@ -118,16 +188,34 @@ class WhishListsController extends AbstractController
     }
 
     /**
-     * @Route("/{id}", name="whish_lists_delete", methods={"DELETE"})
+     * @Route("/remove/{id}", name="whish_lists_delete", methods={"DELETE", "POST"})
      */
     public function delete(Request $request, WhishLists $whishList): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$whishList->getId(), $request->request->get('_token'))) {
-            $entityManager = $this->getDoctrine()->getManager();
+
+        $entityManager = $this->getDoctrine()->getManager();
+            $type = "error";
+       // if ($this->isCsrfTokenValid('delete'.$whishList->getId(), $request->request->get('_token'))) {
+           
+            if($whishList->getCustomer() == $this->getUser()) {
+            
             $entityManager->remove($whishList);
             $entityManager->flush();
-        }
+            $type = "removed";
+            }
+         $numberWhishList = $entityManager->getRepository(WhishLists::class)->countUserWishlist($this->getUser());
 
-        return $this->redirectToRoute('whish_lists_index');
+         $data = array("numberWhishList" => $numberWhishList ,"type" => $type);
+
+         $data = json_encode($data);
+
+         $response = new Response($data);
+
+         $response->headers->set("Content-Type", "application/json");
+
+         return $response;
+      //  }
+
+       // return $this->redirectToRoute('whish_lists_index');
     }
 }

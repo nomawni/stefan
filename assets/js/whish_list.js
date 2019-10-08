@@ -8,18 +8,23 @@ listAddCart.forEach(function(item, pos) {
 
     // let productItem = document.querySelectorAll('.productItem')[pos];
 
+    let whishlistId = item.dataset.whishlistId ? item.dataset.whishlistId : null;
+
     let productItem = item.closest(".card");
 
      let productId = productItem.dataset.productId;
 
      productId = parseInt(productId);
 
+     whishlistId = parseInt(whishlistId);
+
      console.log(productId);
 
      let responseData;
         
        let data = {
-           Id: productId
+           Id: productId,
+           WhishlistId: whishlistId
        }
 
        let response = fetch(url, {
@@ -47,7 +52,20 @@ listAddCart.forEach(function(item, pos) {
 
             productCart.innerHTML = data["numberWhishlists"];
 
-            item.style.color = "green";
+            if(data["type"] == "added") {
+                item.style.color = "green";
+                item.dataset.whishlistId = data["Id"] ? data["Id"] : null;
+
+            }else if (data["type"] == "removed") {
+                item.style.color = "black";
+                item.dataset.whishlistId = null;
+
+
+            }else {
+                return;
+            }
+
+            
         });
 
 });

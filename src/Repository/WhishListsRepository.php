@@ -33,14 +33,26 @@ class WhishListsRepository extends ServiceEntityRepository
         $db = $this->createQueryBuilder('w')
                    ->join('w.products', 'p')
                    ->addSelect('p')
+                   ->join('p.productImage', 'prodImage')
+                   ->addSelect('prodImage')
+                   ->join('p.category', 'cat')
+                   ->addSelect('cat')
+                   ->join('p.shop', 's')
+                   ->addSelect('s')
                    ->join('w.customer', 'c')
                    ->addSelect('c')
-                   ->select('w.dateAdded')
+                   ->join("c.avatar", "a")
+                   ->addSelect("a")
+                   ->select('w.dateAdded, p.name as prodName, 
+                   cat.name as catName, s.name as shopName,
+                   p.price as prodPrice, p.quantity as prodQ,
+                   p.size as prodSize, p.description as prodDesc,
+                   a.finalPath, prodImage.finalPath as prodFinalPath')
                    ->where('w.customer = :user')
-                   ->orderBy('w.dateAdded', 'DESC')
+                   ->orderBy('w.dateAdded', 'ASC')
                    ->setParameter('user', $user);
 
-            return $db->getQuery()->getResult();
+            return $db->getQuery()->execute();
     }
 
     // /**

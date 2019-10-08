@@ -48,6 +48,9 @@ class ProductController extends AbstractController
      */
     public function new(Request $request): Response
     {
+        $data = $request->getContent();
+
+        var_dump($data);
         $product = new Product();
         $form = $this->createForm(Product1Type::class, $product);
         $form->handleRequest($request);
@@ -72,19 +75,20 @@ class ProductController extends AbstractController
     public function show(Product $product): Response
     { 
         $rep = $this->getDoctrine()->getManager()->getRepository(Product::class);
+
        // $product = new Product();
         
        // $id = $request->get("id");
 
        // $id = intval($id);
 
-       // $prod = $rep->find($id);
+       // $product = $rep->find($id);
         
        // var_dump($prod);
 
        //var_dump($product);
         
-       /* $encoders = new JsonEncoder();
+        $encoders = new JsonEncoder();
 
         $normalizer = new ObjectNormalizer();
 
@@ -94,17 +98,17 @@ class ProductController extends AbstractController
             AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER => function($object){
                 return $object->getId();
             }
-        ]);  */
+        ]);  
 
        // $data = $this->get("serializer")->serialize($product, 'json');
 
-       $serializer = SerializerBuilder::create()->build();
+       //$serializer = SerializerBuilder::create()->build();
 
-      // $data = $this->container->get("jms_serializer")->serialize($product, 'json', SerializationContext::create());
+       //$data = $this->container->get("jms_serializer")->serialize($product, 'json', SerializationContext::create());
 
-      $data = $serializer->serialize($product, 'json');
+      //$data = $serializer->serialize($product, 'json');
        //$data = $this->jMSSerializer->serialize($product, 'json');
-      // var_dump($data);
+       //var_dump($data);
 
        // $data = json_encode($prod);
 
@@ -137,16 +141,33 @@ class ProductController extends AbstractController
     }
 
     /**
-     * @Route("/{id}", name="product_delete", methods={"DELETE"})
+     * @Route("/delete/{id}", name="product_delete", methods={"DELETE", "POST"})
      */
     public function delete(Request $request, Product $product): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$product->getId(), $request->request->get('_token'))) {
+        //if ($this->isCsrfTokenValid('delete'.$product->getId(), $request->request->get('_token'))) {
             $entityManager = $this->getDoctrine()->getManager();
+            $action = "error";
+
+            if($product->getClient() == $this->getUser()) {
+
             $entityManager->remove($product);
             $entityManager->flush();
-        }
 
-        return $this->redirectToRoute('product_index');
+            $action ="deleted";
+            }
+
+            $data = array("action" => $action);
+
+            $data = json_encode($data);
+
+            $response = new Response($data);
+
+            $response->headers->set("Content-Type", "application/json");
+
+            return $response;
+       // }
+
+       // return $this->redirectToRoute('product_index');
     }
 }

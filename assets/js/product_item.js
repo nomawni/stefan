@@ -38,13 +38,35 @@ listProducts.forEach((product, pos) => {
 
         let productItemModal = document.querySelector('#productItemModal');
 
+        productItemModal.dataset.productId = productId;
+
         let productItemModalTitle = productItemModal.querySelector('#productItemModalTitle');
+
+        let productActions = productItemModal.querySelector(".product-actions");
+
+        let authorActions = productActions.querySelector(".author-actions");
+
+        if(card.dataset.author) {
+
+           authorActions.style = "display:inline";
+
+           // let deleteButton = document.createElement("button");
+
+           // deleteButton.classList.add("btn", "btn-warning");
+
+           // deleteButton.innerHTML = "Delete";
+
+            //productActions.appendChild(deleteButton);
+        }else {
+
+            authorActions.style = "display:none";
+        }
 
         productItemModalTitle.innerHTML = data.name;
  
         let productImg = productItemModal.querySelector("#productItemImg");
 
-        productImg.src = data.product_image.final_path;
+        productImg.src = data.productImage.finalPath;
 
         let productDetail = productItemModal.querySelector("#productDetail");
 
@@ -71,6 +93,41 @@ listProducts.forEach((product, pos) => {
         let itemQuantity = productItemModal.querySelector(".item-quantity");
 
         itemQuantity.innerHTML = data.quantity;
+
+        let listComments = productItemModal.querySelector("#listComments");
+
+        listComments.innerHTML = "";
+
+        let allComments = data.comments;
+
+        console.log(allComments);
+
+        for(let i = 0; i < allComments.length; i++) {
+
+            let comment = allComments[i];
+
+            let img = document.createElement("img");
+
+            img.src = comment.author.avatar.finalPath;
+
+            img.alt = comment.author.avatar.originalName;
+
+            img.style = "width:50px;height:50px;";
+
+            listComments.appendChild(img);
+
+            let p = document.createElement("p");
+
+            p.innerHTML = allComments[i].content;
+
+            listComments.appendChild(p);
+
+            let span = document.createElement("span");
+
+            span.innerHTML = new Date(comment.publishedAt);
+
+            listComments.appendChild(span);
+        }
 
         //productDetail.querySelector("#priceItem").innerHTML = data.price;
 

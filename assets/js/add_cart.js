@@ -48,7 +48,7 @@ listAddCart.forEach(function(item, pos) {
         })
         .then(response => response.json())
         .then(data => {
-           // console.log(JSON.stringify(data));
+            console.log(JSON.stringify(data));
             return data;
         })
         .catch(error => console.error(error));
@@ -57,17 +57,26 @@ listAddCart.forEach(function(item, pos) {
 
         response.then(data => {
 
+            console.log("Cart Data");
             console.log(data);
             let productCart = document.querySelector(".nCart");
             productCart.innerHTML = data["numberCart"];  
             
-            if(data["type"] == "added")
+            if(data["type"] == "added") {
+
+                item.dataset.cartId = data["Id"] ? data["Id"] : null;
                 item.style.color = "blue";
-            else 
+
+            }else if(data["type"] == "removed") {
+
+                item.dataset.cartId = null;
                 item.style.color = "black";
+
+            }else {
+                  return;
+            }
         });         
 
 });
    
-
 });

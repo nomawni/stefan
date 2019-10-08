@@ -23,3 +23,7 @@ body {
 .avatarInput + label:hover {
     background-color: red;
 }
+
+.cursor-pointer {
+    cursor: pointer;
+}

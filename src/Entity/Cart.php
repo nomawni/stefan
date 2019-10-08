@@ -35,20 +35,14 @@ class Cart
     private $client;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Product", mappedBy="cart")
+     * @ORM\ManyToMany(targetEntity="App\Entity\Product", mappedBy="carts")
      */
     private $products;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\ProductCart", inversedBy="cart")
-     */
-    private $productCart;
 
 
     public function __construct()
     {
         $this->products = new ArrayCollection();
-        $this->productCarts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -104,7 +98,7 @@ class Cart
     {
         if (!$this->products->contains($product)) {
             $this->products[] = $product;
-            $product->setCart($this);
+            $product->addCart($this);
         }
 
         return $this;
@@ -114,23 +108,8 @@ class Cart
     {
         if ($this->products->contains($product)) {
             $this->products->removeElement($product);
-            // set the owning side to null (unless already changed)
-            if ($product->getCart() === $this) {
-                $product->setCart(null);
-            }
+            $product->removeCart($this);
         }
-
-        return $this;
-    }
-
-    public function getProductCart(): ?ProductCart
-    {
-        return $this->productCart;
-    }
-
-    public function setProductCart(?ProductCart $productCart): self
-    {
-        $this->productCart = $productCart;
 
         return $this;
     }

@@ -30,6 +30,8 @@ services:
     App\EventListener\ProductImageListener:
         tags:
             - { name: doctrine.event_listener, event: prePersist }
+            - { name: doctrine.event_listener, event: preRemove }
+            - { name: kernel.event_listener, event: vich_uploader.post_remove, method: onPostRemove}
 
 
     # add more service definitions when explicit configuration is needed
@@ -40,3 +42,13 @@ services:
     directory_namer.product_namer:
         class: App\Service\Namer\DirectoryNamer\ProductNamer
         public: true
+
+    #twig.extension:
+        # register the class name
+        #class: App\Extensions\FindCartWithClient
+        # inject doctrine as first parameter
+        #arguments:
+            #doctrine: '@doctrine'
+        #tags: 
+          #- { name: twig.extension }
+        

@@ -51,8 +51,8 @@ class Product
     private $tags;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\ProductImage", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\OneToOne(targetEntity="App\Entity\ProductImage", cascade={"persist"})
+     * @ORM\JoinColumn(nullable=true)
      */
     private $productImage;
 
@@ -63,7 +63,7 @@ class Product
     private $category;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Shop", inversedBy="product")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Shop", inversedBy="products")
      */
     private $shop;
 
@@ -83,29 +83,34 @@ class Product
     private $stars;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Cart", inversedBy="products")
+     * @ORM\ManyToMany(targetEntity="App\Entity\Cart", inversedBy="products")
      */
-    private $cart;
+    private $carts;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\WhishLists", inversedBy="products")
+     * @ORM\ManyToMany(targetEntity="App\Entity\WhishLists", inversedBy="products")
      */
-    private $whishlist;
+    private $whishlists;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\ProductCart", inversedBy="product")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="products")
+     * @ORM\JoinColumn(nullable=false)
      */
-    private $productCart;
+    private $client;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="product", orphanRemoval=true)
+     */
+    private $comments;
 
     public function __construct()
     {
         $this->addedAt = new \DateTimeImmutable();
-       // $this->carts = new ArrayCollection();
         $this->categories = new ArrayCollection();
         $this->tags = new ArrayCollection();
-       // $this->whishLists = new ArrayCollection();
         $this->stars = new ArrayCollection();
-       $this->productCarts = new ArrayCollection();
+       $this->whishlists = new ArrayCollection();
+       $this->comments = new ArrayCollection();
     }
 
     public function __toString()
@@ -299,38 +304,97 @@ class Product
         return $this;
     }
 
-    public function getCart(): ?Cart
+    /**
+     * @return Collection|Cart[]
+     */
+    public function getCarts(): Collection
     {
-        return $this->cart;
+        return $this->carts;
     }
 
-    public function setCart(?Cart $cart): self
+    public function addCart(Cart $cart): self
     {
-        $this->cart = $cart;
+        if (!$this->carts->contains($cart)) {
+            $this->carts[] = $cart;
+        }
 
         return $this;
     }
 
-    public function getWhishlist(): ?WhishLists
+    public function removeCart(Cart $cart): self
     {
-        return $this->whishlist;
-    }
-
-    public function setWhishlist(?WhishLists $whishlist): self
-    {
-        $this->whishlist = $whishlist;
+        if ($this->carts->contains($cart)) {
+            $this->carts->removeElement($cart);
+        }
 
         return $this;
     }
 
-    public function getProductCart(): ?ProductCart
+    /**
+     * @return Collection|WhishLists[]
+     */
+    public function getWhishlists(): Collection
     {
-        return $this->productCart;
+        return $this->whishlists;
     }
 
-    public function setProductCart(?ProductCart $productCart): self
+    public function addWhishlist(WhishLists $whishlist): self
     {
-        $this->productCart = $productCart;
+        if (!$this->whishlists->contains($whishlist)) {
+            $this->whishlists[] = $whishlist;
+        }
+
+        return $this;
+    }
+
+    public function removeWhishlist(WhishLists $whishlist): self
+    {
+        if ($this->whishlists->contains($whishlist)) {
+            $this->whishlists->removeElement($whishlist);
+        }
+
+        return $this;
+    }
+
+    public function getClient(): ?User
+    {
+        return $this->client;
+    }
+
+    public function setClient(?User $client): self
+    {
+        $this->client = $client;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Comment[]
+     */
+    public function getComments(): Collection
+    {
+        return $this->comments;
+    }
+
+    public function addComment(Comment $comment): self
+    {
+        if (!$this->comments->contains($comment)) {
+            $this->comments[] = $comment;
+            $comment->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeComment(Comment $comment): self
+    {
+        if ($this->comments->contains($comment)) {
+            $this->comments->removeElement($comment);
+            // set the owning side to null (unless already changed)
+            if ($comment->getProduct() === $this) {
+                $comment->setProduct(null);
+            }
+        }
 
         return $this;
     }

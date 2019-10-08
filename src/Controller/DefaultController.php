@@ -33,6 +33,11 @@ class DefaultController extends AbstractController {
         ] );
     }
 
+    public function findCartWithClient() {
+
+        
+    }
+
     /**
      * @Route("/search", name="search_item", methods={"POST"})
      */

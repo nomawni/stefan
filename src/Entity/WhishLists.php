@@ -24,24 +24,21 @@ class WhishLists
      */
     private $customer;
 
-    /*
-     * @ORM\ManyToMany(targetEntity="App\Entity\Product", inversedBy="whishLists")
-     */
-    //private $products;
-
     /**
      * @ORM\Column(type="datetime")
      */
     private $dateAdded;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Product", mappedBy="whishlist")
+     * @ORM\ManyToMany(targetEntity="App\Entity\Product", mappedBy="whishlists")
      */
     private $products;
 
     public function __construct()
     {
         $this->products = new ArrayCollection();
+
+        $this->dateAdded = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -61,31 +58,6 @@ class WhishLists
         return $this;
     }
 
-    /*
-     * @return Collection|Product[]
-     */
-   /* public function getProducts(): Collection
-    {
-        return $this->products;
-    }
-
-    public function addProduct(Product $product): self
-    {
-        if (!$this->products->contains($product)) {
-            $this->products[] = $product;
-        }
-
-        return $this;
-    }
-
-    public function removeProduct(Product $product): self
-    {
-        if ($this->products->contains($product)) {
-            $this->products->removeElement($product);
-        }
-
-        return $this;
-    } */
 
     public function getDateAdded(): ?\DateTimeInterface
     {
@@ -111,7 +83,7 @@ class WhishLists
     {
         if (!$this->products->contains($product)) {
             $this->products[] = $product;
-            $product->setWhishlist($this);
+            $product->addWhishlist($this);
         }
 
         return $this;
@@ -121,12 +93,10 @@ class WhishLists
     {
         if ($this->products->contains($product)) {
             $this->products->removeElement($product);
-            // set the owning side to null (unless already changed)
-            if ($product->getWhishlist() === $this) {
-                $product->setWhishlist(null);
-            }
+            $product->removeWhishlist($this);
         }
 
         return $this;
     }
+
 }

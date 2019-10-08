@@ -1,6 +1,7 @@
 
 <!-- Modal -->
 <div class="modal fade" id="productItemModal" tabindex="-1" role="dialog" aria-labelledby="productItemModalTitle" aria-hidden="true">
+  <input type="hidden" name="_token" value="{{ csrf_token('delete') }}">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -36,8 +37,52 @@
       <li class="star-product" data-star="5"><i class="far fa-star"></i></li>
     </ul>
 
+      <div class="product-actions">
+
       <button type="button" class="btn btn-primary"> buy now </button>
       <button type="button" class="btn btn-success"> add to cart </button>
+
+      <div class="author-actions" style="display:none;">
+
+      <button type="button" class="btn btn-danger delete-product"> Delete </button>
+      <input type="hidden" name="_method" value="DELETE">
+      <input type="hidden" name="_token" value="{{ csrf_token('delete') }}">
+
+      <button type="button" class="btn btn-warning edit-product"> Edit </button>
+
+      </div>
+
+      </div>
+
+      <div id="comment-section" style="margin-top:50px;">
+
+      <form id="commentForm">
+
+      <div class="row">
+
+      <div class="col-md-8">
+
+      <textarea id="commentText" class="form-control" rows="3" cols="33" >
+
+      </textarea>
+
+      <div>
+
+      <div class="col-md-2">
+
+      <button type="submit" class="btn btn-primary"> Comment </button>
+
+      </div>
+
+      </div>
+
+      </form>
+
+      </div>
+
+      <div id="listComments">
+
+      </div>
 
       </div>
       <div class="modal-footer">
