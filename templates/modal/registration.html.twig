@@ -1,0 +1,29 @@
+<!-- Modal -->
+<div class="modal fade" id="registrationModal" tabindex="-1" role="dialog" aria-labelledby="registrationModalTitle" aria-hidden="true" width="90%">
+  <div class="modal-dialog modal-lg " role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="registrationModalTitle"> Registration title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="registrationModalBody">    
+      
+       <form name="registration_form" method="post">
+        <div class="form-group"><label for="registration_form_username" class="required">Username</label><input type="text" id="registration_form_username" name="registration_form[username]" required="required" maxlength="150" class="form-control" /></div>
+        <div class="form-group"><label for="registration_form_email" class="required">Email</label><input type="text" id="registration_form_email" name="registration_form[email]" required="required" maxlength="180" class="form-control" /></div>
+        <div class="form-group"><label for="registration_form_plainPassword" class="required">Plain password</label><input type="password" id="registration_form_plainPassword" name="registration_form[plainPassword]" required="required" class="form-control" /></div>
+        <div class="form-group"><div class="form-check">        <input type="checkbox" id="registration_form_agreeTerms" name="registration_form[agreeTerms]" required="required" class="form-check-input" value="1" />
+        <label class="form-check-label required" for="registration_form_agreeTerms">Agree terms</label></div></div>
+
+        <button class="btn" style="display:none;">Register</button>
+    <input type="hidden" id="registration_form__token" name="registration_form[_token]" value="{{csrf_token('registration')}}" /></form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary register">Register</button>
+      </div>
+    </div>
+  </div>
+</div>

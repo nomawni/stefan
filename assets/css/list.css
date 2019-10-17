@@ -1,0 +1,5 @@
+#modalCartBody img, #modalWhishListBody img {
+    
+    width: 100%;
+    max-width: 300px;
+}

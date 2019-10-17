@@ -1,9 +1,14 @@
+import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/public/js/router';
+
+import Routes from '../../public/js/fos_js_routes.json';
 
 let whishlists = document.querySelector("#whishlists");
 
 whishlists.addEventListener('click', function(e) {
+
+    Routing.setRoutingData(Routes);
     
-    let url = window.whishlistAll;
+    let url = Routing.generate("whishlists_show_all"); //window.whishlistAll;
 
     let response = fetch(url, {
         method: "GET",
@@ -37,6 +42,12 @@ whishlists.addEventListener('click', function(e) {
        // elemContainer.dataset.productId = 
 
         products.map(product => {
+            
+            if(!product) {
+                modalWhishListBody.innerHTML = "Your whishList is empty";
+                return;
+            }
+
             let item = product.products[0];
 
             console.log(item.productImage.finalPath);
@@ -165,6 +176,11 @@ whishlists.addEventListener('click', function(e) {
 
         $('#whishlistModal').modal('show');
     })
+
+    $("#whishlistModal").on('hidden.bs.modal', e => {
+
+        modalWhishListBody.innerHTML = "";
+    });
 });
 
 
@@ -172,7 +188,7 @@ function removeProductFromWhishList(elem) {
 
     let product = elem.closest(".product-container");
 
-    let url = "http://localhost:8001/whishlists/remove/";
+     //"http://localhost:8001/whishlists/remove/";
 
     console.log(elem);
 
@@ -193,7 +209,9 @@ function removeProductFromWhishList(elem) {
         productId: productId
     }
 
-    url = url + whishListId;
+    let url = Routing.generate("whish_lists_delete", {id: productId});
+
+    //url = url + whishListId;
 
     let response = fetch(url, {
         method: "POST",

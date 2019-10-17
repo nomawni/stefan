@@ -32,10 +32,20 @@ class WhishListsController extends AbstractController
     }
 
     /**
-     * @Route("/new", name="whish_lists_new", methods={"GET","POST"})
+     * @Route("/new", name="whish_lists_new", methods={"GET","POST"}, options={"expose"=true})
      */
     public function new(Request $request): Response
     {
+        $response = new Response();
+
+        if(!$this->getUser()) {
+
+            $response->setContent("You are not connected");
+            $response->setStatusCode(Response::HTTP_FORBIDDEN);
+
+            return $response;
+
+        }
 
         $type = null;
 
@@ -52,10 +62,6 @@ class WhishListsController extends AbstractController
         $WhishlistId = $data->WhishlistId;
 
         $entityManager = $this->getDoctrine()->getManager();
-
-        //var_dump($data);
-
-       // $product = $this->get("serializer")->deserialize($data, Product::class, 'json');
 
         $prodRep = $entityManager->getRepository(Product::class);
 
@@ -74,6 +80,7 @@ class WhishListsController extends AbstractController
                 $entityManager->remove($whishListElem);
 
                 $entityManager->flush();
+                $response->setStatusCode(Response::HTTP_OK);
 
                 $type = "removed";
                  }
@@ -90,71 +97,60 @@ class WhishListsController extends AbstractController
 
                 $entityManager->flush();
 
+                $response->setStatusCode(Response::HTTP_CREATED);
+
                 $type = "added";
 
                 $responseId = $whishList->getId();
 
         }
 
-      /*  $whishList = new WhishLists();
-
-        $whishList->setCustomer($this->getUser());
-        $whishList->setDateAdded(new \DateTimeImmutable());
-        $whishList->addProduct($prodRep->find($Id));
-
-            $entityManager->persist($whishList);
-            $entityManager->flush(); */
-
          $nWhishlist = $entityManager->getRepository(WhishLists::class)
                             ->countUserWishlist($this->getUser());
          
             $encoded = json_encode(array("numberWhishlists" => $nWhishlist, "Id" => $responseId, "type" => $type));
 
-            $response = new Response($encoded);
+            $response->setContent($encoded);
+            //$response = new Response($encoded);
 
-            $request->headers->set("Content-Type", "application/json");
+            $response->headers->set("Content-Type", "application/json");
 
             return $response;
 
     }
 
     /**
-     * @Route("/all", name="whishlists_show_all", methods={"GET"})
+     * @Route("/all", name="whishlists_show_all", methods={"GET"}, options={"expose"=true})
      */
 
     public function showAll() : Response {
 
+        $response = new Response();
+
+        if(!$this->getUser()){
+
+            $response->setStatusCode(Response::HTTP_FORBIDDEN);
+            $response->setContent("You are not connected");
+            return $response;
+        }
+
         $whishListsRepository = $this->getDoctrine()->getManager()->getRepository(WhishLists::class);
-
-       // $allWhishlists = $whishListsRepository->allWhishlists($this->getUser());
-
         $allWhishlists = $whishListsRepository->findBy(array('customer' => $this->getUser()));
 
-       //$allWhishlists = $whishListsRepository->findBy(array("client",$this->getUser()));
-
-        //$data = json_encode($allWhishlists);
-
-        //$data = $this->get("serializer")->serialize($allWhishlists, "json");
-
         $encoder = new JsonEncoder();
-
        $normalizer = new ObjectNormalizer();
-
        $serializer = new Serializer([$normalizer], [$encoder]);
 
        $data = $serializer->serialize($allWhishlists, 'json', [
            AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER => function($object) {
-
             return $object->getId();
            }
        ]); 
 
-        $response = new Response($data);
-
+        //$response = new Response($data);
+        $response->setContent($data);
         $response->headers->set("Content-Type", "application/json");
-
         return $response;
-
     }
 
     /**
@@ -168,7 +164,7 @@ class WhishListsController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/edit", name="whish_lists_edit", methods={"GET","POST"})
+     * @Route("/{id}/edit", name="whish_lists_edit", methods={"GET","POST"}, options={"expose"=true})
      */
     public function edit(Request $request, WhishLists $whishList): Response
     {
@@ -188,7 +184,7 @@ class WhishListsController extends AbstractController
     }
 
     /**
-     * @Route("/remove/{id}", name="whish_lists_delete", methods={"DELETE", "POST"})
+     * @Route("/remove/{id}", name="whish_lists_delete", methods={"DELETE", "POST"}, options={"expose"=true})
      */
     public function delete(Request $request, WhishLists $whishList): Response
     {

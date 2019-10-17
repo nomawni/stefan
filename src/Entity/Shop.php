@@ -30,7 +30,7 @@ class Shop
     private $owner;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\User", cascade={"persist", "remove"})
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", cascade={"persist", "remove"})
      */
     private $manager;
 

@@ -1,0 +1,38 @@
+<!-- Modal -->
+<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalTitle" aria-hidden="true" width="90%">
+  <div class="modal-dialog modal-lg " role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="loginModal"> Login title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="loginModalBody">    
+      
+       <form method="post">
+    
+    <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+    <div class="form-group">
+    <label for="inputEmail" class="sr-only">Email</label>
+    <input type="email" value="" name="email" id="inputEmail" class="form-control" placeholder="Email" required autofocus>
+    </div>
+    <div class="form-group">
+    <label for="inputPassword" class="sr-only">Password</label>
+    <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required>
+    </div>
+    <input type="hidden" name="_csrf_token"
+           value="{{ csrf_token('authenticate') }}">
+
+    <button class="btn btn-lg btn-primary" type="submit" style="display:none">
+        Sign in
+    </button>
+</form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary sign-in">Sign in</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,10 +1,17 @@
-let url = window.wishlistNew;
+import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/public/js/router';
+
+import Routes from '../../public/js/fos_js_routes.json';
+//let url = window.wishlistNew;
 
 var listAddCart = document.querySelectorAll('.add-whishlist');
 
 listAddCart.forEach(function(item, pos) {
 
     item.addEventListener('click', function(e) {
+
+        Routing.setRoutingData(Routes);
+
+        let url = Routing.generate("whish_lists_new");
 
     // let productItem = document.querySelectorAll('.productItem')[pos];
 
@@ -26,6 +33,8 @@ listAddCart.forEach(function(item, pos) {
            Id: productId,
            WhishlistId: whishlistId
        }
+       
+       let status = null;
 
        let response = fetch(url, {
             method: "POST",
@@ -36,23 +45,54 @@ listAddCart.forEach(function(item, pos) {
             },
             body: JSON.stringify(data),
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log(response);
+            status = response.status;
+            return response.json();
+        })
         .then(data => {
-           // console.log(JSON.stringify(data));
-
+            console.log(JSON.stringify(data));
             return data;
         })
-        .catch(error => console.error(error));
+        .catch(error => {
+            console.error(error)
+            
+        });
     
         console.log(response);
 
         response.then(data => {
+            console.log(data);
+
+            if(status === 403) {
+
+                window.alert("You are not connected");
+
+                return;
+            }
 
             let productCart = document.querySelector(".nwishlist"); // nwishlist
 
-            productCart.innerHTML = data["numberWhishlists"];
+            if(data.numberWhishlists > 0){
+                productCart.innerHTML = data.numberWhishlists; //data["numberWhishlists"];
+            }else {
+                productCart.innerHTML = "";
+            }
 
-            if(data["type"] == "added") {
+            if(status === 201) {
+                item.style.color = "green";
+                item.dataset.whishlistId = data["Id"] ? data["Id"] : null;
+
+            }else if (status === 200) {
+                item.style.color = "black";
+                item.dataset.whishlistId = null;
+
+
+            }else {
+                return;
+            }
+
+           /* if(data["type"] == "added") {
                 item.style.color = "green";
                 item.dataset.whishlistId = data["Id"] ? data["Id"] : null;
 
@@ -63,7 +103,7 @@ listAddCart.forEach(function(item, pos) {
 
             }else {
                 return;
-            }
+            } */
 
             
         });

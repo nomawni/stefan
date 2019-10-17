@@ -1,13 +1,29 @@
+import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/public/js/router';
+ import Routes from '../../public/js/fos_js_routes.json';
+
 let listProducts = document.querySelectorAll(".productItem");
 
-listProducts.forEach((product, pos) => {
+//listProducts.forEach((product, pos) => {
 
-    product.addEventListener('click', e => {
+    //product.addEventListener('click', e => {
+    $(document).on('click', '.productItem', function(e) {
 
-        let url = "http://localhost:8001/product/show/";
+        Routing.setRoutingData(Routes);
+
+        let product = e.target;
+         //"http://localhost:8001/product/show/";
        //   let url =  window.productShow;
 
         let card = product.closest('.card');
+        //let card = product.closest('.card');
+
+        let cartElem = card.closest(".add-cart");
+
+        console.log(product);
+
+        console.log(card);
+
+        //console.log(cartId);
 
         let productId = card.dataset.productId;
 
@@ -15,7 +31,9 @@ listProducts.forEach((product, pos) => {
             Id: productId
         }
 
-        url = url + productId;
+        let url = Routing.generate("product_show", {id: productId});
+
+        //url = url + productId;
 
         let response = fetch(url, {
             method: "GET",
@@ -36,37 +54,38 @@ listProducts.forEach((product, pos) => {
 
       response.then(data => {
 
+         console.log(document.cookie);
+
         let productItemModal = document.querySelector('#productItemModal');
 
         productItemModal.dataset.productId = productId;
+
+        let addCart = productItemModal.querySelector(".add-cart");
+
+        //addCart.dataset.productId = productId;
 
         let productItemModalTitle = productItemModal.querySelector('#productItemModalTitle');
 
         let productActions = productItemModal.querySelector(".product-actions");
 
-        let authorActions = productActions.querySelector(".author-actions");
+        let authorActions = productActions ? productActions.querySelector(".author-actions"): null;
 
         if(card.dataset.author) {
+           if(authorActions)
+               authorActions.style =  "display:inline";
 
-           authorActions.style = "display:inline";
-
-           // let deleteButton = document.createElement("button");
-
-           // deleteButton.classList.add("btn", "btn-warning");
-
-           // deleteButton.innerHTML = "Delete";
-
-            //productActions.appendChild(deleteButton);
         }else {
-
+            
+            if(authorActions) {
             authorActions.style = "display:none";
+            }
         }
 
         productItemModalTitle.innerHTML = data.name;
  
         let productImg = productItemModal.querySelector("#productItemImg");
 
-        productImg.src = data.productImage.finalPath;
+        productImg.src = data.productImage ? data.productImage.finalPath : "";
 
         let productDetail = productItemModal.querySelector("#productDetail");
 
@@ -108,9 +127,9 @@ listProducts.forEach((product, pos) => {
 
             let img = document.createElement("img");
 
-            img.src = comment.author.avatar.finalPath;
+            img.src = comment.author.avatar ? comment.author.avatar.finalPath : "";
 
-            img.alt = comment.author.avatar.originalName;
+            img.alt = comment.author.avatar ? comment.author.avatar.originalName : "";
 
             img.style = "width:50px;height:50px;";
 
@@ -138,4 +157,4 @@ listProducts.forEach((product, pos) => {
       });
 
     });
-})
+//})

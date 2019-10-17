@@ -49,7 +49,7 @@ class ShopAddress
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $phoneNumer;
+    private $phoneNumber;
 
     /**
      * @ORM\OneToOne(targetEntity="App\Entity\Shop", mappedBy="shopAddress", cascade={"persist", "remove"})
@@ -133,14 +133,14 @@ class ShopAddress
         return $this;
     }
 
-    public function getPhoneNumer(): ?string
+    public function getPhoneNumber(): ?string
     {
-        return $this->phoneNumer;
+        return $this->phoneNumber;
     }
 
-    public function setPhoneNumer(?string $phoneNumer): self
+    public function setPhoneNumber(?string $phoneNumber): self
     {
-        $this->phoneNumer = $phoneNumer;
+        $this->phoneNumber = $phoneNumber;
 
         return $this;
     }

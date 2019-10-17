@@ -1,15 +1,31 @@
+import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/public/js/router';
 
-let starProduct = document.querySelectorAll('.star-product');
+import Routes from '../../public/js/fos_js_routes.json';
 
-let url = window.starNew;
+//let starProduct = document.querySelectorAll('.star-product');
 
-starProduct.forEach(function(item, pros) {
+//let url = star_new // window.starNew;
 
-    item.addEventListener('click', function(e) {
+//starProduct.forEach(function(item, pros) {
+
+    //item.addEventListener('click', function(e) {
+    $(document).on("click", '.star-product', function(e) {
+
+        let itemFasStar = e.target;
+
+        let item = itemFasStar.closest(".star-product");
+
+        console.log(item);
+
+        Routing.setRoutingData(Routes);
+
+        let url = Routing.generate("star_new");
         
         let starValue = item.dataset.star ? item.dataset.star : null;
 
         let productItem = item.closest(".product-container");
+
+        let listStars = productItem.querySelectorAll('.fa-star');
 
         let productId = productItem.dataset.productId ? productItem.dataset.productId : null;
 
@@ -21,6 +37,8 @@ starProduct.forEach(function(item, pros) {
             starId: starId
         }
 
+        let status = null;
+
         let response = fetch(url, {
             method: "POST",
             cache: "no-cache",
@@ -30,19 +48,59 @@ starProduct.forEach(function(item, pros) {
             },
             body: JSON.stringify(data)
         })
-          then(response => response.json())
+          .then(response => {
+            status = response.status;
+            return response.json()
+          })
          .then((data) => {
 
             return data;
              
          }).catch((err) => {
+
+             if(error.response.status === 403){
+                 alert("You are not connected")
+             }else {
+                 alert("An error occured");
+             }
              console.error(err);
              
          });
 
          response.then(data => {
 
-         });
+            let starValue = data.value;
+
+            console.log(listStars);
+
+            if(status === 403) {
+                alert("You are not connected");
+                return;
+            }else if(status === 201 || status === 200) {
+
+            
+
+            listStars.forEach(function(star, pos) {
+                console.log(star);
+                console.log(pos);
+                pos = pos +1;
+
+                if(starValue  >= pos) {
+                  star.classList.replace("far", "fas");
+                }else {
+                    star.classList.replace("fas", "far");
+                }
+            });
+        }else {
+            alert("An error occured ");
+            return;
+        }
+                
+            });
+
+         //   }else if(status === 200) {
+
+        
 
         console.log(item);
 
@@ -51,8 +109,8 @@ starProduct.forEach(function(item, pros) {
         console.log(starValue);
 
         console.log(productId);
-    })
-});
+    });
+//});
 
 /*
  * The function to call

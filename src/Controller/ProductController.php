@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Product;
+use App\Entity\ProductImage;
+use App\Entity\Tag;
 use App\Form\Product1Type;
 use App\Repository\ProductRepository;
 use JMS\Serializer\SerializationContext;
@@ -18,6 +20,12 @@ use Symfony\Component\Serializer\Normalizer\JsonSerializableNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use JMS\Serializer\SerializerBuilder;
+use App\Form\DataTransformer\TagArrayToStringTransformer;
+use Exception;
+use Proxies\__CG__\App\Entity\Category;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * @Route("/product")
@@ -43,16 +51,83 @@ class ProductController extends AbstractController
     }
 
     /**
-     * @Route("/new", name="product_new", methods={"GET","POST"})
+     * @Route("/new", name="product_new", methods={"GET","POST"}, options={"expose"=true})
      * @IsGranted("IS_AUTHENTICATED_FULLY")
      */
     public function new(Request $request): Response
     {
-        $data = $request->getContent();
+        $entityManager = $this->getDoctrine()->getManager();
+        //$data = $request->getContent();
 
-        var_dump($data);
+        $content = $request->get("data");
+
         $product = new Product();
-        $form = $this->createForm(Product1Type::class, $product);
+        $tags = new Tag();
+        $product->setClient($this->getUser());
+        $productImage = new ProductImage();
+
+        /*$this->get('serializer')->deserialize($content, Product::class, 'json', 
+                                               ['object_to_populate' => $product]); */
+
+        $content = json_decode($content);
+        $tagsContainer = explode(',',serialize($content->tags));
+        $content->tags = explode(',',serialize($content->tags));
+        unset($content->tags);
+        //var_dump($content);
+       
+        //$productToUpdate = new Product();
+        //$productToUpdate->setClient($this->getUser());
+
+        $content = json_encode($content);
+
+        //$myProduct = $this->get('serializer')->deserialize($content, Product::class, 'json'); 
+        $this->get('serializer')->deserialize($content, Product::class, 'json', 
+                               ['object_to_populate' => $product]); 
+        //$myProduct->setClient($this->getUser());
+        
+        //$content = json_decode($content);
+        
+        foreach($tagsContainer as $tag) {
+
+            $tags->setName($tag);
+            //$tagsContainer[] = $tags;
+            $product->addTag($tags);
+            //$myProduct->addTag($tags);
+                                        
+            }
+
+        if( $_FILES["productImage"]) {
+
+        $productFile = $_FILES["productImage"];
+
+        $imageToUpload = new UploadedFile($productFile["tmp_name"], $productFile["name"], $productFile["type"]);    
+        $productImage->setProductImage($imageToUpload);
+        
+        $product->setProductImage($productImage);
+        //$myProduct->setProductImage($productImage);
+        }
+            $entityManager->persist($product);
+            //$entityManager->merge($product);
+            $entityManager->flush();
+
+        $encoders  = new JsonEncoder();
+        $normalizer = new ObjectNormalizer();
+        $serializer = new Serializer([$normalizer], [$encoders]);
+
+        $newProduct = $product;
+
+        /*$data = $serializer->serialize($newProduct, 'json', [
+            AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER => function($object) {
+                return $object->getId();
+            }
+        ]);  */
+        $productId = $product->getId();
+
+        //$data = $this->get("serializer")->serialize($product, 'json');
+
+        //return  JsonResponse::fromJsonString($data); //$response;
+        return new JsonResponse($productId);
+        /*$form = $this->createForm(Product1Type::class, $product);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -66,27 +141,15 @@ class ProductController extends AbstractController
         return $this->render('product/new.html.twig', [
             'product' => $product,
             'form' => $form->createView(),
-        ]);
+        ]); */
     }
 
     /**
-     * @Route("/show/{id}", name="product_show", methods={"GET"})
+     * @Route("/show/{id}", name="product_show", methods={"GET"}, options={"expose"=true})
      */
     public function show(Product $product): Response
     { 
         $rep = $this->getDoctrine()->getManager()->getRepository(Product::class);
-
-       // $product = new Product();
-        
-       // $id = $request->get("id");
-
-       // $id = intval($id);
-
-       // $product = $rep->find($id);
-        
-       // var_dump($prod);
-
-       //var_dump($product);
         
         $encoders = new JsonEncoder();
 
@@ -102,16 +165,6 @@ class ProductController extends AbstractController
 
        // $data = $this->get("serializer")->serialize($product, 'json');
 
-       //$serializer = SerializerBuilder::create()->build();
-
-       //$data = $this->container->get("jms_serializer")->serialize($product, 'json', SerializationContext::create());
-
-      //$data = $serializer->serialize($product, 'json');
-       //$data = $this->jMSSerializer->serialize($product, 'json');
-       //var_dump($data);
-
-       // $data = json_encode($prod);
-
         $response = new Response($data);
 
         $response->headers->set("Content-Type", "application/json");
@@ -121,27 +174,155 @@ class ProductController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/edit", name="product_edit", methods={"GET","POST"})
+     * @Route("/edit/{id}", name="product_edit", methods={"GET", "POST"}, options={"expose"=true})
      */
-    public function edit(Request $request, Product $product): Response
+    public function edit(Request $request,Product $product): Response
     {
-        $form = $this->createForm(Product1Type::class, $product);
+
+        $encoders = new JsonEncoder();
+
+        $normalizer = new ObjectNormalizer();
+
+        $serializer = new Serializer([$normalizer], [$encoders]);
+
+        if($request->isMethod("POST")) {
+
+        //$content = $request->getContent();
+        $content = $request->get('data');
+        //$container = json_decode($request->getContent());
+        $container = \json_decode($content);
+
+        $tags = new Tag();
+        $category = new Category();
+        $productImage = new ProductImage();
+
+        $productUpdate = new Product();
+
+        $productUpdate->setClient($this->getUser());
+        //$tagsContainer = [];
+
+        $prodContent = $container->content;
+
+        //$deserializedContent->tags = explode(',',$deserializedContent->tags);
+
+        $prodContent->tags = explode(',',serialize($prodContent->tags));
+        
+        //$prodContent = json_encode($prodContent);
+
+        //$prodContent = $deserializedContent;
+    
+       $product->setName($prodContent->name);
+        $product->setPrice($prodContent->price);
+        $product->setQuantity($prodContent->quantity);
+        $product->setSize($prodContent->size); 
+        $product->setDescription($prodContent->description);
+
+        /*foreach($prodContent->tags as $tag) {
+
+        $tags->setName($tag);
+        //$tagsContainer[] = $tags;
+        $product->addTag($tags);
+
+        } */
+
+        //$category->setName($prodContent->category);
+        //$product->addTag($tagsContainer);
+        //$product->setCategory($category);
+
+        //$productImage->setProductImage($prodContent->productImage);
+
+        //$productImage->setProductImage($productImageToUpload);
+
+        //$product->setProductImage($prodContent->productImage);
+        //$product->setProductImage($productImage);
+
+        $prodContent = json_encode($prodContent);
+
+        //var_dump($prodContent);
+
+         $this->get('serializer')->deserialize($prodContent, Product::class, 'json', 
+                                               ['object_to_populate' => $productUpdate]);
+        $prodContent = json_decode($prodContent);
+
+        foreach($prodContent->tags as $tag) {
+
+            $tags->setName($tag);
+            //$tagsContainer[] = $tags;
+            $product->addTag($tags);
+                                        
+        }
+
+        if(isset($_FILES["productImage"])){
+
+            $productFile = $_FILES["productImage"];
+                                        
+            $productImageToUpload = new UploadedFile($productFile["tmp_name"], $productFile["name"]);
+                                        
+            $productImage->setProductImage($productImageToUpload);
+            $product->setProductImage($productImage);
+                                        
+        }
+        
+         //var_dump($prodContent);
+        
+         $this->getDoctrine()->getManager()->flush();
+
+        //$prodToUpdate->setClient($this->getUser());  
+
+        //$data = $this->get("serializer")->serialize($product, 'json');
+
+        //var_dump($productUpdate);
+
+        $data = $serializer->serialize($product, 'json', [
+            AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER => function($object){
+                return $object->getId();
+            }
+        ]);  
+
+        //var_dump($product);
+
+        $response = new Response($data);
+
+        $response->headers->set("Content-Type", "application/json");
+         return $response;
+        } 
+        //var_dump($content);
+        //var_dump($product); 
+       /* $form = $this->createForm(Product1Type::class, $product);
         $form->handleRequest($request);
+
+        var_dump($form);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->getDoctrine()->getManager()->flush();
 
             return $this->redirectToRoute('product_index');
-        }
+        } */
 
-        return $this->render('product/edit.html.twig', [
+        
+
+        $data = $serializer->serialize($product, 'json', [
+            AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER => function($object){
+                return $object->getId();
+            }
+        ]);  
+
+        //$data = json_encode($product);
+
+        $response = new Response($data);
+
+        $response->headers->set("Content-Type", "application/json");
+
+        return $response; 
+
+        /*return $this->render('product/edit.html.twig', [
             'product' => $product,
             'form' => $form->createView(),
-        ]);
+        ]); */
     }
 
     /**
-     * @Route("/delete/{id}", name="product_delete", methods={"DELETE", "POST"})
+     * @Route("/delete/{id}", name="product_delete", methods={"DELETE", "POST"}, options={"expose"=true})
      */
     public function delete(Request $request, Product $product): Response
     {

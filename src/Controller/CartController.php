@@ -34,22 +34,29 @@ class CartController extends AbstractController
     }
 
     /**
-     * @Route("/new", name="cart_new", methods={"GET","POST"}) 
+     * @Route("/new", name="cart_new", methods={"GET","POST"}, options={"expose"=true}) 
      */
     public function new(Request $request): Response
     {
+        // If the user is not registered or connected, we return
+
+        $response = new Response();
+
+        if(!$this->getUser()) {
+
+        $response->setContent("Sorry you are not connected");
+
+        $response->setStatusCode(Response::HTTP_FORBIDDEN);
+
+        return $response;
+
+        }
 
         // ProductRepository to access the set the product into the cart
 
         $content = $request->getContent();
 
-       // var_dump($content);
-
         $data = json_decode($content);
-
-        //echo json_last_error();
-
-        // The type of the executed request. if the cart is added or removed
 
         $type = null;
 
@@ -59,17 +66,9 @@ class CartController extends AbstractController
 
         $cartId = $data->CartId;
 
-       // $product = $this->get('serializer')->deserialize($data, Product::class, 'json');
-
-       // var_dump($Id);
-
        $entityManager = $this->getDoctrine()->getManager();
 
-       // $cartRep = $this->getDoctrine()->getManager()->getRepository(Cart::class);
-
        $cartRep = $entityManager->getRepository(Cart::class);
-
-       //$prodRep = $this->getDoctrine()->getManager()->getRepository(Product::class);
        
        $productrep = $this->getDoctrine()->getManager()->getRepository(Product::class);
 
@@ -77,20 +76,17 @@ class CartController extends AbstractController
 
        if($cartId) {
 
-        //$catElem = $cartRep->findOneBy(["id" => $cartId, "client" => $this->getUser()]);
-
         $catElem = $cartRep->find($cartId);
 
          if($catElem) {
-
-            //$cartRep->remove($catElem);
-           // var_dump($catElem);
 
            $catElem->removeProduct($product);
 
             $entityManager->remove($catElem);
 
-            $entityManager->flush();         
+            $entityManager->flush(); 
+            
+            $response->setStatusCode(Response::HTTP_OK);
             
             $type = "removed";
          }
@@ -104,35 +100,25 @@ class CartController extends AbstractController
         //$cart->addProduct($productrep->find(2));
         $cart->addProduct($product);
 
-         // $prodCart->setClient($this->getUser());
-         // $prodCart->setProduct($product);
-        //  $prodCart->addCart($cart);
-
-        //  $entityManager->persist($prodCart);
-
             $entityManager->persist($cart);
             $entityManager->flush();
 
             $type ="added";
 
+            $response->setStatusCode(Response::HTTP_CREATED);
+
             $responseId = $cart->getId();
 
        }
 
-            $numberCart = $this->getDoctrine()->getManager()->getRepository(Cart::class)
+        $numberCart = $this->getDoctrine()->getManager()->getRepository(Cart::class)
                          ->countUserCart($this->getUser());
-            
-        // Serizlisation of the response 
-
-        //var_dump($numberCart);
 
         $responseData = array("numberCart" => $numberCart, "Id" => $responseId, "type" => $type);
        
         $encoded = json_encode($responseData);
 
-        //$encoded = $this->get("serializer")->serialize($responseData, 'json');
-
-        $response = new Response($encoded);
+        $response->setContent($encoded);
 
         $response->headers->set("Content-Type", "application/json");
 
@@ -141,7 +127,7 @@ class CartController extends AbstractController
     }
 
     /**
-     * @Route("/all", name="cart_show_all", methods={"GET"})
+     * @Route("/all", name="cart_show_all", methods={"GET"}, options={"expose"=true})
      */
 
      public function showAll(): Response {
@@ -151,32 +137,6 @@ class CartController extends AbstractController
         //$listCart = $cartRepository->allCarts($this->getUser());
 
         $listCart = $cartRepository->findBy(array("client" => $this->getUser()));
-
-        //$listCart = $cartRepository->findAll();  //find(26);
-
-        //var_dump($listCart);
-
-        //$listCart = $cartRepository->findByClient($this->getUser());
-
-       // $listCart = $cartRepository->findBy(array('client', $this->getUser()));
-
-      /*  $encoder = [new JsonEncoder()];
-
-        $defaultContext = [
-            AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER => function($object) {
-                return array($object);
-            },
-        ];
-
-        $normalizer = [new ObjectNormalizer(null, null, null, null, null, null, $defaultContext)];
-      
-        $serializer = new Serializer([$normalizer], [$encoder]);
-      
-        $data = $serializer->serialize($listCart, 'json'); */
-
-       //$data = $this->get('serializer')->serialize($listCart, 'json');
-
-       // Avoid circular 
 
        $encoder = new JsonEncoder();
 
@@ -232,7 +192,7 @@ class CartController extends AbstractController
     }
 
     /**
-     * @Route("/remove/{id}", name="cart_delete", methods={"DELETE", "POST"})
+     * @Route("/remove/{id}", name="cart_delete", methods={"DELETE", "POST"}, options={"expose"=true})
      */
     public function delete(Request $request, Cart $cart): Response
     {

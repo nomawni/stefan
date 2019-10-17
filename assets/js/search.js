@@ -1,21 +1,30 @@
+import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/public/js/router';
+ import Routes from '../../public/js/fos_js_routes.json';
+
 let searchItem = document.getElementById("searchItem");
 
 let searchResults  = document.getElementById("searchResults");
 
-let url = window.searchItem;
+//let url = window.searchItem;
 
 searchItem.addEventListener('keyup', function(e) {
+
+    Routing.setRoutingData(Routes);
+
+    let url = Routing.generate("search_item");
+  
+   //let result = document.querySelector("#result");
     
    let searchedValue = e.target.value;
+   var expression = new RegExp(searchedValue, "i");
 
    console.log(searchedValue);
-
-   if(searchedValue === " ") 
-       return false;
 
     let data = {
         value: searchedValue
     };
+
+    if(searchedValue) {
 
     let response = fetch(url, {
         method: "POST", 
@@ -37,28 +46,33 @@ searchItem.addEventListener('keyup', function(e) {
          
         products.map(product => {
 
-            let ulElement = document.createElement('ul');
+            $("#result").append('<li class="list-group-item productItem" data-product-id="'+ product.id +'">' + product.name +' <span class="text-muted"> </span>');
 
-            let liElement = document.createElement('li');
+            //let ulElement = document.createElement('ul');
 
-            let link = document.createElement('a');
+            //let liElement = document.createElement('li');
 
-            link.className = "searched-link";
+            //let link = document.createElement('a');
 
-            link.dataset.searchedLink = product.id;
+            //link.className = "searched-link";
 
-            link.innerHTML = product.name;
+            //link.dataset.searchedLink = product.id;
 
-            liElement.appendChild(link);
+            //link.innerHTML = product.name;
 
-            ulElement.appendChild(liElement);
+            //liElement.appendChild(link);
+
+            //ulElement.appendChild(liElement);
 
            // searchResults.innerHTML += product.name;
 
-           searchResults.appendChild(ulElement);
+           //searchResults.appendChild(ulElement);
 
         });
 
     });
+   }else {
+       result.innerHTML = "";
+   }
 
 });

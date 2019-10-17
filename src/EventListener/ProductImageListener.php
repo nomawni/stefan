@@ -24,10 +24,12 @@ class ProductImageListener {
         $entity = $args->getEntity();
 
         if($entity instanceof ProductImage) {
+            if($entity->getProductImage()){
             $entity->setFinalName($entity->getProductImage()->getFilename());
             $entity->setExtension($entity->getProductImage()->getExtension());
             $entity->setFinalPath($this->helper->asset($entity, 'productImage'));
             $entity->setMimeType($entity->getProductImage()->getMimeType());
+            }
         }
      }
 

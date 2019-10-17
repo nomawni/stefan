@@ -1,10 +1,12 @@
 <?php
 
 namespace App\EventListener;
+use Doctrine\ORM\Mapping as ORM;
 use Vich\UploaderBundle\Event\Event;
 use App\Entity\Avatar;
-use Doctrine\ORM\Event\LifecycleEventArgs;
+//use Doctrine\ORM\Event\LifecycleEventArgs;
 use Vich\UploaderBundle\Templating\Helper\UploaderHelper;
+use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 
 class AvatarListener {
@@ -36,6 +38,7 @@ class AvatarListener {
 
     /**
      * @ORM\PreUpdate()
+     * 
      */
 
     public function preUpdate(PreUpdateEventArgs $args) {
@@ -44,14 +47,13 @@ class AvatarListener {
 
         if($entity instanceof Avatar) {
             $entity->setFinalName($entity->getAvatarFile()->getFilename());
-            
             $entity->setAvatarSize($entity->getAvatarFile()->getSize());
             $entity->setExtension($entity->getAvatarFile()->getExtension());
            // $entity->setBasename($entity->getAvatarFile()->getBasename());
            $entity->setDestination($entity->getAvatarFile()->getPathname());
             $entity->setFinalPath($this->helper->asset($entity, 'avatarFile'));
             $entity->setMimeType($entity->getAvatarFile()->getMimeType());
-        }
+        } 
 
     }
 

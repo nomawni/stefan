@@ -12,6 +12,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 /**
  * @Route("/star")
@@ -29,10 +33,21 @@ class StarController extends AbstractController
     }
 
     /**
-     * @Route("/new", name="star_new", methods={"POST"})
+     * @Route("/new", name="star_new", methods={"POST"}, options={"expose"=true})
      */
     public function new(Request $request): Response
     {
+       
+        $response = new Response();
+
+
+        if(!$this->getUser()) {
+            $response->setStatusCode(Response::HTTP_FORBIDDEN);
+            $response->setContent("You are not connected");
+
+            return $response;
+        }
+
         $star = new Star();
 
         $content = $request->getContent();
@@ -64,7 +79,9 @@ class StarController extends AbstractController
 
                 $entityManager->flush();
 
-                $starContent = $starElem;
+                $response->setStatusCode(Response::HTTP_OK);
+
+                $starContent = $starElem->getValue();
 
                 $type = "Updated";
 
@@ -89,7 +106,9 @@ class StarController extends AbstractController
             $entityManager->persist($star);
             $entityManager->flush(); 
 
-            $starContent = $star;
+            $response->setStatusCode(Response::HTTP_CREATED);
+
+            $starContent = $star->getValue();
 
             $type = "Added";
 
@@ -99,11 +118,21 @@ class StarController extends AbstractController
 
            // $allStars = json_encode($all);
 
-           $responseContainer = array("response" => $starContent, "type" => $type);
+           //$responseContainer = array("response" => $starContent, "type" => $type);
+           $normalizer = new ObjectNormalizer();
+           $encoder = new JsonEncoder();
+           $serializer = new Serializer([$normalizer], [$encoder]);
 
-           $responseContainer = json_encode($responseContainer);
+           $starValue = array("value" =>$starContent);
 
-            $response = new Response($responseContainer);
+           $responseContainer = $serializer->serialize($starValue, 'json', [
+               AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER => function($object) {
+                   return $object->getId();
+               }
+           ]);
+
+            //$response = new Response($responseContainer);
+            $response->setContent($responseContainer);
 
             $response->headers->set("Content-Type", "application/json");
 

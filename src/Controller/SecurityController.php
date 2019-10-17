@@ -12,12 +12,14 @@ use Symfony\Component\Security\Core\Security;
 class SecurityController extends AbstractController
 {
     /**
-     * @Route("/login", name="app_login")
+     * @Route("/login", name="app_login", options={"expose"=true})
      */
     public function login(Request $request, Security $security, AuthenticationUtils $authenticationUtils): Response
     {
          if ($this->getUser() || $security->isGranted("ROLE_USER")) {
-            $this->redirectToRoute('app_homepage');
+            //$this->redirectToRoute('app_homepage');
+
+            return new Response("Eveything is good");
          }
 
       //  $this->saveTargetPath($request->getSession(), 'main', $this->generateUrl(""));

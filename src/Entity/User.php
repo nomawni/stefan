@@ -94,6 +94,11 @@ class User implements UserInterface, \Serializable
      */
     private $comments;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $salt;
+
     public function __construct()
     {
         $this->dateRegistration = new \DateTimeImmutable();
@@ -454,6 +459,13 @@ class User implements UserInterface, \Serializable
                 $comment->setAuthor(null);
             }
         }
+
+        return $this;
+    }
+
+    public function setSalt(string $salt): self
+    {
+        $this->salt = $salt;
 
         return $this;
     }

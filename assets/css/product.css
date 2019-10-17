@@ -2,11 +2,32 @@
     color: blue;
 }
 
-.cart-removed {
-   
-}
 
 #productItemImg {
     width: 400px;
     height: 300px;
+}
+
+ .preview img {
+
+    max-width: 200px;
+    max-height: 200px;
+}
+
+.product-item-wrapper {
+
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+#result {
+    position: absolute;
+    top: 60px;
+    width: 100%;
+    max-width: 200px;
+    cursor: pointer;
+    overflow: auto;
+    max-height: 400px;
+    box-sizing: border-box;
+    z-index: 1001;
 }

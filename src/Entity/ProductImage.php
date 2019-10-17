@@ -76,12 +76,12 @@ class ProductImage
         return $this->id;
     }
 
-    public function getProductImage(): ?File
+    public function getProductImage()
     {
         return $this->productImage;
     }
 
-    public function setProductImage(File $productImage): self
+    public function setProductImage( $productImage): self
     {
         $this->productImage = $productImage;
 

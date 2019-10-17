@@ -18,7 +18,7 @@ class ShopAddressType extends AbstractType
             ->add('country')
             ->add('website')
             ->add('email')
-            ->add('phoneNumer')
+            ->add('phoneNumber')
         ;
     }
 

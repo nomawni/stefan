@@ -1,13 +1,20 @@
+import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/public/js/router';
+
+import Routes from '../../public/js/fos_js_routes.json';
 
 window.addEventListener("load", function(e) {
 
     let commentForm = document.getElementById("commentForm");
 
-    let url = window.commentNew;
+    //let url = window.commentNew;
 
     commentForm.addEventListener("submit", e => {
 
         e.preventDefault();
+
+        Routing.setRoutingData(Routes);
+
+        let url = Routing.generate("comment_new");
 
         let comment = commentForm.querySelector("#commentText");
 

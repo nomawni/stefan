@@ -1,8 +1,14 @@
+import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/public/js/router';
+ import Routes from '../../public/js/fos_js_routes.json';
+
+if(document.getElementById("productNew")) {
 let productNew = document.getElementById("productNew");
 
 productNew.addEventListener("click", e => {
 
     e.preventDefault();
+
+    Routing.setRoutingData(Routes);
 
     $('#productNewModal').modal('show');
 
@@ -27,7 +33,7 @@ productNew.addEventListener("click", e => {
 
     /** When the clicks on the save button , this event is emitted to get values of the form */ 
 
-    createProduct.addEventListener("click", e => {
+        createProduct.addEventListener("click", e => {
 
         /** The object that will contain the data from the form that we will send to create 
          * the new product
@@ -45,28 +51,50 @@ productNew.addEventListener("click", e => {
 
         console.log(newProductContainer);
 
-        newProductContainer.map(elem => {
+       /* newProductContainer.map(elem => {
              console.log(`${elem.name} : ${elem.value}`);
+
+            if(elem.name == "quantity" || elem.name == "size")
+            product[elem.name] = parseInt(elem.value);
+            else if (elem.name == "productImage")
+            product["productImage"] = "";
+            else
              product[elem.name] = elem.value;
         });
 
-        console.log(productImage.files);
+        console.log(productImage.files); */
 
-        product["productImageFiles"] = productImageFiles;
+        //delete product["undefined"];
+
+        //product["productImageFiles"] = productImageFiles;
+
+        let content = deserializeProduct(newProductContainer); //JSON.stringify(product);
+
+        content = JSON.stringify(content);
+
+        console.log(content);
+
+        let productImg = productImageFiles[0];
 
         console.log(product);
+
+        let formData = new FormData();
+
+        formData.append("data", content);
+        formData.append("productImage", productImg);
    // });
 
-    let url = "http://localhost:8001/product/new";
+    let url = Routing.generate("product_new"); //"http://localhost:8001/product/new";
 
     let response = fetch(url, {
         "method" : "POST",
         "cache": "no-cache",
         "credentials": "same-origin",
         headers: {
-            "Content-Type": "application/json",
+            //"Content-Type": "application/json",
+              "Accept": "application/json",
         },
-        body: JSON.stringify(product)
+        body: formData,
     })
     .then(response => response.json())
     .then(data => {
@@ -78,9 +106,42 @@ productNew.addEventListener("click", e => {
 
     response.then(data => {
         console.log(data);
+        let productId = data;
+        console.log(productId);
+
+        let url = Routing.generate("product_show", {id: productId});
+
+        let showResponse = ajax(url, "GET");
+
+        showResponse.then(data => {
+          console.log(data);
+          serializeProduct(data);
+        })
+
+        //serializeProduct(data);
     });
            
 });
+
+function ajax(url, method) {
+
+  let response = fetch(url, {
+        method: method, 
+        cache: "no-cache", 
+        credentials: "same-origin", 
+        headers:{
+          "Accept": "application/json"
+        }
+   })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+      return data;
+    })
+     .catch(error => console.error(error));
+
+     return response;
+}
 
 function updateImageDisplay() {
     while(preview.firstChild) {
@@ -140,6 +201,114 @@ function updateImageDisplay() {
     } else if(number >= 1048576) {
       return (number/1048576).toFixed(1) + 'MB';
     }
-  } 
-
+  }
 });
+  
+  function deserializeProduct(content) {
+     
+    if(!content)
+      return;
+
+      let data = new Object();
+      let tags = new Object();
+      let productImage = new Object();
+      let category = new Object();
+      let shop = new Object();
+
+      let listElements = content;
+
+      listElements.forEach(function(elem) {
+        
+         if(elem.name == "category") {
+           category.name = elem.value;
+         }else if(elem.name == "tags"){
+           tags.name = elem.value;
+         }else if(elem.name == "productImage"){
+           productImage.productImage = elem.value;
+         }else {
+              if(elem.name == "quantity" || elem.name == "size") {
+                data[elem.name] = parseInt(elem.value);
+              }else {
+                data[elem.name] = elem.value;
+              }
+         }
+      });
+
+        data.productImage = productImage;
+        data.category = category;
+        data.tags = tags;
+
+        return data;
+
+  }
+
+ function serializeProduct(product) {
+
+      if(!product)
+          return;
+      
+      let productsWrapper = document.querySelector(".products-wrapper");
+      let firstProductItem = document.querySelector(".product-item-wrapper");
+
+      let productItem = firstProductItem.cloneNode(true);
+
+      let card = productItem.querySelector(".card");
+
+      console.log(productItem);
+      console.log(card);
+
+      card.dataset.author = product.client.id;
+
+      console.log(card);
+
+      let productContainer = productItem.querySelector(".product-item");
+
+      productContainer.dataset.productId = product.id;
+
+      productContainer.dataset.author = product.client.id;
+
+      let img = productItem.querySelector("img");
+
+      img.src = product.productImage ? product.productImage.finalPath  : "";
+
+      let h4 = productItem.querySelector("h4");
+
+      h4.innerHTML = product.category.name;
+
+      let cardTitle = productItem.querySelector('.card-title');
+
+      cardTitle.innerHTML = product.name;
+
+      productsWrapper.appendChild(productItem);
+
+      let cardText = productItem.querySelector(".card-text"); // The description of the product
+      cardText.innerHTML = product.description;
+
+      let ListStarProduct = productItem.querySelectorAll(".star-product");
+
+      ListStarProduct.forEach(function(elem, pos) {
+
+        elem.dataset.star = ++pos;
+        
+        let faStar = elem.querySelector(".fa-star");
+
+        faStar.classList.replace("fas", "far");
+
+        elem.removeAttribute("data-star-id");
+
+      });
+
+      let productPrice = productItem.querySelector(".product-price");
+      productPrice.innerHTML = product.price;
+
+      let addCart = productItem.querySelector(".add-cart");
+      addCart.style.color = "black";
+      addCart.removeAttribute("data-cart-id");
+
+      let addWhishlist = productItem.querySelector(".add-whishlist");
+      addWhishlist.style.color = "black";
+
+      addWhishlist.removeAttribute("data-whishlist-id");
+   
+ }
+}

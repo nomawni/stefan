@@ -1,6 +1,6 @@
 
 <!-- Modal -->
-<div class="modal fade" id="productItemModal" tabindex="-1" role="dialog" aria-labelledby="productItemModalTitle" aria-hidden="true">
+<div class="modal fade product-item" id="productItemModal" tabindex="-1" role="dialog" aria-labelledby="productItemModalTitle" aria-hidden="true">
   <input type="hidden" name="_token" value="{{ csrf_token('delete') }}">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
@@ -12,10 +12,9 @@
       </div>
       <div class="modal-body">
         
-      <div class="product-item">
+      <div id="productItemModalWrapper">
 
        <img src="" alt="" id="productItemImg"/>
-      </div>
 
       <div id="productDetail">
 
@@ -40,7 +39,7 @@
       <div class="product-actions">
 
       <button type="button" class="btn btn-primary"> buy now </button>
-      <button type="button" class="btn btn-success"> add to cart </button>
+      <button type="button" class="btn btn-success add-cart" data-cart-id=""> add to cart </button>
 
       <div class="author-actions" style="display:none;">
 
@@ -56,7 +55,7 @@
 
       <div id="comment-section" style="margin-top:50px;">
 
-      <form id="commentForm">
+      <form id="commentForm" style="display:none;">
 
       <div class="row">
 
@@ -80,7 +79,7 @@
 
       </div>
 
-      <div id="listComments">
+      <div id="listComments" style="display:none">
 
       </div>
 

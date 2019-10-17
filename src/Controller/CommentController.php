@@ -30,7 +30,7 @@ class CommentController extends AbstractController
     }
 
     /**
-     * @Route("/new", name="comment_new", methods={"GET","POST"})
+     * @Route("/new", name="comment_new", methods={"GET","POST"}, options={"expose"=true})
      */
     public function new(Request $request): Response
     {

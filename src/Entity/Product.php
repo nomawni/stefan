@@ -57,7 +57,7 @@ class Product
     private $productImage;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Category")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Category", cascade={"persist"})
      * @ORM\JoinColumn(nullable=false)
      */
     private $category;
@@ -109,8 +109,9 @@ class Product
         $this->categories = new ArrayCollection();
         $this->tags = new ArrayCollection();
         $this->stars = new ArrayCollection();
-       $this->whishlists = new ArrayCollection();
-       $this->comments = new ArrayCollection();
+        $this->whishlists = new ArrayCollection();
+        $this->carts = new ArrayCollection();
+        $this->comments = new ArrayCollection();
     }
 
     public function __toString()

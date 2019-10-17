@@ -12,6 +12,7 @@ import ReactDom from 'react-dom';
 //require('react-dom');
 require('../css/app.css');
 require('../css/product.css');
+require('../css/list.css');
 
 require('../../react-src/cart.js');
 
@@ -27,7 +28,10 @@ require('./product_new.js');
 require('./delete_product.js');
 require('./edit_product.js');
 require('./share_product.js');
-
+require('./registration.js');
+require("./login.js");
+require('./user_profile.js');
+require('./shop-link.js');
 
 require("./add_comment.js");
 
