@@ -4,9 +4,9 @@ namespace App\EventListener;
 use Doctrine\ORM\Mapping as ORM;
 use Vich\UploaderBundle\Event\Event;
 use App\Entity\Avatar;
-//use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\LifecycleEventArgs;
 use Vich\UploaderBundle\Templating\Helper\UploaderHelper;
-use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
+//use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 
 class AvatarListener {
@@ -27,12 +27,14 @@ class AvatarListener {
          $entity = $args->getEntity();
 
          if($entity instanceof Avatar) {
+             if($entity->getAvatarFile()) {
              $entity->setFinalName($entity->getAvatarFile()->getFilename());
-             $entity->setAvatarSize($entity->getAvatarFile()->getSize());
+             //$entity->setAvatarSize($entity->getAvatarFile()->getSize());
              $entity->setExtension($entity->getAvatarFile()->getExtension());
-             $entity->setDestination($entity->getAvatarFile()->getPath());
+             //$entity->setDestination($entity->getAvatarFile()->getPath());
              $entity->setFinalPath($this->helper->asset($entity, 'avatarFile'));
              $entity->setMimeType($entity->getAvatarFile()->getMimeType());
+             }
          }
     }
 
@@ -41,23 +43,25 @@ class AvatarListener {
      * 
      */
 
-    public function preUpdate(PreUpdateEventArgs $args) {
+    public function preUpdate(LifecycleEventArgs $args) {
 
         $entity = $args->getEntity();
 
         if($entity instanceof Avatar) {
-            $entity->setFinalName($entity->getAvatarFile()->getFilename());
-            $entity->setAvatarSize($entity->getAvatarFile()->getSize());
-            $entity->setExtension($entity->getAvatarFile()->getExtension());
+            if($entity->getAvatarFile()) {
+            //$entity->setFinalName($entity->getAvatarFile()->getFilename());
+           //$entity->setAvatarSize($entity->getAvatarFile()->getSize());
+            //$entity->setExtension($entity->getAvatarFile()->getExtension());
            // $entity->setBasename($entity->getAvatarFile()->getBasename());
-           $entity->setDestination($entity->getAvatarFile()->getPathname());
-            $entity->setFinalPath($this->helper->asset($entity, 'avatarFile'));
-            $entity->setMimeType($entity->getAvatarFile()->getMimeType());
+           //$entity->setDestination($entity->getAvatarFile()->getPathname());
+            //$entity->setFinalPath($this->helper->asset($entity, 'avatarFile'));
+           // $entity->setMimeType($entity->getAvatarFile()->getMimeType()); 
+            }
         } 
 
     }
 
-    public function onVichUploaderPreUpload(Event $event) {
+    /*public function onVichUploaderPreUpload(Event $event) {
 
         $object = $event->getObject();
 
@@ -67,5 +71,5 @@ class AvatarListener {
 
             // var_dump($object->getAvatarName());
         }
-    }
+    } */
 }

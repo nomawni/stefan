@@ -29,9 +29,15 @@ class Customer
      */
     private $user;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Transactions", mappedBy="customer", orphanRemoval=true)
+     */
+    private $transactions;
+
     public function __construct()
     {
         $this->addresses = new ArrayCollection();
+        $this->transactions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -81,4 +87,36 @@ class Customer
 
         return $this;
     }
+
+    /**
+     * @return Collection|Transactions[]
+     */
+    public function getTransactions(): Collection
+    {
+        return $this->transactions;
+    }
+
+    public function addTransaction(Transactions $transaction): self
+    {
+        if (!$this->transactions->contains($transaction)) {
+            $this->transactions[] = $transaction;
+            $transaction->setCustomer($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTransaction(Transactions $transaction): self
+    {
+        if ($this->transactions->contains($transaction)) {
+            $this->transactions->removeElement($transaction);
+            // set the owning side to null (unless already changed)
+            if ($transaction->getCustomer() === $this) {
+                $transaction->setCustomer(null);
+            }
+        }
+
+        return $this;
+    }
+
 }

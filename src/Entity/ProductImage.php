@@ -71,6 +71,11 @@ class ProductImage
      */
     private $dateUpdated;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Product", inversedBy="productImages")
+     */
+    private $product;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -81,7 +86,7 @@ class ProductImage
         return $this->productImage;
     }
 
-    public function setProductImage( $productImage): self
+    public function setProductImage(?File $productImage): self
     {
         $this->productImage = $productImage;
 
@@ -97,7 +102,7 @@ class ProductImage
         return $this->imageSize;
     }
 
-    public function setImageSize(int $imageSize): self
+    public function setImageSize(?int $imageSize): self
     {
         $this->imageSize = $imageSize;
 
@@ -109,7 +114,7 @@ class ProductImage
         return $this->imageName;
     }
 
-    public function setImageName(string $imageName): self
+    public function setImageName(?string $imageName): self
     {
         $this->imageName = $imageName;
 
@@ -121,7 +126,7 @@ class ProductImage
         return $this->finalName;
     }
 
-    public function setFinalName(string $finalName): self
+    public function setFinalName(?string $finalName): self
     {
         $this->finalName = $finalName;
 
@@ -133,7 +138,7 @@ class ProductImage
         return $this->extension;
     }
 
-    public function setExtension(string $extension): self
+    public function setExtension(?string $extension): self
     {
         $this->extension = $extension;
 
@@ -157,7 +162,7 @@ class ProductImage
         return $this->finalPath;
     }
 
-    public function setFinalPath(string $finalPath): self
+    public function setFinalPath(?string $finalPath): self
     {
         $this->finalPath = $finalPath;
 
@@ -169,7 +174,7 @@ class ProductImage
         return $this->mimeType;
     }
 
-    public function setMimeType(string $mimeType): self
+    public function setMimeType(?string $mimeType): self
     {
         $this->mimeType = $mimeType;
 
@@ -181,7 +186,7 @@ class ProductImage
         return $this->originalName;
     }
 
-    public function setOriginalName(string $originalName): self
+    public function setOriginalName(?string $originalName): self
     {
         $this->originalName = $originalName;
 
@@ -196,6 +201,18 @@ class ProductImage
     public function setDateUpdated(?\DateTimeInterface $dateUpdated): self
     {
         $this->dateUpdated = $dateUpdated;
+
+        return $this;
+    }
+
+    public function getProduct(): ?Product
+    {
+        return $this->product;
+    }
+
+    public function setProduct(?Product $product): self
+    {
+        $this->product = $product;
 
         return $this;
     }

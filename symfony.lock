@@ -173,6 +173,9 @@
             "./config/packages/prod/jms_serializer.yaml"
         ]
     },
+    "leafo/scssphp": {
+        "version": "v0.8.4"
+    },
     "monolog/monolog": {
         "version": "1.24.0"
     },
@@ -184,6 +187,9 @@
     },
     "ocramius/proxy-manager": {
         "version": "2.2.2"
+    },
+    "patchwork/jsqueeze": {
+        "version": "v1.0.7"
     },
     "phpdocumentor/reflection-common": {
         "version": "1.0.1"
@@ -218,8 +224,35 @@
             "./config/packages/sensio_framework_extra.yaml"
         ]
     },
+    "sensiolabs/security-checker": {
+        "version": "4.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "4.0",
+            "ref": "160c9b600564faa1224e8f387d49ef13ceb8b793"
+        },
+        "files": [
+            "./config/packages/security_checker.yaml"
+        ]
+    },
+    "stripe/stripe-php": {
+        "version": "v7.5.0"
+    },
     "swiftmailer/swiftmailer": {
         "version": "v6.2.1"
+    },
+    "symfony/apache-pack": {
+        "version": "1.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.0",
+            "ref": "c82bead70f9a4f656354a193df7bf0ca2114efa0"
+        },
+        "files": [
+            "./public/.htaccess"
+        ]
     },
     "symfony/asset": {
         "version": "v4.3.3"
@@ -426,6 +459,15 @@
     },
     "symfony/property-info": {
         "version": "v4.3.3"
+    },
+    "symfony/requirements-checker": {
+        "version": "1.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "1.0",
+            "ref": "93d0ec48679f5e240d265088305c1ad775723f93"
+        }
     },
     "symfony/routing": {
         "version": "4.2",

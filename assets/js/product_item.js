@@ -1,7 +1,7 @@
 import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/public/js/router';
  import Routes from '../../public/js/fos_js_routes.json';
 
-let listProducts = document.querySelectorAll(".productItem");
+//let listProducts = document.querySelectorAll(".productItem");
 
 //listProducts.forEach((product, pos) => {
 
@@ -33,6 +33,10 @@ let listProducts = document.querySelectorAll(".productItem");
 
         let url = Routing.generate("product_show", {id: productId});
 
+        let productItemModal = document.querySelector('#productItemModal');
+        let productItemModalBody = productItemModal.querySelector(".modal-body");
+        let backupModalBody = productItemModalBody.cloneNode(true);
+
         //url = url + productId;
 
         let response = fetch(url, {
@@ -55,8 +59,6 @@ let listProducts = document.querySelectorAll(".productItem");
       response.then(data => {
 
          console.log(document.cookie);
-
-        let productItemModal = document.querySelector('#productItemModal');
 
         productItemModal.dataset.productId = productId;
 
@@ -83,9 +85,14 @@ let listProducts = document.querySelectorAll(".productItem");
 
         productItemModalTitle.innerHTML = data.name;
  
-        let productImg = productItemModal.querySelector("#productItemImg");
+        //let productImg = productItemModal.querySelector("#productItemImg");
 
-        productImg.src = data.productImage ? data.productImage.finalPath : "";
+        //productImg.src = data.productImage ? data.productImage.finalPath : "";
+        let productImagesContainer = productItemModal.querySelector(".product-images-container");
+
+        let productImages = data.productImages;
+
+        productSlideImg(productImagesContainer, productImages);
 
         let productDetail = productItemModal.querySelector("#productDetail");
 
@@ -154,7 +161,76 @@ let listProducts = document.querySelectorAll(".productItem");
 
         $('#productItemModal').modal('show');
 
+        $('#productItemModal').on('show.bs.modal', function (e) {
+            
+          });
+
       });
 
+      $('#productItemModal').on('hidden.bs.modal', function (e) {
+
+        //productItemModalBody.appendChild(backupModalBody);
+        //console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        //console.log(productItemModalBody);
+       // console.log(backupModalBody);
+                
+      });
+
+
     });
+
+  function productSlideImg (imgContainer, productImages) {
+
+      imgContainer.innerHTML = "";
+
+    if(productImages) {
+        if(productImages.length > 1) {
+
+            for(let i = 0; i < productImages.length; i++) {
+
+     let productImgSlide = document.createElement("div");
+     productImgSlide.classList.add("product-img-slide");
+
+     let productImg = document.createElement("img");
+     productImg.src= productImages[i].finalPath;
+     productImg.alt = productImages[i].imageName;
+     productImgSlide.appendChild(productImg);
+
+     imgContainer.appendChild(productImgSlide);
+
+             }
+
+     let prevButton = document.createElement("button");
+     prevButton.classList.add("btn-prev");
+     let leftArrow = document.createElement("i");
+     leftArrow.classList.add("fa", "fa-arrow-circle-left");
+     prevButton.appendChild(leftArrow);
+
+     let nextButton = document.createElement("button");
+     nextButton.classList.add("btn-next");
+     let rightArrow = document.createElement("i");
+     rightArrow.classList.add("fa", "fa-arrow-circle-right");
+     nextButton.appendChild(rightArrow);
+
+     imgContainer.appendChild(prevButton);
+     imgContainer.appendChild(nextButton);
+
+       let x = 0;
+
+      $(".btn-next").click(function() {
+          x = (x<=300)?(x+100):0;
+          $(".product-img-slide").css('left', -x+"%");
+      });
+
+      $(".btn-prev").click(function() {
+        x = (x>=100)?(x-100):400;
+        $(".product-img-slide").css('left', -x+"%");
+    });
+
+        }else {
+        
+        } 
+    }
+     
+}
 //})

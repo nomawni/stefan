@@ -27,7 +27,7 @@ class Avatar
 
     /**
      * 
-     * @Vich\UploadableField(mapping="user_avatar", fileNameProperty="finalName", size="avatarSize",
+     * @Vich\UploadableField(mapping="user_avatar", fileNameProperty="avatarName", size="avatarSize",
      * mimeType="mimeType", originalName="originalName")
      * @var File
      */
@@ -77,6 +77,11 @@ class Avatar
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $destination;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $avatarName;
 
     public function getAvatarSize(): ?int
     {
@@ -199,6 +204,18 @@ class Avatar
     public function setDestination(?string $destination): self
     {
         $this->destination = $destination;
+
+        return $this;
+    }
+
+    public function getAvatarName(): ?string
+    {
+        return $this->avatarName;
+    }
+
+    public function setAvatarName(string $avatarName): self
+    {
+        $this->avatarName = $avatarName;
 
         return $this;
     }

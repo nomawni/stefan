@@ -10,6 +10,8 @@ productNew.addEventListener("click", e => {
 
     Routing.setRoutingData(Routes);
 
+    serializeCategories();
+
     $('#productNewModal').modal('show');
 
     let createProduct = document.querySelector(".create-product");
@@ -23,7 +25,6 @@ productNew.addEventListener("click", e => {
         /**
          * set opacity of the productImage to  0
          */
-
          productImage.style.display = "none";
 
          /**
@@ -31,7 +32,7 @@ productNew.addEventListener("click", e => {
           */
         productImage.addEventListener("change", updateImageDisplay);
 
-    /** When the clicks on the save button , this event is emitted to get values of the form */ 
+        /** When the clicks on the save button , this event is emitted to get values of the form */ 
 
         createProduct.addEventListener("click", e => {
 
@@ -51,37 +52,23 @@ productNew.addEventListener("click", e => {
 
         console.log(newProductContainer);
 
-       /* newProductContainer.map(elem => {
-             console.log(`${elem.name} : ${elem.value}`);
-
-            if(elem.name == "quantity" || elem.name == "size")
-            product[elem.name] = parseInt(elem.value);
-            else if (elem.name == "productImage")
-            product["productImage"] = "";
-            else
-             product[elem.name] = elem.value;
-        });
-
-        console.log(productImage.files); */
-
-        //delete product["undefined"];
-
-        //product["productImageFiles"] = productImageFiles;
-
         let content = deserializeProduct(newProductContainer); //JSON.stringify(product);
 
         content = JSON.stringify(content);
 
         console.log(content);
 
-        let productImg = productImageFiles[0];
+        //let productImg = productImageFiles[0];
 
         console.log(product);
 
         let formData = new FormData();
 
         formData.append("data", content);
-        formData.append("productImage", productImg);
+        //formData.append("productImage", productImg);
+        for(let i =0; i < productImageFiles.length; i++) {
+        formData.append("productImages[]", productImageFiles[i]);
+        }
    // });
 
     let url = Routing.generate("product_new"); //"http://localhost:8001/product/new";
@@ -122,6 +109,35 @@ productNew.addEventListener("click", e => {
     });
            
 });
+
+function serializeCategories(){
+
+   let url = Routing.generate("category_all");
+   let method = "GET";
+   let response = ajax(url, method);
+
+   console.log(response);
+
+   if(response){
+
+    let productCategory = document.querySelector("#productCategory");
+
+      response.then(res => {
+
+        res.map(data => {
+
+       //$("#productCategory").append("<option value=")
+       
+       let option = document.createElement("option");
+       option.setAttribute("value", data.id);
+       option.innerHTML = data.name;
+
+       productCategory.appendChild(option);
+        });
+
+      });
+   }
+}
 
 function ajax(url, method) {
 
@@ -269,11 +285,11 @@ function updateImageDisplay() {
 
       let img = productItem.querySelector("img");
 
-      img.src = product.productImage ? product.productImage.finalPath  : "";
+      img.src = product.productImages ? product.productImages[0].finalPath  : "";
 
-      let h4 = productItem.querySelector("h4");
+      let productCategory = productItem.querySelector("h6");
 
-      h4.innerHTML = product.category.name;
+      productCategory.innerHTML = product.category.name;
 
       let cardTitle = productItem.querySelector('.card-title');
 
@@ -281,8 +297,8 @@ function updateImageDisplay() {
 
       productsWrapper.appendChild(productItem);
 
-      let cardText = productItem.querySelector(".card-text"); // The description of the product
-      cardText.innerHTML = product.description;
+      //let cardText = productItem.querySelector(".card-text"); // The description of the product
+      //cardText.innerHTML = product.description;
 
       let ListStarProduct = productItem.querySelectorAll(".star-product");
 

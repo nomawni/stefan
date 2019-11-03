@@ -26,29 +26,63 @@ login.addEventListener("click", e => {
 
         //_csrfToken.value = "{{ csrf_token('authenticate') }}";
 
+        loginForm.addEventListener("submit", function(e) {
+            e.preventDefault();
+            loginHandler();
+        });
+
         //loginForm.addEventListener("submit", e => {
             signIn.addEventListener("click", function(e) {
             e.preventDefault();
-
-            let formData = new FormData(loginForm);
-            let url = Routing.generate("app_login");
-
-            console.log(formData);
-
-            let response = fetch(url, {
-                method: "POST", 
-                headers: {
-
-                }, 
-                body: formData
-            });
-
-            console.log(response);
+            loginHandler();
 
         });
 
     //alert("Wanna login ?");
 
+    function loginHandler() {
+
+        let inputEmail = loginForm.querySelector("#inputEmail");
+        let inputEmailValue = inputEmail.value;
+
+        let inputPassword = loginForm.querySelector("#inputPassword");
+        let inputPasswordValue = inputPassword.value;
+
+        if(!inputEmailValue) {
+            inputEmail.nextElementSibling.innerHTML = "Your email can not be null";
+            return;
+        }
+        if(!inputPasswordValue){
+            inputPassword.nextElementSibling.innerHTML = "Your password can not be null";
+            return;
+        }
+
+        let formData = new FormData(loginForm);
+        let url = Routing.generate("app_login");
+        let homepage_url = Routing.generate("app_homepage");
+
+        console.log(formData);
+
+        let response = fetch(url, {
+            method: "POST", 
+            headers: {
+
+            }, 
+            body: formData
+        });
+
+        console.log(response);
+
+        response.then(data => {
+            console.log(data);
+            if(data.status === 200) {
+                alert("You logged in");
+                console.log(homepage_url);
+                window.location.href = homepage_url;
+            }
+        })
+
+        }
     }
 });
 }

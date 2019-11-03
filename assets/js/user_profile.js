@@ -14,7 +14,6 @@ let userProfile = document.getElementById("userProfile");
 userProfile.addEventListener("click", e => {
 
     e.preventDefault();
-    //alert(e.target);
     console.log(e.target);
 
     let userProfileModal = document.getElementById("userProfileModal");
@@ -94,8 +93,6 @@ userProfile.addEventListener("click", e => {
     $("#userProfileModal").modal('show');
 
     function editProfile(data) {
-
-        alert("Hello world");
 
         let url = Routing.generate("user_edit"); //"http://localhost:8001/profile/edit";
 
@@ -230,8 +227,6 @@ userProfile.addEventListener("click", e => {
 
     function updateProfile() {
 
-        //alert("Update");
-
         let profileData = $("#editForm").serializeArray();
 
         let avatarFile = document.getElementById("avatarFile");
@@ -268,9 +263,9 @@ userProfile.addEventListener("click", e => {
 
          content = JSON.stringify(content);
 
-         let data = {
+         /*let data = {
              content: content
-         }
+         } */
 
          /*const blob = new Blob([content], {
              type: "application/json"
@@ -280,7 +275,7 @@ userProfile.addEventListener("click", e => {
          
          formData.append('data', content);
 
-         formData.append("avatarFile", selectedAvatar);
+         formData.append("avatarFile", avatarFile.files[0]);
 
         console.log(content);
 

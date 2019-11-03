@@ -5,16 +5,18 @@
 {% block body %}
 
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="navbar-brand mb-0 h1" style="width:20%;">
-  <a class="navbar-brand" href="#">Navbar</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
+<nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top justify-content-around">
+  <!--<div class="container-fluid"> -->
+  <a class="navbar-brand" href="{{path('app_homepage')}}">MINERAL</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsiveContent" aria-controls="navbarResponsiveContent" aria-expanded="false" aria-label="Toggle navigation">
+    <!--<span class="navbar-toggler-icon"></span> -->
+    <span class="sr-only"></span>
+    <i class="fa fa-align-justify"> </i>
   </button>
-  </div>
 
-  <div class="d-flex collapse navbar-collapse " id="navbarSupportedContent">
+  <div class="collapse navbar-collapse justify-content-end" id="navbarResponsiveContent">
    
+   <!--
    <div class="form-group">
    <div class="input-group">
    <form class="form-inline my-2 my-lg-0 p-2 flex-fill" id="searchItemForm">
@@ -27,8 +29,28 @@
       <div id="searchResults">
 
       </div>
+     -->
+    <form autocomplete="off" class="form-inline justify-content-center" id="searchItemForm"> <!-- Begining of the search box -->
+      <div class="input-group mb-3 autocomplete"> <!-- beginning of the input group -->
+      <input class="form-control" type="search" placeholder="Search" aria-label="Search" id="searchItem" />
+      <div class="input-group-append"> <!-- begining of the input-group-append -->
+      <!--<span class="input-group-btn"> -->
+      <button class="btn btn-primary" type="submit">
+        
+        <i class="fa fa-search"> </i>
 
-    <ul class="navbar-nav mr-auto p-2 flex-fill" >
+      </button> 
+     <!-- </span> -->
+      </div> <!-- end of the input-group-append -->
+      </div> <!-- End of the input group -->
+      </form> <!-- End of the search box 
+      </div>
+      </div>  <br/>
+      <ul class="list-group" id="result"> </ul> -->
+    
+
+    <!-- <div class="padding-nav"> -->
+    <ul class="navbar-nav justify-content-end">
       {% if(is_granted("IS_AUTHENTICATED_FULLY")) %}
      
       <li class="nav-item">
@@ -36,7 +58,11 @@
 
           {% if(app.user.avatar) %}
 
-          <img src="{{app.user.avatar.finalPath}}" style="width:30px;height:30px;" class="rounded-circle" />
+          <img src="{{app.user.avatar.finalPath}}"  class="rounded-circle avatar" />
+
+          {% else %}
+
+           <img src="/images/default_avatar/default_avatar.png" class="avatar" />
 
           {% endif %}
 
@@ -94,17 +120,30 @@
             </a>
       </li>
 
+      <li class="nav-item">
+           <a class="nav-link" id="myOrders"> orders </a> 
+      </li>
+
       {% if is_granted("IS_AUTHENTICATED_FULLY") %}
 
       {% if(app.user.shops | length > 0) %}
 
       {% if(app.user.shops | length > 1) %}
 
+      <div class="btn-group">
+    <button type="button" class="btn btn-primary">shop</button>
+    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
+    </button>
+    <div class="dropdown-menu">
+
       {% for shop in app.user.shops %}
 
-      <p> {{shop.name}} </p>
+      <a class="dropdown-item" href="#"> {{ shop.name }} </a>
 
       {% endfor %}
+
+      </div>
+    </div>
 
       {% else %}
 
@@ -129,11 +168,8 @@
        {% endif %}
 
     </ul>
+   <!-- </div> -->
   </div>
-</nav>
-
-<nav class="navbar fixed-bottom navbar-light bg-light">
-  <a class="navbar-brand" href="#">Fixed bottom</a>
 </nav>
 
 <div class="container">
@@ -146,17 +182,16 @@
 
   <div class="card-body card-body-cascade text-center">
 
-    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ product.id) }}">
-
     <a class="productItem cursor-pointer" />
 
-    <img src="{{product.productImage.finalPath}}" class="card-img-top" alt="...">
+    {% set img = product.productImages|first %}
+
+    <img src="{{img ? img.finalPath}}" class="card-img-top" alt="...">
      
 
-    <h4> {{ product.category.name }} </h4>
-
     <h5 class="card-title">{{ product.name }}</h5> 
-    <p class="card-text"> {{ product.description }} </p>
+    <h6> {{ product.category.name }} </h6>
+    <!--<p class="card-text"> {{ product.description }} </p> -->
 
     </a>
     
@@ -169,10 +204,6 @@
       {% if product.stars|length > 0 %}
 
       {% for star in product.stars %}
-
-      {# set maxValue =0 #}
-
-      {# set maxValue = max([product.stars, value]) #}
 
       <li class="star-product" data-star-id="{{star.id}}" data-star="{{i}}" data-max="{{ star.value >= i ? star.value : ''}}">
       
@@ -187,10 +218,6 @@
        {% endif %}
        
        </li>
-     <!--  <li class="star-product" data-star="2"><i class="fas fa-star"></i></li>
-      <li class="star-product" data-star="3"><i class="fas fa-star"></i></li>
-      <li class="star-product" data-star="4"><i class="fas fa-star"></i></li>
-      <li class="star-product" data-star="5"><i class="far fa-star"></i></li> -->
 
       {% endfor %}
 
@@ -203,7 +230,7 @@
       {% endfor %}
     </ul>
     
-   <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
+   
   </div>
 
   <div class="card-footer">
@@ -226,7 +253,7 @@
 
     {% endfor %}
  
-  <div id="root">  </div>
+  
   </div>
 
 </div>

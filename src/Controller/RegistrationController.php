@@ -5,11 +5,14 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\RegistrationFormType;
 use App\Security\LoginFormAuthenticator;
+use Stripe\ApiOperations\Retrieve;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 
 class RegistrationController extends AbstractController
@@ -23,12 +26,40 @@ class RegistrationController extends AbstractController
         $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        var_dump(filter_input_array(INPUT_POST, $request->getContent()));
+        $username = filter_var($request->request->get("username"), FILTER_SANITIZE_STRING);
+        $email = filter_var($request->request->get("email"), FILTER_VALIDATE_EMAIL);
+        $password = filter_var($request->request->get("plainPassword"), FILTER_SANITIZE_STRING);
+        $token = filter_var($request->request->get("_token"), FILTER_SANITIZE_STRING);
+
+        $listErrors = validateRegistration($username, $email, $password);
+
+        if($listErrors) {
+            $data = $this->get("serializer")->serialize($listErrors, 'json');
+            $response = new Response($data);
+            $response->headers->set("Content-Type", "application/json"); 
+            return $response;
+
+        }
+
+        /*var_dump($username);
+        var_dump($email);
+        var_dump($password);
+        var_dump($token); */
+
+        //return new Response($email);
+
+        //if ($form->isSubmitted() && $form->isValid()) {
+            if($this->isCsrfTokenValid('registration', $token)) {
+                $user->setUsername($username);
+                $user->setEmail($email);
+            
             // encode the plain password
             $user->setPassword(
                 $passwordEncoder->encodePassword(
                     $user,
-                    $form->get('plainPassword')->getData()
+                    //$form->get('plainPassword')->getData()
+                    $password
                 )
             );
 
@@ -47,11 +78,40 @@ class RegistrationController extends AbstractController
                 $authenticator,
                 'main' // firewall name in security.yaml
             ); 
-            
         }
+            
+      //  } 
 
         return $this->render('registration/register.html.twig', [
             'registrationForm' => $form->createView(),
-        ]); 
+        ]);  
     }
+}
+
+function validateRegistration($username, $email, $password) {
+
+    $listErrors = [];
+
+   if(!$username) {
+       $listErrors["username"] = "Your username can not be empty";
+   }
+
+   if(strlen($username) < 5) {
+       $listErrors["username"]  = "Your username can not be less than 5 characters long";
+   }
+
+   if(!$email) {
+       $listErrors["email"]  = "Your email is not valid";
+   }
+
+   if(!$password) {
+       $listErrors["password"]  = "Your password is not valid";
+   }
+   
+   if(strlen($password) < 7) {
+       $listErrors["password"] = "Your password can not be less than 7 characters long";
+   }
+
+   return $listErrors;
+   
 }

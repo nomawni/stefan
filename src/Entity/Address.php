@@ -59,6 +59,16 @@ class Address
      */
     private $shipment;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $fullName;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $instructions;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -177,6 +187,30 @@ class Address
     public function setShipment(?Shipment $shipment): self
     {
         $this->shipment = $shipment;
+
+        return $this;
+    }
+
+    public function getFullName(): ?string
+    {
+        return $this->fullName;
+    }
+
+    public function setFullName(string $fullName): self
+    {
+        $this->fullName = $fullName;
+
+        return $this;
+    }
+
+    public function getInstructions(): ?string
+    {
+        return $this->instructions;
+    }
+
+    public function setInstructions(?string $instructions): self
+    {
+        $this->instructions = $instructions;
 
         return $this;
     }

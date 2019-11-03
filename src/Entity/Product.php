@@ -51,14 +51,8 @@ class Product
     private $tags;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\ProductImage", cascade={"persist"})
-     * @ORM\JoinColumn(nullable=true)
-     */
-    private $productImage;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Category", cascade={"persist"})
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\ManyToOne(targetEntity="App\Entity\Category", cascade={"merge"})
+     * @ORM\JoinColumn(name="category_id", referencedColumnName="id", nullable=false)
      */
     private $category;
 
@@ -83,12 +77,12 @@ class Product
     private $stars;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Cart", inversedBy="products")
+     * @ORM\ManyToMany(targetEntity="App\Entity\Cart", inversedBy="products", cascade={"persist", "remove"})
      */
     private $carts;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\WhishLists", inversedBy="products")
+     * @ORM\ManyToMany(targetEntity="App\Entity\WhishLists", inversedBy="products", cascade={"persist", "remove"})
      */
     private $whishlists;
 
@@ -103,6 +97,17 @@ class Product
      */
     private $comments;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\ProductImage", mappedBy="product", cascade={"persist"},
+     * orphanRemoval=true)
+     */
+    private $productImages;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Transactions", mappedBy="products")
+     */
+    private $transactions;
+
     public function __construct()
     {
         $this->addedAt = new \DateTimeImmutable();
@@ -112,6 +117,8 @@ class Product
         $this->whishlists = new ArrayCollection();
         $this->carts = new ArrayCollection();
         $this->comments = new ArrayCollection();
+        $this->productImages = new ArrayCollection();
+        $this->transactions = new ArrayCollection();
     }
 
     public function __toString()
@@ -211,18 +218,6 @@ class Product
         if ($this->tags->contains($tag)) {
             $this->tags->removeElement($tag);
         }
-
-        return $this;
-    }
-
-    public function getProductImage(): ?ProductImage
-    {
-        return $this->productImage;
-    }
-
-    public function setProductImage(ProductImage $productImage): self
-    {
-        $this->productImage = $productImage;
 
         return $this;
     }
@@ -395,6 +390,65 @@ class Product
             if ($comment->getProduct() === $this) {
                 $comment->setProduct(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ProductImage[]
+     */
+    public function getProductImages(): Collection
+    {
+        return $this->productImages;
+    }
+
+    public function addProductImage(ProductImage $productImage): self
+    {
+        if (!$this->productImages->contains($productImage)) {
+            $this->productImages[] = $productImage;
+            $productImage->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductImage(ProductImage $productImage): self
+    {
+        if ($this->productImages->contains($productImage)) {
+            $this->productImages->removeElement($productImage);
+            // set the owning side to null (unless already changed)
+            if ($productImage->getProduct() === $this) {
+                $productImage->setProduct(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Transactions[]
+     */
+    public function getTransactions(): Collection
+    {
+        return $this->transactions;
+    }
+
+    public function addTransaction(Transactions $transaction): self
+    {
+        if (!$this->transactions->contains($transaction)) {
+            $this->transactions[] = $transaction;
+            $transaction->addProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTransaction(Transactions $transaction): self
+    {
+        if ($this->transactions->contains($transaction)) {
+            $this->transactions->removeElement($transaction);
+            $transaction->removeProduct($this);
         }
 
         return $this;

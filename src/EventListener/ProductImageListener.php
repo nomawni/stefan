@@ -5,6 +5,7 @@ namespace App\EventListener;
 use App\Entity\ProductImage;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Event\LifecycleEventArgs;
+use Vich\UploaderBundle\Event\Event;
 use Vich\UploaderBundle\Templating\Helper\UploaderHelper;
 
 class ProductImageListener {
@@ -16,7 +17,7 @@ class ProductImageListener {
     }
 
     /**
-     * ORM\PrePersist()
+     * @ORM\PrePersist()
      */
 
      public function prePersist(LifecycleEventArgs $args) {
@@ -34,12 +35,12 @@ class ProductImageListener {
      }
 
      /**
-     * ORM\PreRemove()
-     */
+      * @ORM\PreUpdate()
+      */
 
-    public function preRemove(LifecycleEventArgs $args) {
+    public function preRemove(LifecycleEventArgs $event) {
          
-        $entity = $args->getEntity();
+        $entity = $event->getEntity();
 
         if($entity instanceof ProductImage) {
 
@@ -48,13 +49,13 @@ class ProductImageListener {
         }
      }
 
-     public function onPostRemove(Event $event)
+     public function onPostRemove(Event $args)
     {
         // get the file object
-        $removedFile = $event->getObject();
+        $removedFile = $args->getObject();
         // remove the file object from the database
        // $this->em->remove($removedFile);
        // $this->em->flush();
-    }
+    } 
 
 }

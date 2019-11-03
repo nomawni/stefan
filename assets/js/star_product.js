@@ -21,13 +21,22 @@ import Routes from '../../public/js/fos_js_routes.json';
 
         let url = Routing.generate("star_new");
         
-        let starValue = item.dataset.star ? item.dataset.star : null;
+        let starValue = item.dataset.star;
+
+        if(!starValue) {
+            alert("the value of the star can not be null");
+            return;
+        }
 
         let productItem = item.closest(".product-container");
 
         let listStars = productItem.querySelectorAll('.fa-star');
 
-        let productId = productItem.dataset.productId ? productItem.dataset.productId : null;
+        let productId = productItem.dataset.productId;
+
+        if(!productId) {
+            alert(" the Id of product can not be null");
+        }
 
         let starId = item.dataset.starId ? item.dataset.starId : null;
 

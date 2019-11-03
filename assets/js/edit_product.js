@@ -2,9 +2,10 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
  import Routes from '../../public/js/fos_js_routes.json';
 //window.addEventListener("load", function() {
 
-    let editProduct = document.querySelector(".edit-product");
+   // let editProduct = document.querySelector(".edit-product");
 
-    editProduct.addEventListener("click", e => {
+    //editProduct.addEventListener("click", e => {
+    $(document).on("click", '.edit-product', function() {
 
         Routing.setRoutingData(Routes);
 
@@ -14,6 +15,14 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
 
         let modalBodyBackup = productItemModalBody.cloneNode(true);
 
+        /* The begining of the cloning of the product new Modal */
+
+        let modalProductNewBody = document.getElementById("modalProductNewBody");
+
+        let clonedProductNewBody = modalProductNewBody.cloneNode(true);
+
+        /* End */
+
         /*let ModalTitel = */ productItemModal.querySelector('.modal-title').innerHTML = "Edit Product";
 
         let productId = productItemModal.dataset.productId;
@@ -22,9 +31,6 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
 
         if (!productId)
             return;
-
-        console.log(productId);
-        alert(productId);
 
         let url = Routing.generate("product_edit", {id: productId}); //`http://localhost:8001/product/edit/${productId}`;
 
@@ -58,11 +64,12 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
 
         response.then(data => {
 
-            productItemModalBody.innerHTML = "";
+            //productItemModalBody.innerHTML = "";
+            //alert("Inside then");
 
-            let modalProductNewBody = document.getElementById("modalProductNewBody");
+            //let modalProductNewBody = document.getElementById("modalProductNewBody");
 
-            let clonedProductNewBody = modalProductNewBody.cloneNode(true);
+            //let clonedProductNewBody = modalProductNewBody.cloneNode(true);
 
             let productNewModalTitle = productItemModal.querySelector("#productItemModalTitle");
 
@@ -94,7 +101,9 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
 
             productDescription.innerHTML = data.description;
 
-            productCategory.value = data.category.name;
+            //productCategory.value = data.category.name;
+
+            serializeCategory(productCategory, data.category);
 
             var tagsString = "";
 
@@ -102,7 +111,7 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
 
                // productTags.value += elem.name + ', ';
 
-               tagsString += elem.name + ', '
+               tagsString += elem.name + ','
             });
 
             //productTags = productTags.substr(-1, 1);
@@ -119,7 +128,9 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
 
             //newProductForm.id = "editProductForm";
 
-            productItemModalBody.appendChild(clonedProductNewBody);
+           // productItemModalBody.appendChild(clonedProductNewBody);
+
+           productItemModalBody.replaceWith(clonedProductNewBody);
 
             let newProductForm = clonedProductNewBody.querySelector("#newProductForm");
 
@@ -131,7 +142,7 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
 
            updateProductBtn.innerHTML = "Update";
 
-           let productImage = productItemModalBody.querySelector("#productImage");
+           //let productImage = productItemModalBody.querySelector("#productImage");
 
            updateProductBtn.onclick = function() { 
 
@@ -162,18 +173,19 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
         
              }
 
-            productItemModalBody.parentNode.insertBefore(modalFooter, productItemModalBody.nextSibling);
-
+             alert("Hello world");
+             console.log(modalFooter);
+             console.log(clonedProductNewBody)
+             let productItemFooter = productItemModal.querySelector(".modal-footer");
+            //productItemModalBody.parentNode.insertBefore(modalFooter, productItemModalBody.nextSibling);
+            clonedProductNewBody.parentNode.insertBefore(modalFooter, productItemModalBody.nextSibling);
+            //productItemFooter.replaceWith(modalFooter);
             //productItemModalBody.replaceWith(clonedProductNewBody);
-
-            console.log(productItemModalBody);
-
-            console.log(buttonFooter);
 
         });
 
 
-           let preview = modalProductNewBody.querySelector(".preview");
+          // let preview = modalProductNewBody.querySelector(".preview");
 
            productImage.style.display = "none";
 
@@ -189,19 +201,62 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
 
        // $('.modal').modal('show');
 
-       $("#productItemModal").on('hidden.bs.modal', e => {
+       $("#productItemModal").on('hidden.bs.modal', function(e) {
 
         productItemModalBody.innerHTML = "";
 
-        console.log(modalBodyBackup);
+        //let editButton = modalBodyBackup.querySelector(".edit-product");
 
-        let editButton = modalBodyBackup.querySelector(".edit-product");
+        //editButton.onclick = function() { editProductItem(); }
 
-        editButton.onclick = function() { editProductItem(); }
+        let footerToDelete = productItemModal.querySelector(".modal-footer");
+        console.log(footerToDelete);
+        footerToDelete ? footerToDelete.remove() : null;
 
-        productItemModalBody.appendChild(modalBodyBackup);
+        //productItemModalBody.appendChild(modalBodyBackup);
+        clonedProductNewBody.replaceWith(modalBodyBackup);
+
        });
-   // });
+
+    //});
+
+   function serializeCategory(productCategory, category) {
+
+    //let productCategory = document.querySelector("#productCategory");
+
+      let url = Routing.generate("category_all");
+
+      let response = fetch(url, {
+        method: "GET", 
+        headers: {
+          "Accept": "application/json"
+        }
+      }).then(response => response.json())
+        .then(data => {
+           console.log(JSON.stringify(data));
+           return data;
+        })
+        .catch(error => console.error(error));
+
+        response.then(res => {
+
+          res.map(data => {
+  
+         //$("#productCategory").append("<option value=")
+         
+         let option = document.createElement("option");
+         option.setAttribute("value", data.id);
+         option.innerHTML = data.name;
+
+         if(data.name == category.name) {
+           option.selected = true;
+         }
+  
+         productCategory.appendChild(option);
+          });
+  
+        });
+   }
 
     function editProductItem(elem) {
 
@@ -221,8 +276,8 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
         if (!productId)
             return;
 
-        console.log(productId);
-        alert(productId);
+        /*console.log(productId);
+        alert(productId); */
 
         let url = Routing.generate("product_edit", {id: productId}); //`http://localhost:8001/product/edit/${productId}`;
 
@@ -290,7 +345,8 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
 
             productDescription.innerHTML = data.description;
 
-            productCategory.value = data.category.name;
+            //productCategory.value = data.category.name;
+            serializeCategory(productCategory, data.category);
 
             var tagsString = "";
 
@@ -319,9 +375,9 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
 
             console.log(clonedProductNewBody)
 
-             productItemModalBody.appendChild(clonedProductNewBody);
+            //productItemModalBody.appendChild(clonedProductNewBody);
 
-           // productItemModalBody.replaceWith(clonedProductNewBody);
+            productItemModalBody.replaceWith(clonedProductNewBody);
 
            let buttonFooter = modalFooter.querySelectorAll("button");
 
@@ -362,7 +418,8 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
         
             }
 
-           productItemModalBody.parentNode.insertBefore(modalFooter, productItemModalBody.nextSibling);
+           //productItemModalBody.parentNode.insertBefore(modalFooter, productItemModalBody.nextSibling);
+           clonedProductNewBody.parentNode.insertBefore(modalFooter, productItemModalBody.nextSibling);
 
            console.log(buttonFooter[1]);
 
@@ -370,17 +427,15 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
 
         });
 
-        
-
         //$('.modal').modal('hide');
 
        // $('#productEditModal').modal('toggle');
 
        // $('.modal').modal('show');
 
-       $("#productItemModal").on('hidden.bs.modal', e => {
+       $("#productItemModal").on('hidden.bs.modal', function(e) {
 
-        productItemModalBody.innerHTML = "";
+        //productItemModalBody.innerHTML = "";
 
         console.log(modalBodyBackup);
 
@@ -388,7 +443,10 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
 
         editButton.onclick = function() { editProductItem(this); }
 
-        productItemModalBody.appendChild(modalBodyBackup);
+        //productItemModalBody.appendChild(modalBodyBackup);
+        console.log("cccccccccccccccccccccccccccccccccccccccccccccccc");
+        console.log(productItemModalBody);
+        clonedProductNewBody.replaceWith(modalBodyBackup);
        });
     }
 

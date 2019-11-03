@@ -22,12 +22,10 @@
 
 #result {
     position: absolute;
-    top: 60px;
     width: 100%;
-    max-width: 200px;
     cursor: pointer;
     overflow: auto;
-    max-height: 400px;
+    max-height: auto;
     box-sizing: border-box;
     z-index: 1001;
 }

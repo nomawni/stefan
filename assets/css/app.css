@@ -2,6 +2,19 @@ body {
     background-color: lightgray;
 }
 
+#searchItemForm {
+   
+    margin-top: 15px;
+    width: 50%;
+}
+.autocomplete {
+    width: 100%;
+}
+
+#searchItem {
+    width: 80%;
+}
+
 .avatarInput {
 	width: 0.1px;
 	height: 0.1px;
@@ -28,3 +41,9 @@ body {
     cursor: pointer;
 }
 
+.avatar {
+    vertical-align: middle;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+  }

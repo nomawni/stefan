@@ -17,7 +17,7 @@ use Symfony\Component\Serializer\Serializer;
 class DefaultController extends AbstractController {
 
     /**
-     * @Route("/", name="app_homepage")
+     * @Route("/", name="app_homepage", options={"expose"= true})
      */
     public function index(Request $request, ProductRepository $products): Response {
 

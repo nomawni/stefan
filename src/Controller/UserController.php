@@ -76,55 +76,59 @@ class UserController extends AbstractController
      */
     public function edit(Request $request): Response
     {
+        $user = $this->getUser();
+        $avatar = new Avatar();
         $encoder = new JsonEncoder();
         $normalizer = new ObjectNormalizer();
         $serializer = new Serializer([$normalizer], [$encoder]);
-        
+        //$avatarName = $_FILES["avatarFile"] ?? "";
         //$content = $request->getContent();
-
         //$content = $request->get("data");
         $content = $request->get("data");
-
         $contentObject = \json_decode($content);
-
-        $user = $this->getUser();
-
-        $userToUpdate = new User();
-
-        $avatar = new Avatar();
-
-        //$formData = $request->files;
-
+        //var_dump($contentObject);
+        //var_dump($content);
+        //var_dump($avatarName);
        // $form = $this->createForm(UserType::class, $user);
        // $form->handleRequest($request);
 
        // if ($form->isSubmitted() && $form->isValid()) { 
 
-            if($request->isMethod("POST")) {
+            //if($request->isMethod("POST")) {
 
             if($contentObject->username && $contentObject->email) {
-
             $user->setUsername($contentObject->username);
             $user->setEmail($contentObject->email);
-
-            $this->get("serializer")->deserialize($content, User::class, 'json', 
-                                 ['object_to_populate' => $userToUpdate]);
+            /* $this->get("serializer")->deserialize($content, User::class, 'json', 
+                                 ['object_to_populate' => $user]); */
             
-
+            //if($avatarName) {
             if(isset($_FILES["avatarFile"])) {
 
-            $avatarFilte = $_FILES["avatarFile"];
+            $avatarFile = $_FILES["avatarFile"];
+            //$imgTmp = $_FILES["avatarFile"]["tmp_name"]; //$avatarFile["tmp_name"];
+            //var_dump($imgTmp);
+            //$imgName = $_FILES["avatarFile"]["name"]; //$avatarFile["name"];
+            //var_dump($imgName);
+            //$imgType = $_FILES["avatarFile"]["type"]; //$avatarFile["type"];
+            //var_dump($avatarFile["type"]);
 
-            //var_dump($avatarFilte);
-
-            $avatarToUpload = new UploadedFile($avatarFilte["tmp_name"], $avatarFilte["name"]);
-                         
-            $avatar->setAvatarFile($avatarToUpload);
-                         
+            //$avatarToUpload = new UploadedFile($imgTmp, $imgName, $imgType); 
+            $avatarToUpload = new UploadedFile($avatarFile["tmp_name"], $avatarFile["name"], $avatarFile["type"]);       
+            //var_dump($avatarToUpload);              
+            $avatar->setAvatarFile($avatarToUpload);             
             $user->setAvatar($avatar);
+            var_dump($avatar); 
+            //var_dump($user);
+            
             }
 
             $this->getDoctrine()->getManager()->flush();
+
+           /* $this->get("serializer")->deserialize($content, User::class, 'json', 
+            ['object_to_populate' => $user]); */
+
+           // $this->getDoctrine()->getManager()->flush();
 
             $data = $serializer->serialize($user, 'json', [
                 AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER => function($object) {
@@ -132,65 +136,13 @@ class UserController extends AbstractController
                 }
             ]);
 
+            //var_dump($data);
+
             $response = new Response($data);
             $response->headers->set("Content-Type", "application/json");
-
             return $response; //new JsonResponse($user);
             }
-        }
-
-       /// }
-
-       // var_dump($user->getAvatar()->getHeadshot());
-
-      //  var_dump($form->get("originalName")->getData());
-
-          //var_dump($request->get("data"));
-
-          //var_dump($_FILES);
-
-          //var_dump($content);
-
-          //var_dump($avatar);
-
-          //var_dump($formData);
-
-          //var_dump($request->get('data'));
-
-          //var_dump($content->email);
-
-          //$entityManager = $this->getDoctrine()->getManager()->getRepository(User::class);
-
-          
-
-           
-
-          /* $encoder = new JsonEncoder();
-
-           $normalizer = new ObjectNormalizer();
-
-           $serializer = new Serializer([$normalizer], [$encoder]);
-
-           $this->get("serializer")->deserialize($content, User::class, 'json', 
-                                 ['object_to_populate' => $user]);
-
-            $this->getDoctrine()->getManager()->flush();
-
-            $this->addFlash('success', 'user.updated_successfully');
-
-            //$data = $this->get("serializer")->serialize($user, 'json');
-
-            $data = $serializer->serialize($user, 'json', [
-                AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER => function($object) {
-
-                    return $object->getId();
-                }
-            ]); */
-
-            //$response = new Response(json_encode($user));
-
-            //$response->headers->set("Content-Type", "applicatin/json");
-
+        //}
             return  new JsonResponse($user); //$response;
 
             //return $this->redirectToRoute('user_edit');

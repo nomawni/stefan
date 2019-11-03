@@ -1,33 +1,26 @@
-
+import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/public/js/router';
+ import Routes from '../../public/js/fos_js_routes.json';
 window.addEventListener("load", function() {
 
     let deleteProduct = document.querySelector(".delete-product");
 
     deleteProduct.addEventListener("click", e => {
 
-        let url = "http://localhost:8001/product/delete/";
+        Routing.setRoutingData(Routes);
+
+         //"http://localhost:8001/product/delete/";
 
         let productItemModal = deleteProduct.closest("#productItemModal");
 
-        //let _token = productItemModal.getElementsByName("_token");
-
-        //let _method = productItemModal.getElementsByName("_method");
-
-        productId = productItemModal.dataset.productId;
-
-       /* let data = {
-            ProductId: productId,
-           // _token: _token,
-           // _method: _method
-        } */
-
-       // console.log(data);
+        let productId = productItemModal.dataset.productId;
         
         if(!productId) {
             return;
         }
+
+        let url = Routing.generate("product_delete", {id: productId});
          
-        url = url + productId;
+        //url = url + productId;
 
         //alert(_token);
 

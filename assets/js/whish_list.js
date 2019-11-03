@@ -5,13 +5,16 @@ import Routes from '../../public/js/fos_js_routes.json';
 
 var listAddCart = document.querySelectorAll('.add-whishlist');
 
-listAddCart.forEach(function(item, pos) {
+//listAddCart.forEach(function(item, pos) {
 
-    item.addEventListener('click', function(e) {
+   // item.addEventListener('click', function(e) {
+
+   $(document).on("click", ".add-whishlist", function(e) {
 
         Routing.setRoutingData(Routes);
 
         let url = Routing.generate("whish_lists_new");
+        let item = e.target;
 
     // let productItem = document.querySelectorAll('.productItem')[pos];
 
@@ -110,4 +113,3 @@ listAddCart.forEach(function(item, pos) {
 
 });
    
-});

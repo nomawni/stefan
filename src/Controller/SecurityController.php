@@ -8,6 +8,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class SecurityController extends AbstractController
 {
@@ -17,19 +18,36 @@ class SecurityController extends AbstractController
     public function login(Request $request, Security $security, AuthenticationUtils $authenticationUtils): Response
     {
          if ($this->getUser() || $security->isGranted("ROLE_USER")) {
-            //$this->redirectToRoute('app_homepage');
+            
+            return $this->redirectToRoute('app_homepage');
+            $data = $this->get("serializer")->serialize($this->getUser(), 'json');
+            $response = new Response(
+                $data,
+                Response::HTTP_OK,
+                ["Content-Type" => "application/json"]
+            );
 
-            return new Response("Eveything is good");
+            return $response; 
          }
 
-      //  $this->saveTargetPath($request->getSession(), 'main', $this->generateUrl(""));
+       $this->saveTargetPath($request->getSession(), 'main', $this->generateUrl("app_homepage"));
 
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
         // last username entered by the user
         $lastUsername = $authenticationUtils->getLastUsername();
 
-        return $this->render('security/login.html.twig', ['last_username' => $lastUsername, 'error' => $error]);
+        $dataArr = ['last_username' => $lastUsername, 'error' => $error];
+        $data = $this->get("serializer")->serialize($dataArr, 'json');
+        $response = new Response(
+            $data,
+            Response::HTTP_BAD_REQUEST, 
+            ["Content-Type" => "application/json"]
+        );
+
+        return $response;
+
+        //return $this->render('security/login.html.twig', ['last_username' => $lastUsername, 'error' => $error]);
     }
 
     /**

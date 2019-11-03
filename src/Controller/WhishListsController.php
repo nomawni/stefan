@@ -127,12 +127,12 @@ class WhishListsController extends AbstractController
 
         $response = new Response();
 
-        if(!$this->getUser()){
+       /* if(!$this->getUser()){
 
             $response->setStatusCode(Response::HTTP_FORBIDDEN);
             $response->setContent("You are not connected");
             return $response;
-        }
+        } */
 
         $whishListsRepository = $this->getDoctrine()->getManager()->getRepository(WhishLists::class);
         $allWhishlists = $whishListsRepository->findBy(array('customer' => $this->getUser()));

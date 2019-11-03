@@ -2,16 +2,15 @@ import Ajax from './ajax.js';
 const routes = require('../../public/js/fos_js_routes.json');
 import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/public/js/router.min.js';
 
-//let lf = "http://localhost:8001/cart/";
+//var listAddCart = document.querySelectorAll('.add-cart');
 
-//let url = window.cardNew;
+//listAddCart.forEach(function(item, pos) {
 
-var listAddCart = document.querySelectorAll('.add-cart');
+    //item.addEventListener('click', function(e) {
 
-listAddCart.forEach(function(item, pos) {
+    $(document).on("click", ".add-cart", function(e) {
 
-    item.addEventListener('click', function(e) {
-
+        let item = e.target;
         Routing.setRoutingData(routes);
 
         let url = Routing.generate("cart_new");
@@ -136,4 +135,3 @@ listAddCart.forEach(function(item, pos) {
 
 });
    
-});
