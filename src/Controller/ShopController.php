@@ -103,6 +103,40 @@ class ShopController extends AbstractController
 
         return $response;
     }
+    /**
+     * @Route("/user/shops", name="user_shops", methods="GET", options={"expose"=true})
+     */
+
+    public function userShops(): Response {
+
+        $user = $this->getUser();
+        $response = new Response();
+        if(!$user) {
+            $response->setStatusCode(Response::HTTP_FORBIDDEN);
+            $response->setContent("You are not connected !");
+            return $response;
+        }
+
+        $repository = $this->getDoctrine()->getRepository(Shop::class);
+        $listShops = $repository->findBy(["owner" => $user]);
+        //$encoded = json_encode($listShops); //$this->get("serializer")->serialize($listShops, 'json');
+        $encoder = new JsonEncoder();
+        $normalizer = new ObjectNormalizer();
+        $serializer = new Serializer([$normalizer], [$encoder]);
+        $data = $serializer->serialize($listShops, 'json', [
+            AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER => function($object) {
+                return $object->getId();
+            }
+        ]);    
+    
+
+        $response->setStatusCode(Response::HTTP_OK);
+        $response->setContent($data);
+        $response->headers->set("Content-Type", "application/json");
+
+        return $response;
+
+    }
 
     /**
      * @Route("/{id}/edit", name="shop_edit", methods={"GET","POST"}, options={"expose"=true})

@@ -34,8 +34,42 @@ class ProductRepository extends ServiceEntityRepository
         foreach ($searchTerms as $key => $term) {
             $db
                 ->orWhere('p.name LIKE :t_'.$key)
-            //    ->orWhere('p.tags LIKE :t_'.$key)
+                //->orWhere('p.tags LIKE :t_'.$key)
+                //->orWhere($term.' IN p.tags')
                 ->select("p.addedAt, p.name, p.id")
+                ->setParameter('t_'.$key, '%'.$term.'%')
+            ;
+        }
+
+        return $db
+            ->orderBy('p.addedAt', 'DESC')
+          //  ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+
+    }
+
+    public function listSearchedItems(string $searchedItem) {
+
+        $query = $this->sanitizeSearchQuery($searchedItem);
+
+        $searchTerms = $this->extractSearchTerms($query);
+
+        if (0 === \count($searchTerms)) {
+            return [];
+        }
+
+        $db = $this->createQueryBuilder('p');
+
+        foreach ($searchTerms as $key => $term) {
+            $db
+                //->where('p.name LIKE :t_'.$key)
+                //->join('p.tags', "tag")
+                //->addSelect("tag")
+               // ->andWhere("p.tags LIKE :t_".$key)
+                ->orWhere('p.name LIKE :t_'.$key)
+                //->orWhere($term.' IN p.tags')
+                ->select("p")
                 ->setParameter('t_'.$key, '%'.$term.'%')
             ;
         }

@@ -1,14 +1,19 @@
 import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/public/js/router';
-
 import Routes from '../../public/js/fos_js_routes.json';
+import Checkout from './functions/checkout_list.js';
 
 let whishlists = document.querySelector("#whishlists");
 
 whishlists.addEventListener('click', function(e) {
 
+    //let whishlists = document.querySelector("#whishlistModal");
+
+    let whishlistModal = document.getElementById("whishlistModal");
+
     Routing.setRoutingData(Routes);
     
-    let url = Routing.generate("whishlists_show_all"); //window.whishlistAll;
+    let url = Routing.generate("whishlists_show_all"); 
+
     let status = null;
 
     let response = fetch(url, {
@@ -25,8 +30,6 @@ whishlists.addEventListener('click', function(e) {
 
     response.then(products => {
 
-        let whishlistModal = document.getElementById("whishlistModal");
-
         let whishlistModalTitle = whishlistModal.querySelector("#whishlistModalTitle");
 
         let modalWhishListBody = document.getElementById('modalWhishListBody');
@@ -41,8 +44,8 @@ whishlists.addEventListener('click', function(e) {
         let elemContainer = document.createElement("div");
         let productHeaderNames = ["Product","Quantity", "Price", "Size", "Delete", "TotalSub"];
 
-        //elemContainer.classList.add("product-container");
         let table = document.createElement("table");
+        table.classList.add("item-to-buy");
         let theader = document.createElement('thead');
         table.appendChild(theader);
         let row = document.createElement("tr");
@@ -58,7 +61,8 @@ whishlists.addEventListener('click', function(e) {
             row.appendChild(headerCol);
         });
        
-        modalWhishListBody.appendChild(table);
+        //modalWhishListBody.appendChild(table);
+        modalWhishListBody.insertBefore(table, modalWhishListBody.childNodes[0]);
         let tbody = document.createElement("tbody");
         table.appendChild(tbody);
         let tfooter = document.createElement("tfoot");
@@ -66,33 +70,41 @@ whishlists.addEventListener('click', function(e) {
        // the footer part          
           let footerTh =  document.createElement("th");
           footerTh.setAttribute("scope", "row");
+          footerTh.setAttribute("colspan", "6");
           footerTh.innerHTML = "Totals";
           tfooter.appendChild(footerTh);
           let totalSumItemsTd = document.createElement("td");
+          totalSumItemsTd.classList.add("total-sum-items");
           tfooter.appendChild(totalSumItemsTd);
           let totalItemsAmount = 0;
 
         products.map(whishList => {
 
             let item = whishList.products[0];
+            let timeLap = whishList.dateAdded.timestamp;
+
+            let dateAdded = new Date(timeLap * 1000);
+            //dateAdded.setMilliseconds(timeLap);
+            console.log(timeLap);
+            console.log(whishList);
+            console.log(`The date time ${dateAdded}`);
+            console.log(`Original ${whishList.dateAdded.timestamp}`);
 
             let i =0;
             let rowBody = document.createElement("tr");
 
             rowBody.dataset.whishListId = whishList.id
             rowBody.dataset.productId = item.id;
-            //rowBody.appendChild(tbody);
+           
             tbody.appendChild(rowBody);
 
             let imgTd = document.createElement("td");
             rowBody.appendChild(imgTd);
-            //productTd.setAttribute("collapse", 2);
+    
             let prodImg = document.createElement('img');
-
-            //let img = item.productImages[0] ? item.productImages[0].finalPath : null;
             let name = item.name;
 
-            prodImg.src = item.productImages[0] ? item.productImages[0].finalPath : null; //img.finalPath;
+            prodImg.src = item.productImages[0] ? item.productImages[0].finalPath : null; 
             prodImg.style.width = "50px";
             prodImg.style.hidden = "50px";
             imgTd.appendChild(prodImg);
@@ -118,8 +130,7 @@ whishlists.addEventListener('click', function(e) {
             priceTd.classList.add("price");
             rowBody.appendChild(priceTd);
             let price = item.price;
-            //let priceTd = document.createElement("td");
-            //rowBody.appendChild(priceTd);
+      
             priceTd.innerHTML = price;
 
             // The size of the item
@@ -139,7 +150,7 @@ whishlists.addEventListener('click', function(e) {
             removeItem.classList.add("btn", "btn-primary");
             let deleteIcon = document.createElement("i");
             deleteIcon.classList.add("fas", "fa-trash");
-            //removeItem.innerHTML = "Remove";
+            
             removeItem.appendChild(deleteIcon);
             removeItemTd.appendChild(removeItem);
 
@@ -151,204 +162,70 @@ whishlists.addEventListener('click', function(e) {
 
             qtInput.addEventListener("change", function() {
                 let itemSubTotal = this.parentElement.parentElement.querySelector(".sub-total");
-                //let itemQtTotal = this.parentElement.parentElement.querySelector(".quantity");
+    
                 let itemPriceTotal = this.parentElement.parentElement.querySelector(".price");
-                //itemSubTotal.innerHTML = itemQtTotal.value * itemPriceTotal.innerHTML;
-                //itemSubTotal.innerHTML = this.value * itemPriceTotal.innerHTML;
-                
+            
                 let totalItemPrice = this.value * itemPriceTotal.innerHTML;
                 totalItemPrice = parseFloat(totalItemPrice).toFixed(2);
-                itemSubTotal.innerHTML = totalItemPrice; //this.value * itemPriceTotal.innerHTML;
+                itemSubTotal.innerHTML = totalItemPrice;
                 let allSubTotals = document.querySelectorAll(".sub-total");
                 let val =0;
                     allSubTotals.forEach(function(subTotal, pos)  {
-                        console.log(subTotal);
-                        console.log(val);
+                
                         val += parseFloat(subTotal.innerHTML);
                     });
                     totalSumItemsTd.innerHTML = parseFloat(val).toFixed(2);
             });
-            //qtTd.appendChild(qtInput);
 
             let subTotal = price * qtInput.value;
-            //subTotal = parseFloat(subTotal).toFixed(2);
-            //let subTotalTd = document.createElement("td");
+
             subTotalTd.classList.add("sub-total");
-            //rowBody.appendChild(subTotalTd);
+            
             subTotalTd.innerHTML = subTotal;
 
-            
-            /*totalSumItemsTd.innerHTML*/ totalItemsAmount += subTotal; 
-
-           /* let allSubTotals = document.querySelectorAll(".sub-total");
-
-            allSubTotals.forEach(function(elem, pos) {
-                console.log(elem);
-                elem.addEventListener("change", function() {
-
-                    let val;
-                    allSubTotals.map(subTotal => {
-                        val += subTotal.innerHTML;
-                    });
-
-                    totalSumItemsTd.innerHTML = val;
-
-                });
-            }); */
-
-            /*
-
-            let productContainer = document.createElement("div");
-
-            productContainer.classList.add("product-container");
-
-            productContainer.dataset.productId = item.id;
-
-            productContainer.dataset.whishListId = product.id;
-
-            let productImg = document.createElement('img');
-
-            let produdDesc = document.createElement('p');
-
-            productImg.src = product.prodFinalPath;
-
-           let productTitle = document.createElement("h1");
-
-           let productPrice = document.createElement("p");
-
-           let productQt = document.createElement("p");
-
-           productTitle.innerHTML = item.name;
-            
-            if(item.productImage){
-                productImg.src = item.productImage.finalPath;
-                }
-
-             productPrice.innerHTML = "Price: " + item.price;
-
-             productQt.innerHTML = "Quantity: " + item.quantity;
-
-            produdDesc.innerHTML = item.description;
-
-            productContainer.appendChild(productImg);
-
-            productContainer.appendChild(productTitle);
-
-            productContainer.appendChild(produdDesc);
-
-            productContainer.appendChild(productPrice);
-
-            productContainer.appendChild(productQt);
-
-            let navRatings = document.createElement("ul");
-
-            navRatings.classList.add("nav", "rating");
-
-            for(let i = 1; i <= 5; i++) {
-
-              /*  let starProduct = document.createElement("li");
-
-                starProduct.classList.add("star-product");
-
-                let productStars = document.createElement("i"); */
-
-              /*  if(item.stars.length > 0) {
-
-                    item.stars.forEach((item, pos) => {
-
-                        let starProduct = document.createElement("li");
-
-                        starProduct.classList.add("star-product");
-        
-                        let productStars = document.createElement("i");
-
-                        if(item.value >= i) {
-
-                            productStars.classList.add("fas","fa-star", "cursor-pointer");
-                            starProduct.appendChild(productStars);
-                        }else {
-                            productStars.classList.add("far","fa-star","cursor-pointer");
-                            starProduct.appendChild(productStars);
-                        }
-
-                        navRatings.appendChild(starProduct);
-
-                    });
-
-               // starProduct.appendChild(productStars);
-                }else {
-
-                  //  for(let i=1; i <= 5; i++) {
-
-                        let starProduct = document.createElement("li");
-
-                        starProduct.classList.add("star-product");
-        
-                        let productStars = document.createElement("i");
-
-                    productStars.classList.add("far","fa-star","cursor-pointer");
-                    starProduct.appendChild(productStars);
-
-                    navRatings.appendChild(starProduct);
-                  //  }
-                }
-
-                productContainer.appendChild(navRatings);
-               // elemContainer.appendChild(productContainer);
-            }
-
-            console.log(product);
-
-            let removeProduct = document.createElement("button");
-
-            removeProduct.onclick = function() { removeProductFromWhishList(this) };
-
-            removeProduct.classList.add("btn", "btn-primary");
-
-            removeProduct.innerHTML = "Remove";
-
-            productContainer.appendChild(removeProduct);
-
-            elemContainer.appendChild(productContainer); */
+            totalItemsAmount += subTotal; 
 
         });
 
         // Setting the value of the total items
-        totalSumItemsTd.innerHTML = totalItemsAmount;
+        totalSumItemsTd.innerHTML = parseFloat(totalItemsAmount).toFixed(2);
 
-        //console.log(elemContainer);
-
-        //modalWhishListBody.appendChild(elemContainer);
+        let checkout = new Checkout(whishlistModal);
 
         $('#whishlistModal').modal('show');
-    })
+
+        $('#whishlistModal').on('show.bs.modal', function (e) {
+            //let productItemModalWrapper = productItemModal.querySelector('#productItemModalWrapper');
+            whishlistModal.querySelector(".checkout").style.display = "inline";
+
+        });
+    });
 
     $("#whishlistModal").on('hidden.bs.modal', e => {
 
-        modalWhishListBody.innerHTML = "";
+        //modalWhishListBody.innerHTML = "";
+        let paymentForm = whishlistModal.querySelector("form");
+        let listCartTable = whishlistModal.querySelector("table");
+        listCartTable.remove();
+        paymentForm.querySelectorAll(".tab")[1].style.display = "none";
+        paymentForm.style.display = "none";
     });
 });
 
 
 function removeProductFromWhishList(elem) {
 
-    //let product = elem.closest(".product-container");
-
-    let item = elem.parentElement.parentElement;
-
-     //"http://localhost:8001/whishlists/remove/";
-     console.log(elem);
-     console.log(item);
+    let item = elem.closest("tr"); //elem.parentElement.parentElement;
 
     if(!item) {
         alert("An error occured !");
         return;
     }
 
-    let productId = item ? item.dataset.productId: null; //product.dataset.productId;
 
-    let whishListId = item ? item.dataset.whishListId: null;  // product.dataset.whishListId;
+    let productId = item ? item.dataset.productId: null; 
 
+    let whishListId = item ? item.dataset.whishListId: null; 
 
     if(!productId || !whishListId) {
         alert("An error occured !");
@@ -360,8 +237,6 @@ function removeProductFromWhishList(elem) {
     }
 
     let url = Routing.generate("whish_lists_delete", {id: whishListId});
-
-    //url = url + whishListId;
 
     let response = fetch(url, {
         method: "POST",
@@ -388,16 +263,40 @@ function removeProductFromWhishList(elem) {
 
         if(data.type == "removed") {
 
-            //numberWhishList
+            //let tbody = item.closest("tbody");
+            let results = totalPriceItems(item);
+
             item.remove();
 
+            //let itemsTable = tbody.closest("table");
+
+            //let totalSumItems = itemsTable.querySelector(".total-sum-items");
+
+            //totalSumItems.innerHTML = results;
+            
             nwishlist.innerHTML = data.numberWhishList;
 
             addWhishlist.style = "black";
-
-            console.log("----------------------------------");
-            console.log(productElem);
         }
     })
 
+}
+
+function totalPriceItems(elem) {
+
+    let subTotal = elem.querySelector(".sub-total");
+
+    let subTotalVal = parseFloat(subTotal.innerHTML);
+
+    let table = elem.closest("table");
+
+    let totalSumItems  = table.querySelector(".total-sum-items");
+
+    let totalSumItemsVal = parseFloat(totalSumItems.innerHTML);
+
+    let newTotalSumItems = totalSumItemsVal - subTotalVal;
+
+    totalSumItems.innerHTML = parseFloat(newTotalSumItems).toFixed(2);
+
+    return newTotalSumItems;
 }

@@ -9,6 +9,8 @@ import Routes from '../../public/js/fos_js_routes.json';
 //starProduct.forEach(function(item, pros) {
 
     //item.addEventListener('click', function(e) {
+window.addEventListener("load", function(e) {
+
     $(document).on("click", '.star-product', function(e) {
 
         let itemFasStar = e.target;
@@ -18,8 +20,6 @@ import Routes from '../../public/js/fos_js_routes.json';
         console.log(item);
 
         Routing.setRoutingData(Routes);
-
-        let url = Routing.generate("star_new");
         
         let starValue = item.dataset.star;
 
@@ -37,6 +37,8 @@ import Routes from '../../public/js/fos_js_routes.json';
         if(!productId) {
             alert(" the Id of product can not be null");
         }
+
+        let url = Routing.generate("star_new", {id: productId });
 
         let starId = item.dataset.starId ? item.dataset.starId : null;
 
@@ -181,3 +183,4 @@ starProduct.forEach(function(item, pros) {
     })
 }) 
 } */
+});

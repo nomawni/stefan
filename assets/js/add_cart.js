@@ -13,8 +13,6 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
         let item = e.target;
         Routing.setRoutingData(routes);
 
-        let url = Routing.generate("cart_new");
-
         console.log(item);
 
     // let productItem = document.querySelectorAll('.productItem')[pos];
@@ -46,6 +44,8 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
      cartId = parseInt(cartId);
 
      console.log(productId);
+
+     let url = Routing.generate("cart_new", {id: productId});
 
      //let responseData;
         

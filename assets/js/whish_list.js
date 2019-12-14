@@ -12,8 +12,6 @@ var listAddCart = document.querySelectorAll('.add-whishlist');
    $(document).on("click", ".add-whishlist", function(e) {
 
         Routing.setRoutingData(Routes);
-
-        let url = Routing.generate("whish_lists_new");
         let item = e.target;
 
     // let productItem = document.querySelectorAll('.productItem')[pos];
@@ -31,6 +29,8 @@ var listAddCart = document.querySelectorAll('.add-whishlist');
      console.log(productId);
 
      let responseData;
+
+     let url = Routing.generate("whish_lists_new",{id: productId});
         
        let data = {
            Id: productId,

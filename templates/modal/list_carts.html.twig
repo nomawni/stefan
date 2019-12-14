@@ -10,6 +10,67 @@
       </div>
       <div class="modal-body" id="modalCartBody">
         
+       <!-- Begining of the payment form -->
+
+       <form action="/charge" method="post" class="payment-form" style="display:none;">
+       <!-- start of the delivery address div -->
+       
+       <div class="tab">
+
+             Delivery Address
+             <input type="text" name="fullName" id="fulllName" class="form-control" placeholder="your full name" required />
+             <input type="text" name="careOf" id="careOf" class="form-control" placeholder="c/o"/>
+             <input type="text" name="street" id="street" class="form-control" required placeholder="street and house number"/>
+             <input type="text" name="city" id="city" class="form-control" placeholder="Town/City" />
+             <input type="text" name="postalCode" class="form-control" placeholder="Postcode" />
+             <input type="text" name="phoneNumber" class="form-control" placeholder="Phone number" />
+             <p>Add delivery instructions (optional) </p>
+             <textarea name="instructions" id="instructions" class="form-control" placeholder="do we need additional instructions to find this address">
+              </textarea>
+        </div>
+        
+       <!-- end of the delivery address div -->
+
+       <!-- start of the stripe pament div -->
+       <div class="tab">
+       <div class="form-row">
+       <label for="card-element">
+        Credit or debit card
+        </label>
+       <div id="card-element2" class="card-element card-element2 form-control">
+       <!-- A Stripe Element will be inserted here. -->
+       </div>
+
+       <!-- Used to display form errors. -->
+      <div class="card-errors" id="card-errors" role="alert"></div>
+      <!--</div> -->
+
+     <button>Submit Payment</button>
+     </div>
+     </div>
+
+     <!-- begining of the navigation tabs -->
+
+     <div style="overflow:auto;">
+         <div style="float:right;">
+             <button type="button" id="prevBtn" onclick="nextPrev(-1, this)">Previous</button>
+             <button type="button" id="nextBtn" onclick="nextPrev(1, this)">Next</button>
+         </div>
+     </div>
+
+     <!-- Circles which indicates the steps of the form: -->
+     <div style="text-align:center;margin-top:40px;">
+         <span class="step"></span>
+         <span class="step"></span>
+       <!--  <span class="step"></span>
+         <span class="step"></span> -->
+     </div>
+
+     <!-- end of the navigation tabs -->
+    </form>
+
+       <!-- End of the payment form -->
+
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

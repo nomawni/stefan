@@ -2,6 +2,8 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
 
 import Routes from '../../public/js/fos_js_routes.json';
 
+import Checkout from './functions/checkout_list.js';
+
 let listCart = document.getElementById("listCart");
 
 //let url = window.cartAll;
@@ -13,6 +15,8 @@ listCart.addEventListener('click', function(e) {
     Routing.setRoutingData(Routes);
 
     let url = Routing.generate("cart_show_all");
+
+    let listCartsModal = document.querySelector("#listCartsModal");
 
     let response = fetch(url, {
         method: "GET",
@@ -26,13 +30,7 @@ listCart.addEventListener('click', function(e) {
     })
     .catch(error => console.error(error));
 
-    console.log("************************************************");
-    console.log(response);
-    console.log("--------------------------------------------------");
-
         response.then(products =>  {
-
-        console.log(products);
 
         let modalTitle = document.getElementById("listCartsModalTitle");
 
@@ -46,6 +44,7 @@ listCart.addEventListener('click', function(e) {
 
         //elemContainer.classList.add("product-container");
         let table = document.createElement("table");
+        table.classList.add("item-to-buy");
         let theader = document.createElement('thead');
         table.appendChild(theader);
         let row = document.createElement("tr");
@@ -61,18 +60,21 @@ listCart.addEventListener('click', function(e) {
             row.appendChild(headerCol);
         });
        
-        modalCartBody.appendChild(table);
+        //modalCartBody.appendChild(table);
+        modalCartBody.insertBefore(table, modalCartBody.childNodes[0]);
+        
         let tbody = document.createElement("tbody");
         table.appendChild(tbody);
         let tfooter = document.createElement("tfoot");
         table.appendChild(tfooter);
-       // elemContainer.dataset.productId = 
        // the footer part          
           let footerTh =  document.createElement("th");
           footerTh.setAttribute("scope", "row");
+          footerTh.setAttribute("colspan", "6");
           footerTh.innerHTML = "Totals";
           tfooter.appendChild(footerTh);
           let totalSumItemsTd = document.createElement("td");
+          totalSumItemsTd.classList.add("total-sum-items");
           tfooter.appendChild(totalSumItemsTd);
           let totalItemsAmount = 0;
 
@@ -82,23 +84,20 @@ listCart.addEventListener('click', function(e) {
 
             let item = cart.products[0];
 
-            console.log(item);
-
             let i =0;
             let rowBody = document.createElement("tr");
 
             rowBody.dataset.cartId = cart.id;
             rowBody.dataset.productId = item.id;
 
-            //rowBody.appendChild(tbody);
             tbody.appendChild(rowBody);
 
             let imgTd = document.createElement("td");
             rowBody.appendChild(imgTd);
-            //productTd.setAttribute("collapse", 2);
+           
             let prodImg = document.createElement('img');
 
-            let img = item.productImages[0] ? item.productImages[0].finalPath : null;
+            //let img = item.productImages[0] ? item.productImages[0].finalPath : null;
             let name = item.name;
 
             prodImg.src = item.productImages[0] ? item.productImages[0].finalPath : null; //img.finalPath;
@@ -127,8 +126,7 @@ listCart.addEventListener('click', function(e) {
             priceTd.classList.add("price");
             rowBody.appendChild(priceTd);
             let price = item.price;
-            //let priceTd = document.createElement("td");
-            //rowBody.appendChild(priceTd);
+    
             priceTd.innerHTML = price;
 
             // The size of the item
@@ -160,177 +158,59 @@ listCart.addEventListener('click', function(e) {
 
             qtInput.addEventListener("change", function() {
                 let itemSubTotal = this.parentElement.parentElement.querySelector(".sub-total");
-                //let itemQtTotal = this.parentElement.parentElement.querySelector(".quantity");
+              
                 let itemPriceTotal = this.parentElement.parentElement.querySelector(".price");
-                console.log(itemSubTotal);
-                //console.log(itemQtTotal.value);
-                console.log(itemPriceTotal.innerHTML);
-                //itemSubTotal.innerHTML = itemQtTotal.value * itemPriceTotal.innerHTML;
-                //itemSubTotal.innerHTML = this.value * itemPriceTotal.innerHTML;
                 
                 let totalItemPrice = this.value * itemPriceTotal.innerHTML;
                 totalItemPrice = parseFloat(totalItemPrice).toFixed(2);
-                itemSubTotal.innerHTML = totalItemPrice; //this.value * itemPriceTotal.innerHTML;
+                itemSubTotal.innerHTML = totalItemPrice; 
                 let allSubTotals = document.querySelectorAll(".sub-total");
                 let val =0;
                     allSubTotals.forEach(function(subTotal, pos)  {
-                        console.log(subTotal);
-                        console.log(val);
                         val += parseFloat(subTotal.innerHTML);
                     });
                     totalSumItemsTd.innerHTML = parseFloat(val).toFixed(2);
             });
-            //qtTd.appendChild(qtInput);
 
             let subTotal = price * qtInput.value;
-            //subTotal = parseFloat(subTotal).toFixed(2);
-            //let subTotalTd = document.createElement("td");
+
             subTotalTd.classList.add("sub-total");
-            //rowBody.appendChild(subTotalTd);
             subTotalTd.innerHTML = subTotal;
 
-            
-            /*totalSumItemsTd.innerHTML*/ totalItemsAmount += subTotal; 
+            totalItemsAmount += subTotal;
 
-
-
-
-        /*let elemContainer = document.createElement("div");
-
-        products.map(product => {
-
-            let item = product.products[0];
-
-            let productContainer = document.createElement("div");
-
-            productContainer.classList.add("product-container");
-
-            productContainer.dataset.productId = item.id;
-
-            productContainer.dataset.cartId = product.id;
-
-            //console.log(item.productImage.finalPath);
-
-            let productImg = document.createElement('img');
-
-            let produdDesc = document.createElement('p');
-
-           // productImg.src = product.prodFinalPath;
-
-           let productTitle = document.createElement("h1");
-
-           let productPrice = document.createElement("p");
-
-           let productQt = document.createElement("p");
-
-           productTitle.innerHTML = item.name;
-
-            productImg.src = item.productImage ? item.productImage.finalPath : "";
-
-             productPrice.innerHTML = "Price: " + item.price;
-
-             productQt.innerHTML = "Quantity: " + item.quantity;
-
-            produdDesc.innerHTML = item.description;
-
-            productContainer.appendChild(productImg);
-
-            productContainer.appendChild(productTitle);
-
-            productContainer.appendChild(produdDesc);
-
-            productContainer.appendChild(productPrice);
-
-            productContainer.appendChild(productQt);
-
-            let navRatings = document.createElement("ul");
-
-            navRatings.classList.add("nav", "rating");
-
-            for(let i = 1; i <= 5; i++) {
-
-              /*  let starProduct = document.createElement("li");
-
-                starProduct.classList.add("star-product");
-
-                let productStars = document.createElement("i"); */
-
-               /* if(item.stars.length > 0) {
-
-                    item.stars.forEach((item, pos) => {
-
-                        let starProduct = document.createElement("li");
-
-                        starProduct.classList.add("star-product");
-        
-                        let productStars = document.createElement("i");
-
-                        if(item.value >= i) {
-
-                            productStars.classList.add("fas","fa-star", "cursor-pointer");
-                            starProduct.appendChild(productStars);
-                        }else {
-                            productStars.classList.add("far","fa-star","cursor-pointer");
-                            starProduct.appendChild(productStars);
-                        }
-
-                        navRatings.appendChild(starProduct);
-
-                    });
-
-               // starProduct.appendChild(productStars);
-                }else {
-
-                  //  for(let i=1; i <= 5; i++) {
-
-                        let starProduct = document.createElement("li");
-
-                        starProduct.classList.add("star-product");
-        
-                        let productStars = document.createElement("i");
-
-                    productStars.classList.add("far","fa-star","cursor-pointer");
-                    starProduct.appendChild(productStars);
-
-                    navRatings.appendChild(starProduct);
-                  //  }
-                }
-
-                productContainer.appendChild(navRatings);
-            }
-
-            let removeProduct = document.createElement("button");
-
-            removeProduct.onclick = function() { removeProductFromCart(this) };
-            
-            removeProduct.classList.add("btn", "btn-primary");
-
-            removeProduct.innerHTML = "Remove";
-
-            productContainer.appendChild(removeProduct);
-
-            elemContainer.appendChild(productContainer);
-
-            console.log(product); 
-
-        }); */
     });
 
         // Setting the value of the total items
-        totalSumItemsTd.innerHTML = totalItemsAmount;
+        totalSumItemsTd.innerHTML = parseFloat(totalItemsAmount).toFixed(2);
 
-        //console.log(elemContainer);
+        /* Handling checkout button */
+        
+        //let checkoutBtn = listCartsModal.querySelector(".checkout");
 
-        //modalCartBody.appendChild(elemContainer);
+        let checkout = new Checkout(listCartsModal);
 
-        console.log(modalCartBody);
+        //checkout.handleCheckout();
+
+        /* End of handling checkout button */
 
         $('#listCartsModal').modal('show');
+
+        $('#listCartsModal').on('show.bs.modal', function (e) {
+            //let productItemModalWrapper = productItemModal.querySelector('#productItemModalWrapper');
+            listCartsModal.querySelector(".checkout").style.display = "inline";
+
+        });
     });
 
     $("#listCartsModal").on('hidden.bs.modal', e => {
 
-        modalCartBody.innerHTML = "";
+        //modalCartBody.innerHTML = "";
+        let paymentForm = listCartsModal.querySelector("form");
+        let listCartTable = listCartsModal.querySelector("table");
+        listCartTable.remove();
+        paymentForm.querySelectorAll(".tab")[1].style.display = "none";
+        paymentForm.style.display = "none";
     });
     
 });
@@ -338,16 +218,10 @@ listCart.addEventListener('click', function(e) {
 
 function removeProductFromCart(elem) {
 
-    //let product = elem.closest(".product-container");
-
-    let item = elem.parentElement.parentElement;
+    let item = elem.closest("tr"); //elem.parentElement.parentElement;
 
     //let url = Routing.generate("cart_delete"); //"http://localhost:8001/cart/remove/";
 
-    console.log(elem);
-    console.log(item);
-
-    //let productId = product.dataset.productId;
     let productId = item ? item.dataset.productId : null;
 
     if(!productId){
@@ -367,8 +241,6 @@ function removeProductFromCart(elem) {
     let data = {
         productId: productId
     }
-
-   // url = url + cartId;
 
     let response = fetch(url, {
         method: "POST",
@@ -394,8 +266,9 @@ function removeProductFromCart(elem) {
         let addCart = productElem.querySelector(".add-cart");
 
         if(data.type == "removed") {
+            
+            let totalSumItem = totalItemPrice(item);
 
-            //numberCart
             item.remove();
 
             nCart.innerHTML = data.numberCart;
@@ -404,4 +277,23 @@ function removeProductFromCart(elem) {
         }
     })
 
+}
+
+function totalItemPrice(elem) {
+
+    let subTotal = elem.querySelector(".sub-total");
+
+    let subTotalVal = parseFloat(subTotal.innerHTML);
+
+    let table = elem.closest("table");
+
+    let totalSumItems  = table.querySelector(".total-sum-items");
+
+    let totalSumItemsVal = parseFloat(totalSumItems.innerHTML);
+
+    let newTotalSumItems = totalSumItemsVal - subTotalVal;
+
+    totalSumItems.innerHTML = parseFloat(newTotalSumItems).toFixed(2);
+
+    return newTotalSumItems;
 }

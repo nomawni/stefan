@@ -32,19 +32,18 @@ class WhishListsController extends AbstractController
     }
 
     /**
-     * @Route("/new", name="whish_lists_new", methods={"GET","POST"}, options={"expose"=true})
+     * @Route("/new/{id}", name="whish_lists_new", methods={"GET","POST"}, options={"expose"=true})
      */
-    public function new(Request $request): Response
+    public function new(Product $product, Request $request): Response
     {
         $response = new Response();
+        $user = $this->getUser();
 
-        if(!$this->getUser()) {
+        if(!$user) {
 
             $response->setContent("You are not connected");
             $response->setStatusCode(Response::HTTP_FORBIDDEN);
-
             return $response;
-
         }
 
         $type = null;
@@ -57,56 +56,36 @@ class WhishListsController extends AbstractController
 
         $data = json_decode($data);
 
-        $Id = $data->Id;
-
-        $WhishlistId = $data->WhishlistId;
-
+        //$Id = $data->Id;
+        //$WhishlistId = $data->WhishlistId;
         $entityManager = $this->getDoctrine()->getManager();
+        //$prodRep = $entityManager->getRepository(Product::class);
+        //$whishListRep = $entityManager->getRepository(WhishLists::class);
+        //$product = $prodRep->find($Id);
+        $dbWishList = $product->hasUserWishList($user);
 
-        $prodRep = $entityManager->getRepository(Product::class);
+        if($dbWishList) {
 
-        $whishListRep = $entityManager->getRepository(WhishLists::class);
+            $dbWishList->removeProduct($product);
+            $entityManager->remove($dbWishList);
+            $entityManager->flush();
+            $response->setStatusCode(Response::HTTP_OK);
+            $type = "removed";
 
-        $product = $prodRep->find($Id);
+        }else {
 
-        if($WhishlistId) {
-
-            $whishListElem = $whishListRep->find($WhishlistId);
-
-            if($whishListElem) {
-
-                $whishListElem->removeProduct($product);
-
-                $entityManager->remove($whishListElem);
-
-                $entityManager->flush();
-                $response->setStatusCode(Response::HTTP_OK);
-
-                $type = "removed";
-                 }
-            }
-            else {
-
-                $whishList = new WhishLists();
-
-                $whishList->setCustomer($this->getUser());
-
-                $whishList->addProduct($product);
-
-                $entityManager->persist($whishList);
-
-                $entityManager->flush();
-
-                $response->setStatusCode(Response::HTTP_CREATED);
-
-                $type = "added";
-
-                $responseId = $whishList->getId();
-
+            $whishList = new WhishLists();
+            $whishList->setCustomer($user);
+            $whishList->addProduct($product);
+            $entityManager->persist($whishList);
+            $entityManager->flush();
+            $response->setStatusCode(Response::HTTP_CREATED);
+            $type = "added";
+            $responseId = $whishList->getId();
         }
 
          $nWhishlist = $entityManager->getRepository(WhishLists::class)
-                            ->countUserWishlist($this->getUser());
+                            ->count(["customer" => $user]);
          
             $encoded = json_encode(array("numberWhishlists" => $nWhishlist, "Id" => $responseId, "type" => $type));
 

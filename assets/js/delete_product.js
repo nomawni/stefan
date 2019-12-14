@@ -9,9 +9,11 @@ window.addEventListener("load", function() {
         Routing.setRoutingData(Routes);
 
          //"http://localhost:8001/product/delete/";
+         console.log(e.target);
+         let modalEelm = e.target.closest("#productItemWrapper");
 
         let productItemModal = deleteProduct.closest("#productItemModal");
-
+        let productItemModalBody = productItemModal.querySelector(".modal-body");
         let productId = productItemModal.dataset.productId;
         
         if(!productId) {
@@ -19,10 +21,6 @@ window.addEventListener("load", function() {
         }
 
         let url = Routing.generate("product_delete", {id: productId});
-         
-        //url = url + productId;
-
-        //alert(_token);
 
         let response = fetch(url, {
             method: "POST",
@@ -45,20 +43,33 @@ window.addEventListener("load", function() {
             console.log(data);
 
             let element = document.querySelector(`[data-product-id="${productId}"]`);
+            console.log("*****************Target****************");
 
             console.log(element);
 
             if(data.action == "deleted") {
 
                 element.remove();
-
+                modalEelm.style.display = "none";
                 console.log("Element removed");
+                let indicateProdDeleted = `<p class="success"> The Product has been deleted successfully </p>`;
+                productItemModalBody.insertAdjacentHTML('afterbegin', indicateProdDeleted);
+            }else {
+                let indicateProdDeleted = `<p class="success"> The Product could not be deleted successfully </p>`;
+                productItemModalBody.insertAdjacentHTML('afterbegin', indicateProdDeleted);
             }
 
         });
+     $("#productItemModal").on("hidden.bs.modal", function(el) {
+        console.log("**************After Modal closed***********");
+        console.log(el.target);
+         productItemModalBody.removeChild(productItemModalBody.querySelector("p"));
+         //e.target.querySelector("#productItemWrapper").style.display = "block";
+         modalEelm.style.display ="block";
+         
+     });
+
+    });
 
 
-    })
-
-
-})
+});

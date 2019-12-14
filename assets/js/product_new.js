@@ -10,6 +10,8 @@ productNew.addEventListener("click", e => {
 
     Routing.setRoutingData(Routes);
 
+    serializeShops();
+
     serializeCategories();
 
     $('#productNewModal').modal('show');
@@ -72,7 +74,7 @@ productNew.addEventListener("click", e => {
    // });
 
     let url = Routing.generate("product_new"); //"http://localhost:8001/product/new";
-
+    let resposeStatus = null;
     let response = fetch(url, {
         "method" : "POST",
         "cache": "no-cache",
@@ -86,7 +88,7 @@ productNew.addEventListener("click", e => {
     .then(response => response.json())
     .then(data => {
         console.log(JSON.stringify(data));
-
+        resposeStatus = response.status;
         return data;
     })
     .catch(error => console.error(error));
@@ -103,12 +105,50 @@ productNew.addEventListener("click", e => {
         showResponse.then(data => {
           console.log(data);
           serializeProduct(data);
-        })
+        });
 
         //serializeProduct(data);
     });
            
 });
+
+function serializeShops() {
+
+  let url = Routing.generate("user_shops");
+  let method = "GET";
+  let response = ajax(url, method);
+
+  console.log(response);
+
+  if(response) {
+        let productShop = document.querySelector("#productShop");
+        productShop.innerHTML = "";
+
+        response.then(res => {
+          console.log(res);
+          if(!res || res == null || res.length ==0) {
+            productShop.parentElement.style.display = "none";
+            console.log(res);
+            return;
+          }
+            
+          productShop.parentElement.style.display = "block";
+
+          res.map(data => {
+  
+         //$("#productCategory").append("<option value=")
+         
+         let option = document.createElement("option");
+         option.setAttribute("value", data.id);
+         option.innerHTML = data.name;
+  
+         productShop.appendChild(option);
+          });
+  
+        });
+  }
+
+}
 
 function serializeCategories(){
 
@@ -121,6 +161,7 @@ function serializeCategories(){
    if(response){
 
     let productCategory = document.querySelector("#productCategory");
+    productCategory.innerHTML = "";
 
       response.then(res => {
 
@@ -237,7 +278,9 @@ function updateImageDisplay() {
         
          if(elem.name == "category") {
            category.name = elem.value;
-         }else if(elem.name == "tags"){
+         }else if (elem.name == "shop") {
+            shop.name = elem.value;
+         } else if(elem.name == "tags"){
            tags.name = elem.value;
          }else if(elem.name == "productImage"){
            productImage.productImage = elem.value;
@@ -251,6 +294,7 @@ function updateImageDisplay() {
       });
 
         data.productImage = productImage;
+        data.shop = shop;
         data.category = category;
         data.tags = tags;
 

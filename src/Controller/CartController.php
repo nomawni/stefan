@@ -34,96 +34,65 @@ class CartController extends AbstractController
     }
 
     /**
-     * @Route("/new", name="cart_new", methods={"GET","POST"}, options={"expose"=true}) 
+     * @Route("/new/{id}", name="cart_new", methods={"GET","POST"}, options={"expose"=true}) 
      */
-    public function new(Request $request): Response
+    public function new(Product $product, Request $request): Response
     {
         // If the user is not registered or connected, we return
 
         $response = new Response();
+        $user = $this->getUser();
 
-        if(!$this->getUser()) {
-
+        if(!$user) {
         $response->setContent("Sorry you are not connected");
-
         $response->setStatusCode(Response::HTTP_FORBIDDEN);
-
         return $response;
-
         }
 
         // ProductRepository to access the set the product into the cart
-
         $content = $request->getContent();
-
         $data = json_decode($content);
-
         $type = null;
-
         $responseId = null;
-
-        $Id = $data->Id;
-
-        $cartId = $data->CartId;
+        //$Id = $data->Id;
+       // $cartId = $data->CartId;
 
        $entityManager = $this->getDoctrine()->getManager();
+       $dbCart = $product->hasUserCart($user);
 
-       $cartRep = $entityManager->getRepository(Cart::class);
-       
-       $productrep = $this->getDoctrine()->getManager()->getRepository(Product::class);
+       if($dbCart) {
 
-       $product = $productrep->find($Id);
+        $dbCart->removeProduct($product);
+        $entityManager->remove($dbCart);
+        $entityManager->flush(); 
+        $response->setStatusCode(Response::HTTP_OK);
+        $type = "removed";
 
-       if($cartId) {
-
-        $catElem = $cartRep->find($cartId);
-
-         if($catElem) {
-
-           $catElem->removeProduct($product);
-
-            $entityManager->remove($catElem);
-
-            $entityManager->flush(); 
-            
-            $response->setStatusCode(Response::HTTP_OK);
-            
-            $type = "removed";
-         }
-       } else {
-        //$prodCart = new ProductCart();
-
+       }else {
         $cart = new Cart();
        
-        $cart->setClient($this->getUser());
+        $cart->setClient($user);
         $cart->setCreatedAt(new \DateTimeImmutable());
         //$cart->addProduct($productrep->find(2));
         $cart->addProduct($product);
-
-            $entityManager->persist($cart);
-            $entityManager->flush();
-
-            $type ="added";
-
-            $response->setStatusCode(Response::HTTP_CREATED);
-
-            $responseId = $cart->getId();
+        $entityManager->persist($cart);
+        $entityManager->flush();
+        $type ="added";
+        $response->setStatusCode(Response::HTTP_CREATED);
+        $responseId = $cart->getId();
 
        }
 
         $numberCart = $this->getDoctrine()->getManager()->getRepository(Cart::class)
-                         ->countUserCart($this->getUser());
-
+                          ->count(["client" => $user]);
+                         //->countUserCart($user);
         $responseData = array("numberCart" => $numberCart, "Id" => $responseId, "type" => $type);
-       
         $encoded = json_encode($responseData);
 
         $response->setContent($encoded);
-
         $response->headers->set("Content-Type", "application/json");
 
         return $response;
-
     }
 
     /**

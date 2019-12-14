@@ -217,4 +217,18 @@ class ProductImage
         return $this;
     }
 
+    /**
+     * let us know if a product has been given a wishlist
+     * 
+     * @param User $user
+     * @return boolean
+     */
+
+    public function isUserProduct(User $user) {
+
+        if($this->product->getClient() === $user) return true;
+        
+        return false;
+    }
+
 }

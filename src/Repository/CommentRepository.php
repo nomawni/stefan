@@ -35,6 +35,26 @@ class CommentRepository extends ServiceEntityRepository
         ;
     }
     */
+    public function findCom($id) {
+        return $this->createQueryBuilder("c")
+               ->innerJoin("c.commentRatings", "comRating")
+               ->select("c.id, comRating.action as ratingAction")
+               ->andWhere("c.id = :comId")
+               ->setParameter("comId", $id)
+               ->getQuery()
+               ->getResult();
+    }
+    public function findByRating($commentId, $rating) {
+        
+        return $this->createQueryBuilder("c")
+               ->innerJoin("c.commentRatings", "comRating")
+               ->select("COUNT(comRating) as amountRating")
+               ->where("c.id = :id")
+               ->andWhere("comRating.action = :val")
+               ->setParameters(array('id' => $commentId,'val' => $rating))
+               ->getQuery()
+               ->getResult();
+    }
 
     /*
     public function findOneBySomeField($value): ?Comment

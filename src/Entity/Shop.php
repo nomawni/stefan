@@ -35,7 +35,7 @@ class Shop
     private $manager;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\ShopCategory", inversedBy="shops", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity="App\Entity\ShopCategory", inversedBy="shops", cascade={"merge"})
      */
     private $shopCategory;
 

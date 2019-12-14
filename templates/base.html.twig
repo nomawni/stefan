@@ -29,7 +29,101 @@
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
         <script src="https://js.stripe.com/v3/"></script>
         <script>
-      let currentTab = 0; // Current tab is set to be the first tab (0)
+
+      var currentTab = 0;
+
+     function showTab(n, elem) {
+  
+  // This function will display the specified tab of the form...
+  //var x = document.getElementsByClassName("tab");
+  var x = elem.querySelectorAll(".tab");
+  console.log("JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ");
+  console.log(elem);
+  console.log(x);
+  x[n].style.display = "block";
+  //... and fix the Previous/Next buttons:
+  if (n == 0) {
+    //elem.getElementById("prevBtn").style.display = "none";
+    elem.querySelector("#prevBtn").style.display = "none";
+  } else {
+    //elem.getElementById("prevBtn").style.display = "inline";
+    elem.querySelector("#prevBtn").style.display = "inline";
+  }
+  if (n == (x.length - 1)) {
+    //elem.getElementById("nextBtn").innerHTML = "Submit";
+    elem.querySelector("#nextBtn").innerHTML = "Submit";
+  } else {
+    //elem.getElementById("nextBtn").innerHTML = "Next";
+    elem.querySelector("#nextBtn").innerHTML = "Next";
+  }
+  //... and run a function that will display the correct step indicator:
+  fixStepIndicator(n, elem);
+}
+
+function nextPrev(n, elem) {
+  
+  // This function will figure out which tab to display
+  //var x = document.getElementsByClassName("tab");
+  var paymentForm = elem.closest(".payment-form");
+  //var parentElem = elem.closest(".")
+  var x = paymentForm.querySelectorAll(".tab");
+  
+  console.log(elem);
+  console.log(x);
+  // Exit the function if any field in the current tab is invalid:
+  if (n == 1 && !validateForm(paymentForm)) return false;
+  // Hide the current tab:
+  x[currentTab].style.display = "none";
+  // Increase or decrease the current tab by 1:
+  currentTab = currentTab + n;
+  // if you have reached the end of the form...
+  if (currentTab >= x.length) {
+    // ... the form gets submitted:
+    document.getElementById("regForm").submit();
+    return false;
+  }
+  // Otherwise, display the correct tab:
+  showTab(currentTab, paymentForm);
+}
+
+function validateForm(elem) {
+
+  // This function deals with validation of the form fields
+  var x, y, i, valid = true;
+  //x = document.getElementsByClassName("tab");
+  x = elem.getElementsByClassName("tab");
+  y = x[currentTab].getElementsByTagName("input");
+  // A loop that checks every input field in the current tab:
+  for (i = 0; i < y.length; i++) {
+    // If a field is empty...
+    if (y[i].value == "") {
+      // add an "invalid" class to the field:
+      y[i].className += " invalid";
+      // and set the current valid status to false
+      valid = false;
+    }
+  }
+  // If the valid status is true, mark the step as finished and valid:
+  if (valid) {
+    elem.getElementsByClassName("step")[currentTab].className += " finish";
+  }
+  return valid; // return the valid status
+}
+
+function fixStepIndicator(n, elem) {
+  // This function removes the "active" class of all steps...
+  //var i, x = elem.getElementsByClassName("step");
+  console.log(elem);
+  var i, x = elem.querySelectorAll(".step");
+  for (i = 0; i < x.length; i++) {
+    x[i].className = x[i].className.replace(" active", "");
+  }
+  //... and adds the "active" class on the current step:
+  x[n].className += " active";
+}
+   
+
+    /*  let currentTab = 0; // Current tab is set to be the first tab (0)
       showTab(currentTab); // Display the current tab
 
 function showTab(n) {
@@ -100,7 +194,7 @@ function fixStepIndicator(n) {
   }
   //... and adds the "active" class on the current step:
   x[n].className += " active";
-}
+} */
       </script>
         {{ encore_entry_script_tags('app')}}
 

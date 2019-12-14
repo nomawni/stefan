@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Entity;
-
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -452,6 +451,51 @@ class Product
         }
 
         return $this;
+    }
+
+    /**
+     * let us know if a product has been given a star
+     * 
+     * @param User $user
+     */
+
+    public function hasUserStar(User $user) {
+
+        foreach($this->stars as $star) {
+            if($star->getClient() === $user) return $star;
+        }
+
+        return false;
+    }
+
+     /**
+     * let us know if a product has been given a cart
+     * 
+     * @param User $user
+     */
+
+    public function hasUserCart(User $user) {
+        
+        foreach($this->carts as $cart) {
+            if($cart->getClient() === $user) return $cart;
+        }
+
+        return false;
+    }
+
+     /**
+     * let us know if a product has been given a wishlist
+     * 
+     * @param User $user
+     */
+
+    public function hasUserWishList(User $user) {
+
+        foreach($this->whishlists as $whishlist) {
+            if($whishlist->getCustomer() === $user) return $whishlist;
+        }
+
+        return false;
     }
 
 }

@@ -63,7 +63,5 @@ class Shipment
         }
 
         return $this;
-    }
-
-    
+    }  
 }

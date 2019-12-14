@@ -2,13 +2,16 @@
 namespace App\Controller;
 
 use App\Entity\Cart;
+use App\Entity\Product;
 use App\Entity\WhishLists;
 use App\Repository\ProductRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Cookie;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Encoder\JsonEncode;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
@@ -67,8 +70,6 @@ class DefaultController extends AbstractController {
      */
     public function searchItem(Request $request, ProductRepository $prodducts): Response {
 
-        
-
         $data = $request->getContent();
         $productData = json_decode($data);
         
@@ -83,6 +84,34 @@ class DefaultController extends AbstractController {
 
         return $response;
 
+    }
 
+    /**
+     * @Route("/search/all/{name}", name="list_searched_item", methods="GET", options={"expose"=true})
+     */
+    public function listSearchedItems(Request $request, Product $product,
+     ProductRepository $repository) :Response {
+
+        //$data = $request->getContent();
+        $data = $request->get("name");
+        //$unserializedData = json_decode($data);
+        $encoder = new JsonEncode();
+        $normalizer = new ObjectNormalizer();
+        $serializer = new Serializer([$normalizer], [$encoder]);
+        //var_dump($product);
+        //$value = $unserializedData->value;
+        //$results = $this->getDoctrine()->getRepository(Product::class)->findBy(array("name" => $data));
+        $results = $repository->listSearchedItems($data);
+        $serializedData = $serializer->serialize($results, 'json', [
+            AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER => function($object) {
+                return $object->getId();
+            }
+        ]);
+        $response = new Response($serializedData);
+        $response->headers->set("Content-Type", "application/json");
+        //var_dump($results);
+
+        //return new JsonResponse($response);
+        return  $response;
     }
 }

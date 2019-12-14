@@ -2,8 +2,11 @@ body {
     background-color: lightgray;
 }
 
+modal{
+    width: 90%;
+}
+
 #searchItemForm {
-   
     margin-top: 15px;
     width: 50%;
 }

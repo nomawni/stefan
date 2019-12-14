@@ -33,22 +33,20 @@ class StarController extends AbstractController
     }
 
     /**
-     * @Route("/new", name="star_new", methods={"POST"}, options={"expose"=true})
+     * @Route("/new/{id}", name="star_new", methods={"POST", "GET"}, options={"expose"=true})
      */
-    public function new(Request $request): Response
+    public function new(Product $product ,Request $request): Response
     {
        
         $response = new Response();
+        $user = $this->getUser();
 
-
-        if(!$this->getUser()) {
+        if(!$user) {
             $response->setStatusCode(Response::HTTP_FORBIDDEN);
             $response->setContent("You are not connected");
 
             return $response;
         }
-
-        $star = new Star();
 
         $content = $request->getContent();
 
@@ -58,67 +56,37 @@ class StarController extends AbstractController
 
         $data = json_decode($content);
 
-        $type = null;
-
-        $starContent = null;
-
         $starValue = intval($data->star);
-        $productId = intval($data->productId);
+        //$productId = intval($data->productId);
 
         $starId = intval($data->starId);
 
-       // var_dump($starId);
+       $dbStar = $product->hasUserStar($user);
+       if($dbStar) {
+           $dbStar->setValue($starValue);
 
-        if($starId) {
-          
-            $starElem = $entityManager->getRepository(Star::class)->find($starId);
+         $entityManager->flush();
+         $response->setStatusCode(Response::HTTP_OK);
+         $starContent = $dbStar->getValue();
+         $type = "Updated";
 
-            if($starElem) {
+       }else {
 
-                $starElem->setValue($starValue);
+        $star = new Star();
 
-                $entityManager->flush();
-
-                $response->setStatusCode(Response::HTTP_OK);
-
-                $starContent = $starElem->getValue();
-
-                $type = "Updated";
-
-            }
-
-        }else {
-
-        $prodRep = $entityManager->getRepository(Product::class);
-
-        $star->setClient($this->getUser());
-
-        $star->setProduct($prodRep->find($productId));
-
+        $star->setClient($user);
+        $star->setProduct($product);
         $star->setValue($starValue);
-
         $star->setAddedAt(new \DateTimeImmutable());
 
-       // $form = $this->createForm(StarType::class, $star);
-      //  $form->handleRequest($request);
+        $entityManager->persist($star);
+        $entityManager->flush(); 
+        $response->setStatusCode(Response::HTTP_CREATED);
+        $starContent = $star->getValue();
+        $type = "Added";
 
-       // if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($star);
-            $entityManager->flush(); 
+       }
 
-            $response->setStatusCode(Response::HTTP_CREATED);
-
-            $starContent = $star->getValue();
-
-            $type = "Added";
-
-           }
-
-           // $all = $this->getDoctrine()->getManager()->findAll();
-
-           // $allStars = json_encode($all);
-
-           //$responseContainer = array("response" => $starContent, "type" => $type);
            $normalizer = new ObjectNormalizer();
            $encoder = new JsonEncoder();
            $serializer = new Serializer([$normalizer], [$encoder]);

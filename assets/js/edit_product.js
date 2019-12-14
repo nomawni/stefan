@@ -1,10 +1,13 @@
 import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/public/js/router';
  import Routes from '../../public/js/fos_js_routes.json';
+ import axios from 'axios';
 //window.addEventListener("load", function() {
 
    // let editProduct = document.querySelector(".edit-product");
 
     //editProduct.addEventListener("click", e => {
+  window.addEventListener("load", function (e) {
+    
     $(document).on("click", '.edit-product', function() {
 
         Routing.setRoutingData(Routes);
@@ -13,7 +16,10 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
 
         let productItemModalBody = productItemModal.querySelector(".modal-body");
 
-        let modalBodyBackup = productItemModalBody.cloneNode(true);
+        //let modalBodyBackup = productItemModalBody.cloneNode(true);
+
+        let productItemModalWrapper = productItemModalBody.querySelector("#productItemModalWrapper");
+        let productItemBackup = productItemModalWrapper.cloneNode(true);
 
         /* The begining of the cloning of the product new Modal */
 
@@ -23,7 +29,8 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
 
         /* End */
 
-        /*let ModalTitel = */ productItemModal.querySelector('.modal-title').innerHTML = "Edit Product";
+        /*let ModalTitel = */ 
+        productItemModal.querySelector('.modal-title').innerHTML = "Edit Product";
 
         let productId = productItemModal.dataset.productId;
 
@@ -64,13 +71,6 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
 
         response.then(data => {
 
-            //productItemModalBody.innerHTML = "";
-            //alert("Inside then");
-
-            //let modalProductNewBody = document.getElementById("modalProductNewBody");
-
-            //let clonedProductNewBody = modalProductNewBody.cloneNode(true);
-
             let productNewModalTitle = productItemModal.querySelector("#productItemModalTitle");
 
             let modalFooter = productItemModal.querySelector('.modal-footer');
@@ -108,29 +108,17 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
             var tagsString = "";
 
             data.tags.forEach(function(elem,pos) {
-
-               // productTags.value += elem.name + ', ';
-
                tagsString += elem.name + ','
-            });
 
-            //productTags = productTags.substr(-1, 1);
+            });
 
             tagsString = tagsString.slice(0,-2);
 
-            console.log(tagsString);
-
             productTags.value = tagsString;
 
-            console.log(productName);
+           productItemModalBody.style.display = "none";
 
-            //let newProductForm = clonedProductNewBody.querySelector("#newProductForm");
-
-            //newProductForm.id = "editProductForm";
-
-           // productItemModalBody.appendChild(clonedProductNewBody);
-
-           productItemModalBody.replaceWith(clonedProductNewBody);
+           productItemModalBody.parentNode.insertBefore(clonedProductNewBody, productItemModalBody.nextSibling);
 
             let newProductForm = clonedProductNewBody.querySelector("#newProductForm");
 
@@ -141,25 +129,14 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
             let updateProductBtn = buttonFooter[1];
 
            updateProductBtn.innerHTML = "Update";
+           updateProductBtn.style.display = "inline";
 
            //let productImage = productItemModalBody.querySelector("#productImage");
+           let productImage = clonedProductNewBody.querySelector("#productImage");
 
            updateProductBtn.onclick = function() { 
-
-            /**
-            * Update the product images
-            */
-
-           let productImage = document.querySelector("#productImage");//document.getElementById("productImage");
-
-           /** The preview of the product images when the user select the images */
-
-             // productImage = productImage ? productImage.files : null;
-
-            //console.log(productImage);
                
             let editProductForm = $("#editProductForm").serializeArray();
-
             let dataContainer = deserializeProduct(editProductForm);
 
             console.log(dataContainer);
@@ -173,52 +150,93 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
         
              }
 
-             alert("Hello world");
-             console.log(modalFooter);
-             console.log(clonedProductNewBody)
-             let productItemFooter = productItemModal.querySelector(".modal-footer");
-            //productItemModalBody.parentNode.insertBefore(modalFooter, productItemModalBody.nextSibling);
-            clonedProductNewBody.parentNode.insertBefore(modalFooter, productItemModalBody.nextSibling);
-            //productItemFooter.replaceWith(modalFooter);
-            //productItemModalBody.replaceWith(clonedProductNewBody);
+            /**
+            * Update the product images
+            */
+
+           //document.getElementById("productImage");
+           productImage.style.display = "none";
+           //productImage.addEventListener("change", updateImageDisplay);
+           productImage.onchange = function() { updateImageDisplay(productImage)};
+           
+
+           /** The preview of the product images when the user select the images */
+
+             // Serialize the list of all images 
+             let imgPreview = clonedProductNewBody.querySelector(".preview");
+             serializeImages(imgPreview, data.productImages);
+             //let productItemWrapper = productItemModalBody.querySelector("#productItemWrapper");
+             clonedProductNewBody.parentNode.insertBefore(modalFooter, clonedProductNewBody.nextSibling);
 
         });
 
-
           // let preview = modalProductNewBody.querySelector(".preview");
 
-           productImage.style.display = "none";
-
-           productImage.addEventListener("change", updateImageDisplay);
+           //productImage.style.display = "none";
+           //productImage.onchange = function() { updateImageDisplay(productImage)};
+           //productImage.addEventListener("change", updateImageDisplay);
 
             /**
              * end of update
              */
 
-        //$('.modal').modal('hide');
-
-       // $('#productEditModal').modal('toggle');
-
-       // $('.modal').modal('show');
-
        $("#productItemModal").on('hidden.bs.modal', function(e) {
 
-        productItemModalBody.innerHTML = "";
-
-        //let editButton = modalBodyBackup.querySelector(".edit-product");
-
-        //editButton.onclick = function() { editProductItem(); }
-
-        let footerToDelete = productItemModal.querySelector(".modal-footer");
-        console.log(footerToDelete);
-        footerToDelete ? footerToDelete.remove() : null;
-
-        //productItemModalBody.appendChild(modalBodyBackup);
-        clonedProductNewBody.replaceWith(modalBodyBackup);
+        let footerToDisable = productItemModal.querySelector(".modal-footer");
+        console.log(footerToDisable);
+        footerToDisable.querySelectorAll("button")[1].style.display = "none";
+        
+        clonedProductNewBody.remove();
+        productItemModalBody.style.display = "block";
 
        });
 
     //});
+
+   /* function serializeTags(tagsContainer, listTags) {
+
+       let tagsInputBootstrap = '<div class="bootstrap-tagsinput">';
+       listTags.map(tag => {
+           tagSpanWrapper = `<span class="tag label label-info"> ${tag.name} `;
+           tagSpan = `<span data-role="remove"> </span>`;
+
+           tagSpanWrapper += `</span>`;
+       });
+
+       tagsInputBootstrap += '</div>';
+    } */
+
+    function serializeImages(container, listImages) {
+
+       listImages.map(img => {
+         let imgItem = `<div class="prod-img" data-img-id="${img.id}">
+                   <img src="${img.finalPath}" alt="${img.originalName}" />
+                   <button class="button primary remove-img"> Delete </button>
+           "`;
+           container.insertAdjacentHTML("afterbegin", imgItem);
+       });
+       return container;
+    }
+
+    $(document).on("click", ".remove-img", function(e) {
+      e.preventDefault();
+       let elemParent = this.parentNode;
+       let imageId = elemParent.dataset.imgId;
+       alert(imageId);
+       let url = Routing.generate("product_image_delete", {id: imageId});
+
+       let response = axios({
+         method: "DELETE", 
+         url: url,
+         responseType: "json"
+       })
+       .then(function(response) {
+           if(response.status === 200) {
+             console.log(response);
+             elemParent.remove();
+           }
+       });
+    });
 
    function serializeCategory(productCategory, category) {
 
@@ -265,7 +283,10 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
 
         let productItemModalBody = productItemModal.querySelector(".modal-body");
 
-        let modalBodyBackup = productItemModalBody.cloneNode(true);
+        //let modalBodyBackup = productItemModalBody.cloneNode(true);
+
+        let productItemModalWrapper = productItemModalBody.querySelector("#productItemModalWrapper");
+        let productItemBackup = productItemModalWrapper.cloneNode(true);
 
         //let ModalTitel = productItemModal.querySelector('.modal-title').innerHTML = "Edit Product";
 
@@ -374,16 +395,15 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
             newProductForm.id = "editProductForm";
 
             console.log(clonedProductNewBody)
-
-            //productItemModalBody.appendChild(clonedProductNewBody);
-
-            productItemModalBody.replaceWith(clonedProductNewBody);
-
+           productItemModalBody.parentNode.insertBefore(productItemModalBody, productItemModalBody.nextSibling);
+           //productItemModalBody.style.display = "none";
            let buttonFooter = modalFooter.querySelectorAll("button");
 
            let updateProductBtn = buttonFooter[1];
 
            updateProductBtn.innerHTML = "Update";
+
+           updateProductBtn.style.display = "inline";
 
            /**
             * Update the product images
@@ -391,7 +411,8 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
 
            let productImage = modalProductNewBody.getElementById("productImage");
 
-           productImage.addEventListener("change", updateImageDisplay);
+           //productImage.addEventListener("change", updateImageDisplay);
+           productImage.onchange = function() {updateImageDisplay(productImage)};
 
            /** The preview of the product images when the user select the images */
 
@@ -408,17 +429,11 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
             console.log(dataContainer);
             console.log(editProductForm);
 
-            //editProductForm["productImage"] = productImage[0] ? productImage[0] : null;
-
-            //let prodImageFile = productImage ? {productImage: productImage[0]} : null;
-
             editProductForm.push(prodImageFile);
                
             updateProductItem(editProductForm); 
         
             }
-
-           //productItemModalBody.parentNode.insertBefore(modalFooter, productItemModalBody.nextSibling);
            clonedProductNewBody.parentNode.insertBefore(modalFooter, productItemModalBody.nextSibling);
 
            console.log(buttonFooter[1]);
@@ -427,32 +442,20 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
 
         });
 
-        //$('.modal').modal('hide');
-
-       // $('#productEditModal').modal('toggle');
-
-       // $('.modal').modal('show');
-
        $("#productItemModal").on('hidden.bs.modal', function(e) {
+        let editButton = productItemBackup.querySelector(".edit-product");
 
-        //productItemModalBody.innerHTML = "";
-
-        console.log(modalBodyBackup);
-
-        let editButton = modalBodyBackup.querySelector(".edit-product");
+        let footerToDisable = productItemModal.querySelector(".modal-footer");
+        console.log(footerToDisable);
+        footerToDisable.querySelectorAll("button")[1].style.display = "none";
 
         editButton.onclick = function() { editProductItem(this); }
 
-        //productItemModalBody.appendChild(modalBodyBackup);
-        console.log("cccccccccccccccccccccccccccccccccccccccccccccccc");
-        console.log(productItemModalBody);
-        clonedProductNewBody.replaceWith(modalBodyBackup);
+        clonedProductNewBody.remove();
        });
     }
 
     function updateProductItem(prodToUpdate) {
-
-        //alert("Hello world");
 
         console.log(prodToUpdate);
 
@@ -460,20 +463,6 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
 
         let prodObject = deserializeProduct(prodToUpdate); //new Object();
 
-
-        //prodObject["productImage"] = prodToUpdate[7].productImage;
-
-       /* prodToUpdate.map(data => {
-
-            if(data.name == "quantity" || data.name == "size")
-            prodObject[data.name] = parseInt(data.value);
-            else if (data.name == "productImage")
-            prodObject["productImage"] = "";
-            else
-            prodObject[data.name] = data.value;
-        }); */
-
-        //prodObject["productImage"] = prodToUpdate[7].productImage ? prodToUpdate[7].productImage: null;
         let editProductForm = document.getElementById("editProductForm");
         let productImage = editProductForm.querySelector("#productImage");
 
@@ -486,10 +475,6 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
         delete prodObject["undefined"];
 
         console.log(prodObject);
-
-        //console.log(prodObject["undefined"]); 
-
-        //let type = "edit";
 
         let data = {
             content: prodObject,
@@ -529,13 +514,15 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
 
           productItemModalBody.innerHTML = "";
   
-          console.log(modalBodyBackup);
+         // console.log(modalBodyBackup);
   
-          let editButton = modalBodyBackup.querySelector(".edit-product");
+          //let editButton = modalBodyBackup.querySelector(".edit-product");
+          let editButton = productItemBackup.querySelector(".edit-product");
   
           editButton.onclick = function() { editProductItem(); }
-  
-          productItemModalBody.appendChild(modalBodyBackup);
+          //productItemBackup
+         // productItemModalBody.appendChild(modalBodyBackup);
+          productItemModalBody.appendChild(productItemBackup);
          });
     }
 
@@ -545,13 +532,13 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
      * but for new i just want it to work
      */
 
-    function updateImageDisplay() {
+    function updateImageDisplay(productImage) {
+         alert("Update preview image");
          let editProductForm = document.getElementById("editProductForm");
       //let productImage = editProductForm.querySelector("#productImage");
-         let productImage = editProductForm.querySelector("#productImage"); //modalProductNewBody.querySelector("#editProductForm"); //productItemModalBody.querySelector("#productImage");
+         //let productImage = editProductForm.querySelector("#productImage"); //modalProductNewBody.querySelector("#editProductForm"); //productItemModalBody.querySelector("#productImage");
          //productImage = productImage ? productImage : null;
-         console.log(productImage);
-         let preview = modalProductNewBody.querySelector(".preview");
+         let preview = editProductForm.querySelector(".preview");
         while(preview.firstChild) {
           preview.removeChild(preview.firstChild);
         }
@@ -650,4 +637,5 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
     
       }
 
+});
 });

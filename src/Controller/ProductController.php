@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Product;
 use App\Entity\ProductImage;
+use App\Entity\Shop;
 use App\Entity\Tag;
 use App\Form\Product1Type;
 use App\Repository\ProductRepository;
@@ -32,13 +33,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
  */
 class ProductController extends AbstractController
 {
-
-   /* public static function getSubscribedServices()
-    {
-        return [
-            'jms_serializer' => SerializerInterface::class,
-        ];
-    } */
 
     /**
      * @Route("/", name="product_index", methods={"GET"})
@@ -70,6 +64,12 @@ class ProductController extends AbstractController
         $product->setQuantity($content->quantity);
         $product->setSize($content->size);
         $product->setDescription($content->description);
+
+        $shopId = intval($content->shop->name);
+        $shop = $entityManager->getRepository(Shop::class)->find($shopId);
+        if($shop) {
+            $product->setShop($shop);
+        }
 
         $categoryId = intval($content->category->name);
         $category =  $entityManager->getRepository(Category::class)->find($categoryId);
@@ -123,21 +123,7 @@ class ProductController extends AbstractController
 
         //return  JsonResponse::fromJsonString($data); //$response;
         return new JsonResponse($productId);
-        /*$form = $this->createForm(Product1Type::class, $product);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($product);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_homepage');
-        }
-
-        return $this->render('product/new.html.twig', [
-            'product' => $product,
-            'form' => $form->createView(),
-        ]); */
+      
     }
 
     /**

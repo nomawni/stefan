@@ -28,6 +28,11 @@
           </div>
 
           <div class="form-group row">
+          <select name="shop" id="productShop" class="form-control"> 
+          </select>
+          </div>
+
+          <div class="form-group row">
               <textarea name="description" class="form-control" id="productDescription">
 
               </textarea>
@@ -43,14 +48,21 @@
           </div>
 
           <div class="form-group row">
-              <input type="text" name="tags" id="productTags" class="form-control" placeholder="tags" />
+              <div class="input-group mb-3">  
+              <input type="text" name="tags" id="productTags" class="form-control" placeholder="tags" aria-describedby="tags-addon" data-role="tagsinput"/>
+              <div class="input-group-append">
+              <span class="input-group-text" id="tags-addon">
+              <span class="fa fa-tags" aria-hidden="true"></span>
+              </span>
+              </div>
+              </div>
           </div>
 
           <div class="form-group row">
               <label for="productImage"> Uplaod </label>
-              <input type="file" name="productImage" id="productImage" class="form-control" accept=".png, .jpg, .jpeg" multiple/>
+              <input type="file" name="productImage" id="productImage" class="form-control" accept=".png, .jpg, .jpeg" multiple />
           </div>
-
+          
           <div class="preview">
               <p>No files currently selected for upload</p>
           </div>

@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -38,9 +40,15 @@ class Comment
      */
     private $author;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\CommentRating", mappedBy="comment", orphanRemoval=true)
+     */
+    private $commentRatings;
+
     public function __construct()
     {
         $this->publishedAt = new \DateTimeImmutable();
+        $this->commentRatings = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -94,5 +102,60 @@ class Comment
         $this->author = $author;
 
         return $this;
+    }
+
+    /**
+     * @return Collection|CommentRating[]
+     */
+    public function getCommentRatings(): Collection
+    {
+        return $this->commentRatings;
+    }
+
+    public function addCommentRating(CommentRating $commentRating): self
+    {
+        if (!$this->commentRatings->contains($commentRating)) {
+            $this->commentRatings[] = $commentRating;
+            $commentRating->setComment($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommentRating(CommentRating $commentRating): self
+    {
+        if ($this->commentRatings->contains($commentRating)) {
+            $this->commentRatings->removeElement($commentRating);
+            // set the owning side to null (unless already changed)
+            if ($commentRating->getComment() === $this) {
+                $commentRating->setComment(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function hasUserRating(User $user) {
+
+        foreach($this->commentRatings as $rating) {
+            if($rating->getClient() === $user) return $rating;
+
+        }
+        return false;
+    }
+
+    public function countRating() {
+        
+        $i =0; $j = 0;
+        foreach($this->commentRatings as $comRating) {
+            if($comRating->getAction() == "like") {
+                $i++;
+            }
+            if($comRating->getAction() == "dislike") {
+                $j++;
+            }
+        }
+        $response = array("amountLike" => $i, "amountDislike" => $j);
+        return $response;
     }
 }

@@ -99,6 +99,11 @@ class User implements UserInterface, \Serializable
      */
     private $salt;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\CommentRating", mappedBy="client", orphanRemoval=true)
+     */
+    private $commentRatings;
+
     public function __construct()
     {
         $this->dateRegistration = new \DateTimeImmutable();
@@ -110,6 +115,7 @@ class User implements UserInterface, \Serializable
         $this->products = new ArrayCollection();
         $this->productss = new ArrayCollection();
         $this->comments = new ArrayCollection();
+        $this->commentRatings = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -466,6 +472,37 @@ class User implements UserInterface, \Serializable
     public function setSalt(string $salt): self
     {
         $this->salt = $salt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|CommentRating[]
+     */
+    public function getCommentRatings(): Collection
+    {
+        return $this->commentRatings;
+    }
+
+    public function addCommentRating(CommentRating $commentRating): self
+    {
+        if (!$this->commentRatings->contains($commentRating)) {
+            $this->commentRatings[] = $commentRating;
+            $commentRating->setClient($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommentRating(CommentRating $commentRating): self
+    {
+        if ($this->commentRatings->contains($commentRating)) {
+            $this->commentRatings->removeElement($commentRating);
+            // set the owning side to null (unless already changed)
+            if ($commentRating->getClient() === $this) {
+                $commentRating->setClient(null);
+            }
+        }
 
         return $this;
     }

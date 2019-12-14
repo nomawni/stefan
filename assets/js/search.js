@@ -1,6 +1,10 @@
 import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/public/js/router';
  import Routes from '../../public/js/fos_js_routes.json';
 
+ import Search from './functions/searched_item-modal.js';
+
+ Routing.setRoutingData(Routes);
+
 /*let searchItem = document.getElementById("searchItem");
 
 let searchResults  = document.getElementById("searchResults");
@@ -56,6 +60,30 @@ searchItem.addEventListener('keyup', function(e) {
 
 }); */
 
+$(document).on("click", ".searched-result-item", function(e) {
+
+  //alert(e.target);
+  let content = null;
+  let elem = e.target;
+  let itemValue = elem.querySelector("input").value;
+  let search = new Search(elem);
+  let url = Routing.generate("list_searched_item", {"name": itemValue});
+  let response = search.ajax(url, "GET");
+  alert(url);
+  console.log(response);
+  let data = response
+             .then(function(response) {
+               console.log(response);
+               search.serializeModal(response.data);
+               return response.data;
+             });
+
+  search.showModal();
+  console.log(elem);
+  console.log(data);
+  
+});
+
 function ajax(url, data) {
     
     let content = {
@@ -89,7 +117,7 @@ function ajax(url, data) {
 
 function searchAutoComplete(/*searchBox, data */) {
 
-    Routing.setRoutingData(Routes);
+   // Routing.setRoutingData(Routes);
 
     let url = Routing.generate("search_item");
 
@@ -125,6 +153,7 @@ function searchAutoComplete(/*searchBox, data */) {
         //if (data[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
           /*create a DIV element for each matching element:*/
           matchedSearch = document.createElement("div");
+          matchedSearch.classList.add("searched-result-item");
           /*make the matching letters bold:*/
           matchedSearch.innerHTML = "<strong>" + data[i].name.substr(0, val.length) + "</strong>";
           matchedSearch.innerHTML += data[i].name.substr(val.length);
@@ -137,6 +166,8 @@ function searchAutoComplete(/*searchBox, data */) {
               /*close the list of autocompleted values,
               (or any other open lists of autocompleted values:*/
               closeAllLists();
+              console.log(matchedSearch);
+              console.log(itemsContainer);
           });
           itemsContainer.appendChild(matchedSearch);
        // }
