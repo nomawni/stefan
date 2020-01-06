@@ -1,0 +1,31 @@
+
+<h1> Good Morning </h1>
+
+<p> 
+   Thanks you <strong> {{ username }} </strong> for placing an order for the product
+</p>
+
+<div class="delivery-address-wrapper"> 
+
+<div class="date-delivery">
+</div>
+
+{# <div class="delivery-address">
+  <h4> The item will be delivered to !</h4>
+  <p> <strong> {{customerAddress.fullName}} </strong> </p>
+  <p> <strong> {{customerAddress.street}} </strong> </p>
+  <p> <strong> {{customerAddress.city}} , {{customerAddress.postalCode}}</strong> </p>
+  <p> <strong> {{customerAddress.country}} </strong> </p>
+</div> 
+</div>  #}
+
+<div class="list-products">
+    {% for product in products %}
+     <p> {{product.name}} <span> {{product.price}} </span> </p>
+    {% endfor %}
+</dic>
+
+<div class="transaciton">
+   <p> <strong> Amount : </strong> {{amount}} </p>
+</div>
+

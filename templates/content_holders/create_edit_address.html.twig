@@ -1,0 +1,24 @@
+
+<template id="createEditAddressTemplate">
+
+<form id="newAddressForm">
+<div>
+
+             Delivery Address
+             <input type="text" name="fullName" id="fulllName" class="form-control" placeholder="your full name" required />
+             <input type="text" name="careOf" id="careOf" class="form-control" placeholder="c/o"/>
+             <input type="text" name="street" id="street" class="form-control" placeholder="street and house number" required/>
+             <input type="text" name="city" id="city" class="form-control" placeholder="Town/City" required/>
+             <input type="text" name="postalCode" class="form-control" placeholder="Postcode" required/>
+             <input type="text" name="phoneNumber" class="form-control" placeholder="Phone number" />
+             <p>Add delivery instructions (optional) </p>
+             <textarea name="instructions" id="instructions" class="form-control" placeholder="do we need additional instructions to find this address">
+              </textarea>
+        </div>
+
+        <div>
+        <button type="submit" class="btn btn-primary space-maker"> Add Address </button>
+        <button class="btn btn-primary cancel-address space-maker"> Cancel </button>
+        </div>
+</form>
+</template>

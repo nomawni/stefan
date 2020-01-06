@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}CommentsReplyRating index{% endblock %}
+
+{% block body %}
+    <h1>CommentsReplyRating index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Action</th>
+                <th>CreatedAt</th>
+                <th>EditedAt</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for comments_reply_rating in comments_reply_ratings %}
+            <tr>
+                <td>{{ comments_reply_rating.id }}</td>
+                <td>{{ comments_reply_rating.action }}</td>
+                <td>{{ comments_reply_rating.createdAt ? comments_reply_rating.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ comments_reply_rating.editedAt ? comments_reply_rating.editedAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a href="{{ path('comments_reply_rating_show', {'id': comments_reply_rating.id}) }}">show</a>
+                    <a href="{{ path('comments_reply_rating_edit', {'id': comments_reply_rating.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('comments_reply_rating_new') }}">Create new</a>
+{% endblock %}

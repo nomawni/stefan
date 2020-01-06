@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit CommentsReplyRating{% endblock %}
+
+{% block body %}
+    <h1>Edit CommentsReplyRating</h1>
+
+    {{ include('comments_reply_rating/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('comments_reply_rating_index') }}">back to list</a>
+
+    {{ include('comments_reply_rating/_delete_form.html.twig') }}
+{% endblock %}

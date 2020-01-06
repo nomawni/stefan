@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New CommentsReplyRating{% endblock %}
+
+{% block body %}
+    <h1>Create new CommentsReplyRating</h1>
+
+    {{ include('comments_reply_rating/_form.html.twig') }}
+
+    <a href="{{ path('comments_reply_rating_index') }}">back to list</a>
+{% endblock %}
