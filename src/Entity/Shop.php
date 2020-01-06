@@ -35,14 +35,15 @@ class Shop
     private $manager;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\ShopCategory", inversedBy="shops", cascade={"merge"})
+     * @ORM\ManyToOne(targetEntity="App\Entity\ShopCategory", cascade={"merge"})
+     * @ORM\JoinColumn(name="shop_address_id", referencedColumnName="id", nullable=false)
      */
     private $shopCategory;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Product", mappedBy="shop")
      */
-    private $products;
+    //private $products; 
 
     /**
      * @ORM\OneToOne(targetEntity="App\Entity\ShopAddress", inversedBy="shop", cascade={"persist", "remove"})
@@ -99,7 +100,7 @@ class Shop
     /**
      * @return Collection|Product[]
      */
-    public function getProducts(): Collection
+   /* public function getProducts(): Collection
     {
         return $this->products;
     }
@@ -125,7 +126,7 @@ class Shop
         }
 
         return $this;
-    }
+    } */
 
     public function getShopAddress(): ?ShopAddress
     {

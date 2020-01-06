@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}ProductImage{% endblock %}
+
+{% block body %}
+    <h1>ProductImage</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ product_image.id }}</td>
+            </tr>
+            <tr>
+                <th>ImageSize</th>
+                <td>{{ product_image.imageSize }}</td>
+            </tr>
+            <tr>
+                <th>ImageName</th>
+                <td>{{ product_image.imageName }}</td>
+            </tr>
+            <tr>
+                <th>FinalName</th>
+                <td>{{ product_image.finalName }}</td>
+            </tr>
+            <tr>
+                <th>Extension</th>
+                <td>{{ product_image.extension }}</td>
+            </tr>
+            <tr>
+                <th>DateUploaded</th>
+                <td>{{ product_image.dateUploaded ? product_image.dateUploaded|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>FinalPath</th>
+                <td>{{ product_image.finalPath }}</td>
+            </tr>
+            <tr>
+                <th>MimeType</th>
+                <td>{{ product_image.mimeType }}</td>
+            </tr>
+            <tr>
+                <th>OriginalName</th>
+                <td>{{ product_image.originalName }}</td>
+            </tr>
+            <tr>
+                <th>DateUpdated</th>
+                <td>{{ product_image.dateUpdated ? product_image.dateUpdated|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('product_image_index') }}">back to list</a>
+
+    <a href="{{ path('product_image_edit', {'id': product_image.id}) }}">edit</a>
+
+    {{ include('product_image/_delete_form.html.twig') }}
+{% endblock %}

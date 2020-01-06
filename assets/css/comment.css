@@ -1,0 +1,103 @@
+.comment-wrapper {
+    margin-left: 10px;
+}
+.comment-and-reply-wrappers {
+  margin-top: 10px;
+}
+
+.comment-wrapper, .comment-and-reply-wrappers {
+    display: grid;
+    grid-template-columns: 1fr 1fr 3fr;
+}
+
+.comment-wrapper img, .comment-and-reply-wrappers img {
+    border-radius: 50%;
+    grid-row: 1/3;
+}
+
+comment-content-wrapper
+
+/*.comment-wrapper p, .comment-and-reply-wrappers p {
+    grid-column: 2 / -1;
+} */
+
+.comment-content-wrapper, .comment-content-wrapper {
+    grid-column: 2 / -1;
+}
+
+.comment-wrapper .likes-buttons-wrapper, .comment-and-reply-wrappers .likes-buttons-wrapper {
+    grid-column: 2 / -1;
+}
+
+.thumbs-button {
+    cursor: pointer;
+}
+
+.thumbs-button + span {
+    display: inline-block;
+    margin-right: 20px;
+    margin-left: 10px;
+}
+
+.rating-btn {
+    margin-right: 20px;
+}
+
+.comment-and-reply-input, .comment-and-reply-input:focus {
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+}
+
+.comment-and-reply-input:focus {
+    outline: 0;
+}
+
+.comment-and-reply-input {
+    overflow: hidden;
+}
+
+.show-hide-replies-comment {
+    cursor: pointer;
+}
+
+.comment-content-wrapper {
+    display: grid;
+    grid-template-columns: 90% 10%;
+    grid-gap: 10px;
+}
+
+.comment-actions-wrapper i {
+    cursor: pointer;
+}
+
+.actions-on-comment-btns-wrapper {
+    position: absolute; 
+    right: 20px;
+    display: none;
+}
+
+.comment-and-reply-form {
+    display: grid;
+    grid-gap: 10px;
+    
+}
+
+.comment-and-reply-form textarea, .comment-and-reply-input {
+    grid-column: 1 / -1;
+    resize: none;
+   /* overflow-y: scroll; */
+}
+
+.comment-and-reply-form button {
+    
+
+}
+
+#commentForm {
+    display: grid;
+}
+
+#commentForm {
+    grid-column: 1 / -1;
+}

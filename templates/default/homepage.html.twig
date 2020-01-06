@@ -7,7 +7,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top justify-content-around">
   <!--<div class="container-fluid"> -->
-  <a class="navbar-brand" href="{{path('app_homepage')}}">MINERAL</a>
+  <a class="navbar-brand app-logo" href="{{path('app_homepage')}}"> <img src="{{asset('images/logo/logo-via-logohub.png')}}" /> </a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsiveContent" aria-controls="navbarResponsiveContent" aria-expanded="false" aria-label="Toggle navigation">
     <!--<span class="navbar-toggler-icon"></span> -->
     <span class="sr-only"></span>
@@ -30,8 +30,8 @@
 
       </div>
      -->
-    <form autocomplete="off" class="form-inline justify-content-center" id="searchItemForm"> <!-- Begining of the search box -->
-      <div class="input-group mb-3 autocomplete"> <!-- beginning of the input group -->
+    <form autocomplete="off" class="form-inline justify-content-center" id="searchItemForm" > <!-- Begining of the search box -->
+      <div class="input-group mb-3 autocomplete" style="width:100%"> <!-- beginning of the input group -->
       <input class="form-control" type="search" placeholder="Search" aria-label="Search" id="searchItem" />
       <div class="input-group-append"> <!-- begining of the input-group-append -->
       <!--<span class="input-group-btn"> -->
@@ -79,7 +79,7 @@
       </li>
 
       {% else %}
-      <li class="nav-item active">
+      <li class="nav-item">
         <a class="nav-link" href="{{path('app_login')}}" id="loginLink"> Login <span class="sr-only">(current)</span></a>
       </li>
 
@@ -121,7 +121,7 @@
       </li>
 
       <li class="nav-item">
-           <a class="nav-link" id="myOrders"> orders </a> 
+           <a class="nav-link myOrders" id="myOrders"> orders </a> 
       </li>
 
       {% if is_granted("IS_AUTHENTICATED_FULLY") %}
@@ -186,7 +186,7 @@
 
     {% set img = product.productImages|first %}
 
-    <img src="{{img ? img.finalPath}}" class="card-img-top" alt="...">
+    <img src="{{img ? img.finalPath}}" class="card-img-top" alt="..." >
      
 
     <h5 class="card-title">{{ product.name }}</h5> 
@@ -234,7 +234,7 @@
   </div>
 
   <div class="card-footer">
-      <span class="float-left product-price"> {{product.price}} </span>
+      <span class="float-left product-price"> <span> € </span> {{product.price}} </span>
       <span class="float-right"> 
       
       <a class="add-cart" data-toggle="tooltip" data-placement="top" title="Add to Cart" {% if product.carts is not null %} {% for cart in product.carts %} {% if app.user == cart.client %}   style="color:blue" data-cart-id="{{cart.id}}" {% endif %} {% endfor %} {% endif %} >
@@ -242,7 +242,7 @@
       </a>
         <a data-toggle="tooltip" data-placement="top" title="Share" class="share-product">
         <i class="fas fa-share-alt mr-3 cursor-pointer"></i></a>
-        <a class="active add-whishlist" data-toggle="tooltip" data-placement="top" title="Added to Wishlist" {% if product.whishlists is not null %} {% for whishlist in product.whishlists %} {% if app.user == whishlist.customer %} style="color:green" data-whishlist-id="{{whishlist.id}}" {% endif %} {% endfor %} {% endif %}>
+        <a class="add-whishlist" data-toggle="tooltip" data-placement="top" title="Added to Wishlist" {% if product.whishlists is not null %} {% for whishlist in product.whishlists %} {% if app.user == whishlist.customer %} style="color:green" data-whishlist-id="{{whishlist.id}}" {% endif %} {% endfor %} {% endif %}>
         <i class="fas fa-heart cursor-pointer">
         </i></a>
     
@@ -257,6 +257,10 @@
   </div>
 
 </div>
+
+{% include '/content_holders/create_edit_product.html.twig'%}
+
+{% include '/content_holders/create_edit_address.html.twig'%}
 
 {% include '/modal/product_new.html.twig' %}
 
@@ -273,6 +277,8 @@
 {% include '/modal/registration.html.twig' %}
 
 {% include '/modal/login.html.twig' %}
+
+{% include '/modal/orders.html.twig' %}
 
 {% include '/modal/product_item.html.twig' %}
 

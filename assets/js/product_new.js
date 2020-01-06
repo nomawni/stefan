@@ -7,21 +7,38 @@ let productNew = document.getElementById("productNew");
 productNew.addEventListener("click", e => {
 
     e.preventDefault();
-
     Routing.setRoutingData(Routes);
 
-    serializeShops();
+    let productNewModal = document.getElementById("productNewModal");
+    let modalProductNewBody = productNewModal.querySelector("#modalProductNewBody");
+    let createEditTemplate = document.querySelector("#createEditProductTTemplate");
+    let clonedProductNewBody = document.importNode(createEditTemplate.content, true);
 
+    // We set the response message div to null 
+    let responseStatusDiv = modalProductNewBody.querySelector(".response-status");
+    responseStatusDiv.innerHTML = "";
+
+    modalProductNewBody.appendChild(clonedProductNewBody);
+
+    serializeShops();
     serializeCategories();
 
     $('#productNewModal').modal('show');
 
-    let createProduct = document.querySelector(".create-product");
+    // if the modal is closed we want to remove the form so that if the user clicks on an item
+    // We can reuse the same form . The same form is used for the edit and create new product
+    $("#productNewModal").on("hidden.bs.modal", function(e) {
 
+      console.log(document.cookie);
+      if(modalProductNewBody.querySelector("form")) {
+        modalProductNewBody.querySelector("form").remove();
+      }
+    })
+
+    let createProduct = document.querySelector(".create-product");
     let productImage = document.getElementById("productImage");
 
     /** The preview of the product images when the user select the images */
-
     let preview = document.querySelector(".preview");
 
         /**
@@ -43,21 +60,14 @@ productNew.addEventListener("click", e => {
          */
 
          let product = new Object();
-
          let productImageFiles = productImage.files
-
         let newProductForm = document.getElementById("newProductForm");
 
         console.log(newProductForm);
-
         let newProductContainer = $("#newProductForm").serializeArray();
-
         console.log(newProductContainer);
-
         let content = deserializeProduct(newProductContainer); //JSON.stringify(product);
-
         content = JSON.stringify(content);
-
         console.log(content);
 
         //let productImg = productImageFiles[0];
@@ -74,7 +84,7 @@ productNew.addEventListener("click", e => {
    // });
 
     let url = Routing.generate("product_new"); //"http://localhost:8001/product/new";
-    let resposeStatus = null;
+    let responseStatus = null;
     let response = fetch(url, {
         "method" : "POST",
         "cache": "no-cache",
@@ -85,28 +95,45 @@ productNew.addEventListener("click", e => {
         },
         body: formData,
     })
-    .then(response => response.json())
+    .then(response => {
+      responseStatus = response.status;
+       return response.json();
+    })
     .then(data => {
         console.log(JSON.stringify(data));
-        resposeStatus = response.status;
         return data;
     })
     .catch(error => console.error(error));
 
     response.then(data => {
-        console.log(data);
-        let productId = data;
-        console.log(productId);
+        
+        if(responseStatus === 200) {
+            let responseMessage = `<div class="alert alert-success" role="alert">
+                                 Your product has been created successfully. Check below to see it
+                                </div>`;
+            console.log(data);
+            let productId = data;
+            console.log(productId);
+            let url = Routing.generate("product_show", {id: productId});
+            let showResponse = ajax(url, "GET");
 
-        let url = Routing.generate("product_show", {id: productId});
-
-        let showResponse = ajax(url, "GET");
-
-        showResponse.then(data => {
-          console.log(data);
-          serializeProduct(data);
+            showResponse.then(data => {
+            console.log(data);
+            serializeProduct(data);
         });
+        responseStatusDiv.insertAdjacentHTML("afterbegin", responseMessage);
+        // we remove the form 
+        modalProductNewBody.querySelector("form").remove();
+        // After 3 seconds  we close the modal
+            setTimeout(function() {
+              $('#productNewModal').modal('hide');
+            }, 5000);
 
+        }else if (responseStatus === 403) {
+
+        }else {
+
+        }
         //serializeProduct(data);
     });
            
@@ -160,7 +187,7 @@ function serializeCategories(){
 
    if(response){
 
-    let productCategory = document.querySelector("#productCategory");
+    let productCategory = modalProductNewBody.querySelector("#productCategory");
     productCategory.innerHTML = "";
 
       response.then(res => {

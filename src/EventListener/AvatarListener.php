@@ -49,13 +49,14 @@ class AvatarListener {
 
         if($entity instanceof Avatar) {
             if($entity->getAvatarFile()) {
-            //$entity->setFinalName($entity->getAvatarFile()->getFilename());
+            $entity->setFinalName($entity->getAvatarFile()->getFilename());
+            $entity->setAvatarName($entity->getAvatarFile()->getFilename());
            //$entity->setAvatarSize($entity->getAvatarFile()->getSize());
-            //$entity->setExtension($entity->getAvatarFile()->getExtension());
+            $entity->setExtension($entity->getAvatarFile()->getExtension());
            // $entity->setBasename($entity->getAvatarFile()->getBasename());
            //$entity->setDestination($entity->getAvatarFile()->getPathname());
-            //$entity->setFinalPath($this->helper->asset($entity, 'avatarFile'));
-           // $entity->setMimeType($entity->getAvatarFile()->getMimeType()); 
+            $entity->setFinalPath($this->helper->asset($entity, 'avatarFile'));
+            $entity->setMimeType($entity->getAvatarFile()->getMimeType()); 
             }
         } 
 

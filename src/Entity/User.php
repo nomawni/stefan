@@ -50,24 +50,9 @@ class User implements UserInterface, \Serializable
     private $avatar;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Address", inversedBy="users")
-     */
-    private $addresses;
-
-    /**
      * @ORM\OneToMany(targetEntity="App\Entity\Shop", mappedBy="owner")
      */
     private $shops;
-
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\WhishLists", mappedBy="customer", orphanRemoval=true)
-     */
-    private $whishLists;
-
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Cart", mappedBy="client")
-     */
-    private $cart;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
@@ -85,16 +70,6 @@ class User implements UserInterface, \Serializable
     private $stars;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Product", mappedBy="client", orphanRemoval=true)
-     */
-    private $products;
-
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="author", orphanRemoval=true)
-     */
-    private $comments;
-
-    /**
      * @ORM\Column(type="string", length=255)
      */
     private $salt;
@@ -104,17 +79,20 @@ class User implements UserInterface, \Serializable
      */
     private $commentRatings;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $isAccountConfirmed;
+
     public function __construct()
     {
         $this->dateRegistration = new \DateTimeImmutable();
-        $this->addresses = new ArrayCollection();
-        $this->shops = new ArrayCollection();
-        $this->whishLists = new ArrayCollection();
-        $this->cart = new ArrayCollection();
+       // $this->addresses = new ArrayCollection();
+       // $this->shops = new ArrayCollection();
+        //$this->whishLists = new ArrayCollection();
+        //$this->cart = new ArrayCollection();
         $this->stars = new ArrayCollection();
-        $this->products = new ArrayCollection();
-        $this->productss = new ArrayCollection();
-        $this->comments = new ArrayCollection();
+        //$this->comments = new ArrayCollection();
         $this->commentRatings = new ArrayCollection();
     }
 
@@ -234,32 +212,6 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * @return Collection|Address[]
-     */
-    public function getAddresses(): Collection
-    {
-        return $this->addresses;
-    }
-
-    public function addAddress(Address $address): self
-    {
-        if (!$this->addresses->contains($address)) {
-            $this->addresses[] = $address;
-        }
-
-        return $this;
-    }
-
-    public function removeAddress(Address $address): self
-    {
-        if ($this->addresses->contains($address)) {
-            $this->addresses->removeElement($address);
-        }
-
-        return $this;
-    }
-
-    /**
      * @return Collection|Shop[]
      */
     public function getShops(): Collection
@@ -284,68 +236,6 @@ class User implements UserInterface, \Serializable
             // set the owning side to null (unless already changed)
             if ($shop->getOwner() === $this) {
                 $shop->setOwner(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|WhishLists[]
-     */
-    public function getWhishLists(): Collection
-    {
-        return $this->whishLists;
-    }
-
-    public function addWhishList(WhishLists $whishList): self
-    {
-        if (!$this->whishLists->contains($whishList)) {
-            $this->whishLists[] = $whishList;
-            $whishList->setCustomer($this);
-        }
-
-        return $this;
-    }
-
-    public function removeWhishList(WhishLists $whishList): self
-    {
-        if ($this->whishLists->contains($whishList)) {
-            $this->whishLists->removeElement($whishList);
-            // set the owning side to null (unless already changed)
-            if ($whishList->getCustomer() === $this) {
-                $whishList->setCustomer(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|Cart[]
-     */
-    public function getCart(): Collection
-    {
-        return $this->cart;
-    }
-
-    public function addCart(Cart $cart): self
-    {
-        if (!$this->cart->contains($cart)) {
-            $this->cart[] = $cart;
-            $cart->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCart(Cart $cart): self
-    {
-        if ($this->cart->contains($cart)) {
-            $this->cart->removeElement($cart);
-            // set the owning side to null (unless already changed)
-            if ($cart->getUser() === $this) {
-                $cart->setUser(null);
             }
         }
 
@@ -407,68 +297,6 @@ class User implements UserInterface, \Serializable
         return $this;
     }
 
-    /**
-     * @return Collection|Product[]
-     */
-    public function getProducts(): Collection
-    {
-        return $this->products;
-    }
-
-    public function addProduct(Product $product): self
-    {
-        if (!$this->products->contains($product)) {
-            $this->products[] = $product;
-            $product->setClient($this);
-        }
-
-        return $this;
-    }
-
-    public function removeProduct(Product $product): self
-    {
-        if ($this->products->contains($product)) {
-            $this->products->removeElement($product);
-            // set the owning side to null (unless already changed)
-            if ($product->getClient() === $this) {
-                $product->setClient(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|Comment[]
-     */
-    public function getComments(): Collection
-    {
-        return $this->comments;
-    }
-
-    public function addComment(Comment $comment): self
-    {
-        if (!$this->comments->contains($comment)) {
-            $this->comments[] = $comment;
-            $comment->setAuthor($this);
-        }
-
-        return $this;
-    }
-
-    public function removeComment(Comment $comment): self
-    {
-        if ($this->comments->contains($comment)) {
-            $this->comments->removeElement($comment);
-            // set the owning side to null (unless already changed)
-            if ($comment->getAuthor() === $this) {
-                $comment->setAuthor(null);
-            }
-        }
-
-        return $this;
-    }
-
     public function setSalt(string $salt): self
     {
         $this->salt = $salt;
@@ -503,6 +331,18 @@ class User implements UserInterface, \Serializable
                 $commentRating->setClient(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getIsAccountConfirmed(): ?bool
+    {
+        return $this->isAccountConfirmed;
+    }
+
+    public function setIsAccountConfirmed(?bool $isAccountConfirmed): self
+    {
+        $this->isAccountConfirmed = $isAccountConfirmed;
 
         return $this;
     }

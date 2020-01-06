@@ -18,11 +18,16 @@ require("../css/tables.css");
 require("../css/search.css");
 require('../css/slides.css');
 require("../css/comment.css");
-require("./my_orders.js");
+require("../css/reset.css");
 
 //Extern 
 //require("./extern/css/bootstrap-tagsinput.css");
 require("./extern/css/tagsinput.css");
+
+// We need this to initialize the input textare
+import {commentReplyInput} from './functions/comment_utilities.js';
+
+commentReplyInput();
 
 //require('../../react-src/cart.js');
 require("./stripe.js");
@@ -35,6 +40,7 @@ require('./search.js');
 require('./star_product.js');
 require('./product_new.js');
 
+require("./my_orders.js");
 require('./delete_product.js');
 require('./edit_product.js');
 require('./share_product.js');
@@ -42,7 +48,6 @@ require('./registration.js');
 require("./login.js");
 require('./user_profile.js');
 require('./shop-link.js');
-
 require("./add_comment.js");
 
 require("./remove_product_from_cart.js");

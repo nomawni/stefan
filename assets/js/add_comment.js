@@ -1,6 +1,7 @@
 import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/public/js/router';
 
 import Routes from '../../public/js/fos_js_routes.json';
+import CommentHandler from './functions/comment_handler.js';
 
 window.addEventListener("load", function(e) {
 
@@ -59,6 +60,24 @@ window.addEventListener("load", function(e) {
         response.then(data => {
 
             console.log(data);
+            let productItemModalWrapper = commentForm.closest("#productItemModalWrapper");
+            let listCommentSection = productItemModalWrapper.querySelector("#listComments");
+            let formTextArea = commentForm.querySelector("textarea");
+            console.log("**********************");
+            console.log(commentForm);
+            console.log(commentForm.parentElement);
+            console.log(commentForm.parentElement.parentElement);
+            console.log(listCommentSection);
+            console.log(productItemModalWrapper);
+            formTextArea.value = "";
+
+           /* if(!listCommentSection instanceof HTMLDivElement || !listCommentSection.classList.contains(".listComments")) {
+               alert("The list is not a div");
+               return;
+            } */
+            // Inserting the newly created comment into the list comments section
+            let commentHandler = new CommentHandler();
+            commentHandler.serializeComment(listCommentSection, data);
 
         });
     })

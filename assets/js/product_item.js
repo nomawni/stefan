@@ -3,6 +3,9 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
 
  import Checkout from './functions/checkout_list.js';
  import Rating from './functions/rating.js';
+ import Reply from './functions/reply_comment.js';
+ import CommentUtilities from './functions/comment_utilities.js';
+ import CommentComponent from './functions/comment_components.js';
 
 //let listProducts = document.querySelectorAll(".productItem");
 
@@ -38,6 +41,11 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
         let productItemModalBody = productItemModal.querySelector(".modal-body");
         let backupModalBody = productItemModalBody.cloneNode(true);
 
+        let orderType = productItemModalBody.querySelector("input[name='orderType']");
+        orderType.dataset.orderId = productId;
+        console.log("oooooooooooooooooooooooooooooooooooooooo");
+        console.log(orderType);
+
         //url = url + productId;
 
         let response = fetch(url, {
@@ -62,13 +70,9 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
          console.log(document.cookie);
 
         productItemModal.dataset.productId = productId;
-
         let addCart = productItemModal.querySelector(".add-cart");
-
         let productItemModalTitle = productItemModal.querySelector('#productItemModalTitle');
-
         let productActions = productItemModal.querySelector(".product-actions");
-
         let authorActions = productActions ? productActions.querySelector(".author-actions"): null;
 
         if(card.dataset.author) {
@@ -83,14 +87,23 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
         }
 
         productItemModalTitle.innerHTML = data.name;
- 
         let productImagesContainer = productItemModal.querySelector(".product-images-container");
-
         let productImages = data.productImages;
+        if(productImages.length > 1) {
+            productSlideImg(productImagesContainer, productImages); 
+        }else {
+            let productImagesContainer = productItemModal.querySelector(".product-images-container");
+             if(productItemModalBody.querySelector(".dots-container")) {
+                productItemModalBody.querySelector(".dots-container").remove();
+             }
+            productImagesContainer.innerHTML = ""; // Clear the container for the next images
+            let productImg = document.createElement("img");
+            productImg.src = productImages[0].finalPath;
+            productImg.alt = productImages[0].originalName;
+            productImagesContainer.appendChild(productImg);
+        }
 
-        productSlideImg(productImagesContainer, productImages);
-
-        let productDetail = productItemModal.querySelector("#productDetail");
+        //let productDetail = productItemModal.querySelector("#productDetail");
 
         let price = productItemModal.querySelector(".item-price");
 
@@ -100,9 +113,7 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
         }
 
         let productItemDescription = productItemModal.querySelector("#productItemDescription");
-
         productItemDescription.innerHTML = data.description;
-
         let itemSize = productItemModal.querySelector(".item-size");
 
         if(data.size) {
@@ -111,22 +122,41 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
         }
 
         let itemQuantity = productItemModal.querySelector(".item-quantity");
-
         itemQuantity.innerHTML = data.quantity;
+        // We serialize the star rating using the function defined below and the argument contained 
+        // in the product item
+
+        let starRating = starRatings(data.stars);
+        productItemDescription.insertAdjacentHTML('afterend', starRating);
+
+        if(!productItemModal.querySelector("input[name='selectQt']")) {
+
+        let selectQt =`<div class="input-group mb-3 selectQtWrapper">
+         <div class="input-group-prepend">
+         <span class="input-group-text"> Quantity </span>
+         </div>
+        <input type="number" name="selectQt" min="1" max="${data.quantity}" value="1" class="form-control col-md-3" />
+        
+        </div>`;
+        productItemDescription.nextElementSibling.insertAdjacentHTML('afterend', selectQt);
+        }
 
         let listComments = productItemModal.querySelector("#listComments");
-
+        // We insert the the select quantity input before the list comments
+        //listComments.insertAdjacentHTML('beforebegin', selectQt);
         listComments.innerHTML = "";
 
         let allComments = data.comments;
-
         console.log(allComments);
+
+        // We need the comment components to edit and delete a comment
+        let commentComponent = new CommentComponent();
 
         for(let i = 0; i < allComments.length; i++) {
 
             // The container of the whole single comment
             let commentWrapper = document.createElement("div");
-            commentWrapper.classList.add("comment-wrapper");
+            commentWrapper.classList.add("comment-wrapper","comment-and-reply-wrappers");
             listComments.appendChild(commentWrapper);
 
             let comment = allComments[i];
@@ -137,21 +167,16 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
             // The rating imported from './functions/rating' containing the class 
             // That handles the comment rating
             let rating = new Rating(ratingUrl, commentWrapper);
-
             // The comment ratings to indicate the number likes and dislikes
             let commentRatings = comment.commentRatings;
 
             let img = document.createElement("img");
-
             img.src = comment.author.avatar ? comment.author.avatar.finalPath : "/images/default_avatar/default_avatar.png";
-
             img.alt = comment.author.avatar ? comment.author.avatar.originalName : "";
-
             img.style = "width:50px;height:50px;";
 
             //listComments.appendChild(img);
             commentWrapper.appendChild(img);
-
             let commentAuthor = document.createElement("small");
             commentAuthor.innerHTML = comment.author.username;
             commentWrapper.appendChild(commentAuthor);
@@ -164,20 +189,35 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
             commentedAt.setAttribute("datetime", parsedDate);
             commentedAt.innerHTML = parsedDate;
 
-            //listComments.appendChild(span);
             commentWrapper.appendChild(commentedAt);
+            //listComments.appendChild(span);
+            let commentContentWrapper = document.createElement("div");
+            commentContentWrapper.classList.add("comment-content-wrapper");
 
             let p = document.createElement("p");
 
-            p.innerHTML = allComments[i].content;
+            p.innerHTML = comment.content;
             //listComments.appendChild(p);
-            commentWrapper.appendChild(p);
+            commentContentWrapper.appendChild(p);
+
+            /**
+             * The edit and delete comment section 
+             */
+
+            let editCommentUrl = Routing.generate("comment_edit", {id: commentId});
+            let deleteCommentUrl = Routing.generate("comment_delete", {id: commentId});
+            commentContentWrapper.appendChild(commentComponent.actionsOnComment(comment, editCommentUrl, deleteCommentUrl, true ));
+          
+            commentWrapper.appendChild(commentContentWrapper);
+
+             /**
+              * End of Edit And Delete comment Section
+              */
 
             let likesDiv = document.createElement("div");
             likesDiv.className = "likes-buttons-wrapper";
 
             commentWrapper.appendChild(likesDiv);
-            
             // the Like comment button
             let thumbsUp = document.createElement("i");
             thumbsUp.classList.add("far", "fa-thumbs-up", "thumbs-button");
@@ -208,10 +248,50 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
              ${numberDislikes > 0 ? numberDislikes : ""} </span>`;
             thumbsDown.insertAdjacentHTML("afterend", numberDislikeSpan);
 
-            //likesDiv.insertAdjacentHTML("afterbegin", '<i class="far fa-thumbs-up"></i> <span class="nb-likes"> </span> <i class="far fa-thumbs-down"></i> <span class="nb-dislikes"> </span>');
-        }
+            // The comment reply function is contained in the comment utilities
+            let commentUtilities = new CommentUtilities(commentId);
 
-        //let productItemWrapper = document.getElementById("productItemWrapper");
+            let replyCommentBtn = document.createElement("a");
+            replyCommentBtn.classList.add("reply-comment-btn");
+            replyCommentBtn.innerHTML = "Reply";
+            replyCommentBtn.onclick = function() {commentUtilities.commentReply(replyCommentBtn, commentId)};
+            //replyCommentBtn.onclick = function() {commentUtilities.commentReply(commentWrapper, commentId)};
+            // Adding the reply bottom to every div
+            likesDiv.appendChild(replyCommentBtn);
+            // The number of replies
+            let numberReplies = comment.commentsReplies.length;
+            // We only show the number of replies if there's a minimum of one
+            if(numberReplies > 0) {
+            // The paragraph indicating the nomber of replies
+            let numberRepliesWrapper = document.createElement("div");
+            numberRepliesWrapper.classList.add("number-replies-wrapper");
+
+            let numberRepliesContainer = document.createElement("a");
+            numberRepliesContainer.classList.add("show-list-replies", "show-hide-replies-comment");
+            numberRepliesWrapper.appendChild(numberRepliesContainer);
+
+            let showListRepliesArrow = `<i class="fas fa-sort-down"></i>`;
+            numberRepliesContainer.insertAdjacentHTML("afterbegin", showListRepliesArrow);
+
+            let showListRepliesText = `<span> ${numberReplies} ${numberReplies == 1 ? "Reply" : "Replies"} </span>`;
+            numberRepliesContainer.insertAdjacentHTML('beforeend', showListRepliesText);
+
+            //document.createElement("p");//`<p> ${numberReplies} Replies </p>`;
+            // numberRepliesContainer.innerHTML = `${numberReplies} Replies`;
+            // When the user clicks we show the list of the replies to the comment
+            numberRepliesContainer.addEventListener("click", function(e) {
+                e.stopPropagation();
+                commentUtilities.listCommentReply(commentWrapper,commentId, e.currentTarget)
+            });
+            likesDiv.appendChild(numberRepliesWrapper);
+            let listCommentReplies = document.createElement("div");
+            listCommentReplies.classList.add("list-comment-replies-container");
+            likesDiv.appendChild(listCommentReplies);
+            //likesDiv.insertAdjacentHTML('beforeend', numberRepliesContainer);
+            //commentWrapper.insertAdjacentHTML('beforeend', numberReplies);
+            }
+
+         }
 
         let checkout = new Checkout(productItemModal);
 
@@ -221,75 +301,50 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
 
             let productItemModalWrapper = productItemModal.querySelector('#productItemModalWrapper');
             productItemModalWrapper.querySelector(".checkout").style.display = "inline";
-            //let productItemForm = productItemModal.querySelector("#payment-form");
             let paymentForm = productItemModal.querySelector(".payment-form");
 
             productItemModalWrapper.style.display = "block";
-            paymentForm.querySelectorAll(".tab")[1].style.display = "none";
+           // paymentForm.querySelectorAll(".tab")[1].style.display = "none";
             paymentForm.style.display = "none";
             
+          });
+          /// When we close the modal we want to remove the star rating ul because it has been 
+          // dynamically created
+
+          $("#productItemModal").on("hidden.bs.modal", function(e) {
+             let starRating = productItemModal.querySelector(".rating");
+             let transactionSucceeded = productItemModal.querySelector(".transaction-succeeded");
+             starRating ? starRating.remove() : null;
+             transactionSucceeded ? transactionSucceeded.style.display= "none" : null;
           });
 
       });
 
     });
 
-  /*function productSlideImg (imgContainer, productImages) {
+    function starRatings(stars) {
+        let ratings = `<ul class="nav rating">`;
 
-      imgContainer.innerHTML = "";
+            for(var i =1; i <= 5; i++) {
+                if(stars.length > 0) {
+                    stars.map(star => {
+                       ratings +=`<li class="star-product" data-star-id="${star.id}" data-star="${i}">`;
+                    
+                    if(star.value >= i) {
+                      ratings += `<i class="fas fa-star cursor-pointer"></i> `;
+                    }else {
+                        ratings += `<i class="far fa-star cursor-pointer"></i></li>`;
+                    }
+                    });
+                }else {
+                    ratings += `<i class="far fa-star cursor-pointer"></i></li>`;
+                }
+            }
+            ratings += '</ul>';
 
-    if(productImages) {
-        if(productImages.length > 1) {
-
-            for(let i = 0; i < productImages.length; i++) {
-
-     let productImgSlide = document.createElement("div");
-     productImgSlide.classList.add("product-img-slide");
-
-     let productImg = document.createElement("img");
-     productImg.src= productImages[i].finalPath;
-     productImg.alt = productImages[i].imageName;
-     productImgSlide.appendChild(productImg);
-
-     imgContainer.appendChild(productImgSlide);
-
-             }
-
-     let prevButton = document.createElement("button");
-     prevButton.classList.add("btn-prev");
-     let leftArrow = document.createElement("i");
-     leftArrow.classList.add("fa", "fa-arrow-circle-left");
-     prevButton.appendChild(leftArrow);
-
-     let nextButton = document.createElement("button");
-     nextButton.classList.add("btn-next");
-     let rightArrow = document.createElement("i");
-     rightArrow.classList.add("fa", "fa-arrow-circle-right");
-     nextButton.appendChild(rightArrow);
-
-     imgContainer.appendChild(prevButton);
-     imgContainer.appendChild(nextButton);
-
-       let x = 0;
-
-      $(".btn-next").click(function() {
-          x = (x<=300)?(x+100):0;
-          $(".product-img-slide").css('left', -x+"%");
-      });
-
-      $(".btn-prev").click(function() {
-        x = (x>=100)?(x-100):400;
-        $(".product-img-slide").css('left', -x+"%");
-    });
-
-        }else {
-         let img = productImages[0];
-         let singleProdImg = `<div> <img src="${img.finalPath}" alt="${img.originalName}" /> </div>`;
-         imgContainer.insertAdjacentHTML("afterbegin", singleProdImg);
-        } 
+            return ratings;
     }
-     
-} */
+//});
 
 let slideIndex = 1;
 
@@ -305,14 +360,11 @@ function productSlideImg (imgContainer, productImages) {
   if(productImages) {
       if(productImages.length > 1) {
 
-         //let imgSlideContainer = document.createElement("div");
-         //imgSlideContainer.classList.add("slideshow-container");
         let dotsContainer = document.createElement("div");
         dotsContainer.classList.add("dots-container");
           for(let i = 0; i < productImages.length; i++) {
 
    let productImgSlide = document.createElement("div");
-   //productImgSlide.classList.add("product-img-slide", "fade");
    productImgSlide.classList.add("product-img-slide", "fadeImg");
    let numberedText = document.createElement("div");
    numberedText.classList.add("numbertext");
@@ -342,36 +394,18 @@ function productSlideImg (imgContainer, productImages) {
    prevButton.onclick = function() {plusSlides(-1)};
    prevButton.classList.add("btn-prev");
    prevButton.innerHTML = "&#10094";
-   //let leftArrow = document.createElement("i");
-   //leftArrow.classList.add("fa", "fa-arrow-circle-left");
-   //prevButton.appendChild(leftArrow);
 
    let nextButton = document.createElement("button");
    nextButton.onclick = function() {plusSlides(1)};
    nextButton.classList.add("btn-next");
    nextButton.innerHTML = "&#10095";
-   //let rightArrow = document.createElement("i");
-   //rightArrow.classList.add("fa", "fa-arrow-circle-right");
-   //nextButton.appendChild(rightArrow);
 
    imgContainer.appendChild(prevButton);
    imgContainer.appendChild(nextButton);
 
-    /* let x = 0;
-
-    $(".btn-next").click(function() {
-        x = (x<=300)?(x+100):0;
-        $(".product-img-slide").css('left', -x+"%");
-    });
-
-    $(".btn-prev").click(function() {
-      x = (x>=100)?(x-100):400;
-      $(".product-img-slide").css('left', -x+"%");
-  }); */
-
       }else {
        let img = productImages[0];
-       let singleProdImg = `<div> <img src="${img.finalPath}" alt="${img.originalName}" /> </div>`;
+       let singleProdImg = `<div> <img src="${img ? img.finalPath: null}" alt="${img.originalName}" /> </div>`;
        imgContainer.insertAdjacentHTML("afterbegin", singleProdImg);
       } 
       //let slideIndex = 1;
@@ -405,4 +439,45 @@ function showSlides(n) {
   slides[slideIndex-1].style.display = "block";
   dots[slideIndex-1].className += " active";
 }
+
+/*function commentReply(replyComment, commentId) {
+    if(replyComment.parentNode.querySelector(".reply-form-wrapper")) {
+        return;
+    }
+    let url = Routing.generate("comments_reply_new");
+    //let ratingReplyUrl = Routing.generate("comments_reply_rating_new", {id:})
+    let reply = new Reply(url);
+    let replyFormWrapper = document.createElement("div");
+    replyFormWrapper.classList.add("reply-form-wrapper");
+    //'<div class="reply-form-wrapper"> </div>';
+    let replyForm = document.createElement("Form");
+    replyForm.classList.add("reply-form");
+    // Adding the form in the reply form wrapper
+    replyFormWrapper.appendChild(replyForm);
+    let replyInput = `<textarea col="5" class="reply-input comment-and-reply-input"> </textarea>`;
+    // Setting the reply input 
+    replyForm.insertAdjacentHTML("afterbegin",replyInput);//appendChild(replyInput);
+    replyForm.onsubmit = function(e) {
+        e.preventDefault();
+        //let replyContent = replyInput.value;
+        //alert(replyContent);
+        reply.replyToComment(url,commentId, e.target);
+    };
+    // Adding the reply event 
+    // The cancel button to remove the form
+    let cancelBtn = document.createElement("button");
+    cancelBtn.classList.add("cancel-reply");
+    cancelBtn.innerHTML = "Cancel";
+    cancelBtn.onclick = function(e) { e.preventDefault(); replyFormWrapper.remove();};
+    replyForm.appendChild(cancelBtn);
+    // The submit button
+    let replySubmitBtn = document.createElement("button");
+    replySubmitBtn.setAttribute("type", "submit");
+    replySubmitBtn.innerHTML = "Reply";
+    // setting the submit button
+    replyForm.appendChild(replySubmitBtn);
+    // Adding the rpely form wrapper after the reply button
+    //replyComment.appendChild(replyFormWrapper);
+    replyComment.parentNode.insertBefore(replyFormWrapper, replyComment.nextSibling);
+} */
 //})

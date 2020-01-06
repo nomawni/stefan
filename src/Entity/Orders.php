@@ -29,12 +29,6 @@ class Orders
     private $cart;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Shipment")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $shipment;
-
-    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Customer")
      * @ORM\JoinColumn(nullable=false)
      */
@@ -112,18 +106,6 @@ class Orders
                 $cart->setOrders(null);
             }
         }
-
-        return $this;
-    }
-
-    public function getShipment(): ?Shipment
-    {
-        return $this->shipment;
-    }
-
-    public function setShipment(?Shipment $shipment): self
-    {
-        $this->shipment = $shipment;
 
         return $this;
     }

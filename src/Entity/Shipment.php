@@ -19,14 +19,15 @@ class Shipment
     private $id;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Address", mappedBy="shipment")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Address")
+     * @ORM\JoinColumn(nullable=false)
      */
     private $address;
 
     public function __construct()
     {
-        $this->address = new ArrayCollection();
-        $this->cart = new ArrayCollection();
+       // $this->address = new ArrayCollection();
+       // $this->cart = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -34,33 +35,14 @@ class Shipment
         return $this->id;
     }
 
-    /**
-     * @return Collection|Address[]
-     */
-    public function getAddress(): Collection
+    public function getAddress(): ?Address
     {
         return $this->address;
     }
 
-    public function addAddress(Address $address): self
+    public function setAddress(?Address $address): self
     {
-        if (!$this->address->contains($address)) {
-            $this->address[] = $address;
-            $address->setShipment($this);
-        }
-
-        return $this;
-    }
-
-    public function removeAddress(Address $address): self
-    {
-        if ($this->address->contains($address)) {
-            $this->address->removeElement($address);
-            // set the owning side to null (unless already changed)
-            if ($address->getShipment() === $this) {
-                $address->setShipment(null);
-            }
-        }
+        $this->address = $address;
 
         return $this;
     }  

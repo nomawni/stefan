@@ -1,16 +1,15 @@
 
 <!-- Modal -->
 <div class="modal fade product-item" style="width:90%;" id="productItemModal" tabindex="-1" role="dialog" aria-labelledby="productItemModalTitle" aria-hidden="true">
-  <input type="hidden" name="_token" value="{{ csrf_token('delete') }}">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
+  <div class="modal-dialog modal-lg" role="document" style="width:100%;">
+    <div class="modal-content" style="width:100%;">
+      <div class="modal-header" style="width:100%;">
         <h5 class="modal-title" id="productItemModalTitle">Modal title</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body" style="padding:50px;" style="width:100%;">
         
       <div id="productItemWrapper">  
       <div id="productItemModalWrapper" class="item-to-buy">
@@ -22,7 +21,7 @@
 
       <div id="productDetail">
 
-       <p> Price: <span class="item-price"> </span> </p>
+       <p> Price: <span class="item-price"> </span> <span> € </span> </p>
 
        <p> Size: <span class="item-size"> </span> </p>
 
@@ -32,13 +31,13 @@
 
       </div>
 
-       <ul class="nav rating">
+     <!--  <ul class="nav rating">
       <li class="star-product" data-star="1"><i class="fas fa-star"></i></li>
       <li class="star-product" data-star="2"><i class="fas fa-star"></i></li>
       <li class="star-product" data-star="3"><i class="fas fa-star"></i></li>
       <li class="star-product" data-star="4"><i class="fas fa-star"></i></li>
       <li class="star-product" data-star="5"><i class="far fa-star"></i></li>
-    </ul>
+    </ul> -->
 
       <div class="product-actions">
 
@@ -47,11 +46,15 @@
 
       <div class="author-actions" style="display:none;">
 
-      <button type="button" class="btn btn-danger delete-product"> Delete </button>
+      <button type="button" class="btn btn-danger delete-product">
+      <i class="fas fa-trash"></i>
+       Delete </button>
       <input type="hidden" name="_method" value="DELETE">
       <input type="hidden" name="_token" value="{{ csrf_token('delete') }}">
 
-      <button type="button" class="btn btn-warning edit-product"> Edit </button>
+      <button type="button" class="btn btn-warning edit-product">
+      <i class="fas fa-edit"></i>
+       Edit </button>
 
       </div>
 
@@ -61,15 +64,13 @@
 
       <form id="commentForm">
 
-      <div class="row">
+    <!--  <div class="row"> 
 
-      <div class="col-md-8">
+      <div class="col-md-12"> -->
 
-      <textarea id="commentText" class="form-control" rows="3" cols="33" >
-
+      <textarea class="comment-and-reply-input" id="commentText" class="form-control" rows="1">
       </textarea>
-
-      <div>
+     <!-- </div>  -->
 
       <div class="col-md-2">
 
@@ -77,7 +78,7 @@
 
       </div>
 
-      </div>
+     <!-- </div> -->
 
       </form>
 
@@ -88,13 +89,19 @@
       </div>
 
       </div>
-      </div> 
-      </div>  
+     <!-- </div> -->
+     <!-- </div>  -->
 
        <form action="/charge" method="post" id="payment-form" class="payment-form" style="display:none;">
        <!-- start of the delivery address div -->
        
-       <div class="tab">
+       <div class="checkout-errors">
+       </div>
+       <div class="list-client-addresses">
+
+       </div>
+       
+      {# <div class="tab">
 
              Delivery Address
              <input type="text" name="fullName" id="fulllName" class="form-control" placeholder="your full name" required />
@@ -106,12 +113,12 @@
              <p>Add delivery instructions (optional) </p>
              <textarea name="instructions" id="instructions" class="form-control" placeholder="do we need additional instructions to find this address">
               </textarea>
-        </div>
+        </div> #}
         
        <!-- end of the delivery address div -->
 
        <!-- start of the stripe pament div -->
-       <div class="tab">
+       <div class="payment-section" style="display:none;">
        <div class="form-row">
        <label for="card-element">
         Credit or debit card
@@ -124,29 +131,42 @@
       <div class="card-errors" id="card-errors" role="alert"></div>
       <!-- </div> -->
 
-     <button>Submit Payment</button>
+    <!-- <button>Submit Payment</button> -->
      </div>
      </div>
 
      <!-- begining of the navigation tabs -->
-
      <div style="overflow:auto;">
+         <button class="btn btn-primary space-maker address-next"> next </button>
+         <button class="btn btn-primary space-maker credit-card-confirm" style="display:none;"> Submit Payment </button>
+         <button class="btn btn-primary space-maker" style="display:none;"> finish </button>
+     </div>
+    
+
+    <!-- <div style="overflow:auto;">
          <div style="float:right;">
              <button type="button" id="prevBtn" onclick="nextPrev(-1, this)">Previous</button>
              <button type="button" id="nextBtn" onclick="nextPrev(1, this)">Next</button>
          </div>
-     </div>
+     </div> -->
 
      <!-- Circles which indicates the steps of the form: -->
-     <div style="text-align:center;margin-top:40px;">
+    <!-- <div style="text-align:center;margin-top:40px;">
          <span class="step"></span>
          <span class="step"></span>
         <!-- <span class="step"></span>
          <span class="step"></span> -->
-     </div>
+    <!-- </div> -->
 
      <!-- end of the navigation tabs -->
+     <input type="hidden" name="orderType" data-order-type="singleItem" />
     </form>
+
+    <!-- Display the succes of the payment if it was successfull -->
+     <div class="transaction-succeeded" style="display:none;">
+      
+     </div>
+     <!-- -->
      </div>
      </div>
       <div class="modal-footer">

@@ -19,61 +19,24 @@ class Customer
     private $id;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Address", mappedBy="customer", orphanRemoval=true)
-     */
-    private $addresses;
-
-    /**
      * @ORM\OneToOne(targetEntity="App\Entity\User", cascade={"persist", "remove"})
      * @ORM\JoinColumn(nullable=false)
      */
     private $user;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Transactions", mappedBy="customer", orphanRemoval=true)
+     * @ORM\ManyToMany(targetEntity="App\Entity\Address")
      */
-    private $transactions;
+    private $address;
 
     public function __construct()
     {
-        $this->addresses = new ArrayCollection();
-        $this->transactions = new ArrayCollection();
+        $this->address = new ArrayCollection();
     }
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    /**
-     * @return Collection|Address[]
-     */
-    public function getAddresses(): Collection
-    {
-        return $this->addresses;
-    }
-
-    public function addAddress(Address $address): self
-    {
-        if (!$this->addresses->contains($address)) {
-            $this->addresses[] = $address;
-            $address->setCustomer($this);
-        }
-
-        return $this;
-    }
-
-    public function removeAddress(Address $address): self
-    {
-        if ($this->addresses->contains($address)) {
-            $this->addresses->removeElement($address);
-            // set the owning side to null (unless already changed)
-            if ($address->getCustomer() === $this) {
-                $address->setCustomer(null);
-            }
-        }
-
-        return $this;
     }
 
     public function getUser(): ?User
@@ -89,34 +52,30 @@ class Customer
     }
 
     /**
-     * @return Collection|Transactions[]
+     * @return Collection|Address[]
      */
-    public function getTransactions(): Collection
+    public function getAddress(): Collection
     {
-        return $this->transactions;
+        return $this->address;
     }
 
-    public function addTransaction(Transactions $transaction): self
+    public function addAddress(Address $address): self
     {
-        if (!$this->transactions->contains($transaction)) {
-            $this->transactions[] = $transaction;
-            $transaction->setCustomer($this);
+        if (!$this->address->contains($address)) {
+            $this->address[] = $address;
         }
 
         return $this;
     }
 
-    public function removeTransaction(Transactions $transaction): self
+    public function removeAddress(Address $address): self
     {
-        if ($this->transactions->contains($transaction)) {
-            $this->transactions->removeElement($transaction);
-            // set the owning side to null (unless already changed)
-            if ($transaction->getCustomer() === $this) {
-                $transaction->setCustomer(null);
-            }
+        if ($this->address->contains($address)) {
+            $this->address->removeElement($address);
         }
 
         return $this;
     }
 
+    
 }

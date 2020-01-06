@@ -26,7 +26,7 @@ class RegistrationController extends AbstractController
         $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
 
-        var_dump(filter_input_array(INPUT_POST, $request->getContent()));
+       // var_dump(filter_input_array(INPUT_POST, $request->getContent()));
         $username = filter_var($request->request->get("username"), FILTER_SANITIZE_STRING);
         $email = filter_var($request->request->get("email"), FILTER_VALIDATE_EMAIL);
         $password = filter_var($request->request->get("plainPassword"), FILTER_SANITIZE_STRING);
@@ -34,9 +34,26 @@ class RegistrationController extends AbstractController
 
         $listErrors = validateRegistration($username, $email, $password);
 
+        $userByEmail = $this->getDoctrine()->getRepository(User::class)->findOneBy(["email" => $email]);
+        if($userByEmail) {
+            return $this->json([
+                "message" => "The email already eixsts in our database !",
+                "code" => 403
+            ], 403);
+        }
+
+        $userByUsername = $this->getDoctrine()->getRepository(User::class)->findOneBy(["username" => $username]);
+        if($userByUsername) {
+            return $this->json([
+                "message" => "the username already exists", 
+                "code" => 403
+            ], 403);
+        }
+
         if($listErrors) {
             $data = $this->get("serializer")->serialize($listErrors, 'json');
             $response = new Response($data);
+            $response->setStatusCode(Response::HTTP_BAD_REQUEST);
             $response->headers->set("Content-Type", "application/json"); 
             return $response;
 
@@ -108,8 +125,8 @@ function validateRegistration($username, $email, $password) {
        $listErrors["password"]  = "Your password is not valid";
    }
    
-   if(strlen($password) < 7) {
-       $listErrors["password"] = "Your password can not be less than 7 characters long";
+   if(strlen($password) < 8) {
+       $listErrors["password"] = "Your password can not be less than 8 characters long";
    }
 
    return $listErrors;

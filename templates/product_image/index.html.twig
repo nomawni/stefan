@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}ProductImage index{% endblock %}
+
+{% block body %}
+    <h1>ProductImage index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>ImageSize</th>
+                <th>ImageName</th>
+                <th>FinalName</th>
+                <th>Extension</th>
+                <th>DateUploaded</th>
+                <th>FinalPath</th>
+                <th>MimeType</th>
+                <th>OriginalName</th>
+                <th>DateUpdated</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for product_image in product_images %}
+            <tr>
+                <td>{{ product_image.id }}</td>
+                <td>{{ product_image.imageSize }}</td>
+                <td>{{ product_image.imageName }}</td>
+                <td>{{ product_image.finalName }}</td>
+                <td>{{ product_image.extension }}</td>
+                <td>{{ product_image.dateUploaded ? product_image.dateUploaded|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ product_image.finalPath }}</td>
+                <td>{{ product_image.mimeType }}</td>
+                <td>{{ product_image.originalName }}</td>
+                <td>{{ product_image.dateUpdated ? product_image.dateUpdated|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a href="{{ path('product_image_show', {'id': product_image.id}) }}">show</a>
+                    <a href="{{ path('product_image_edit', {'id': product_image.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="11">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('product_image_new') }}">Create new</a>
+{% endblock %}

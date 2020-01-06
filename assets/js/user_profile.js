@@ -1,7 +1,8 @@
 
 import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/public/js/router';
-
 import Routes from '../../public/js/fos_js_routes.json';
+import AccountValidation from './confirmation/account_validation.js';
+import ChangePassword from './confirmation/change_password.js';
 
 console.log(Routes);
 
@@ -39,8 +40,13 @@ userProfile.addEventListener("click", e => {
      .catch(error => console.error(error));
 
      response.then(data => {
-
+        
+        let profileContainerWrapper = document.createElement('div');
+        profileContainerWrapper.classList.add('profile-container-wrapper');
         let profileContainer = document.createElement("div");
+        profileContainer.classList.add("profile-container");
+
+        profileContainerWrapper.appendChild(profileContainer);
 
         let profileImg = document.createElement("img");
 
@@ -49,12 +55,12 @@ userProfile.addEventListener("click", e => {
         let userEmail = document.createElement("p");
 
         let editButton = document.createElement("button");
-
         editButton.classList.add("btn", "btn-primary");
-
         editButton.innerHTML = "Edit";
-
-        editButton.onclick = function() { editProfile(data); }
+        // When we clicks on the edit button we want to remove all the forms that are in the profile modal
+        editButton.addEventListener("click", function(e) { removeAllForms(e);});
+        editButton.onclick = function(e) { editProfile(data, e); }
+        editButton.addEventListener("click", function(e) { addCancelButton(e);});
 
         if(data.avata) {
         profileImg.src = data.avatar.finalPath;
@@ -72,9 +78,48 @@ userProfile.addEventListener("click", e => {
 
         profileContainer.appendChild(userEmail);
 
-        userProfileModalBody.appendChild(profileContainer);
+        //userProfileModalBody.appendChild(profileContainer);
+        profileContainerWrapper.appendChild(editButton);
 
-        userProfileModalBody.appendChild(editButton);
+        //userProfileModalBody.appendChild(editButton);
+        userProfileModalBody.appendChild(profileContainerWrapper);
+        
+        // We give the user the ability to change his password when ever he wants
+        let changePassword = new ChangePassword();
+        
+        let changePasswordWrapper = document.createElement("div");
+        changePasswordWrapper.classList.add("space-maker");
+        userProfileModalBody.appendChild(changePasswordWrapper);
+        let changePasswordBtn = document.createElement("button");
+        changePasswordBtn.classList.add("btn", "btn-primary", "change-password-btn");
+        changePasswordBtn.innerHTML = "Change your password";
+        changePasswordWrapper.appendChild(changePasswordBtn);
+         // This method will remove all of the forms in the profile modal
+         changePasswordBtn.addEventListener("click", function(e){ removeAllForms(e)});
+        changePasswordBtn.onclick = function(e) {changePassword.requestNewPassword(e)}
+        // This cancel button will reset the profile modal to default 
+        changePasswordBtn.addEventListener("click", function(e) {addCancelButton(e);});
+        
+        if(!data.isAccountConfirmed) {
+          let accountValidation = new AccountValidation();
+          let confirmAccountWrapper = document.createElement("div");
+          confirmAccountWrapper.classList.add("confirm-account-wrapper");
+
+          let statusMessages = document.createElement("div");
+          statusMessages.classList.add("status", "status-messages");
+          confirmAccountWrapper.appendChild(statusMessages);
+
+          let confirmAccountBtn = document.createElement("button");
+          confirmAccountBtn.classList.add("btn", "btn-primary", "confirm-account-btn");
+          confirmAccountBtn.innerHTML = "Valide your account";
+          confirmAccountWrapper.appendChild(confirmAccountBtn);
+          userProfileModalBody.appendChild(confirmAccountWrapper);
+          //userProfileModalBody.appendChild(confirmAccountBtn);
+          // This method will remove all of the current forms in the profile modal
+          confirmAccountBtn.addEventListener("click", function(e) {removeAllForms(e);});
+          confirmAccountBtn.addEventListener("click", function(e) {accountValidation.requestAccountValidation(e)});
+          confirmAccountBtn.addEventListener("click", function(e) {addCancelButton(e)});
+        }
 
      });
 
@@ -92,15 +137,21 @@ userProfile.addEventListener("click", e => {
 
     $("#userProfileModal").modal('show');
 
-    function editProfile(data) {
+    function editProfile(data,e) {
+        
+       e.preventDefault();
+       let editBtn = e.currentTarget;
 
         let url = Routing.generate("user_edit"); //"http://localhost:8001/profile/edit";
-
         let editForm = document.createElement("Form");
         editForm.setAttribute("method", "POST");
         editForm.setAttribute("enctype", "multipart/form-data");
 
         editForm.id ="editForm";
+
+        // The status message indicating if an error occured on the server or not
+        let statusMessages = `<div class="edit-profile-status"> </div>`;
+        editForm.insertAdjacentHTML("afterbegin", statusMessages);
 
         /**
          * The user avatar
@@ -212,11 +263,12 @@ userProfile.addEventListener("click", e => {
              console.log(data); 
             data });
 
-        console.log(response);
+        console.log(response); 
 
-        userProfileModalBody.innerHTML = "";
+       // userProfileModalBody.innerHTML = "";
 
-        userProfileModalBody.appendChild(editForm);
+        //userProfileModalBody.appendChild(editForm);
+        editBtn.parentNode.insertBefore(editForm, editBtn);
 
         updateButton.onclick = function() { updateProfile(); }
 
@@ -283,6 +335,8 @@ userProfile.addEventListener("click", e => {
 
         let url = Routing.generate('user_edit'); //"http://localhost:8001/profile/edit";
 
+        let responseStatus = null;
+
         let response = fetch(url, {
             "method": "POST",
             "cache": "no-cache",
@@ -294,15 +348,19 @@ userProfile.addEventListener("click", e => {
             },
             body: formData,
         })
-        .then(response => response.json())
+        .then(response => { 
+          responseStatus = response.status;
+          return response.json()
+        })
         .then(data => {
              console.log(JSON.stringify(data));
-
              return data;
         })
         .catch(error => console.error(error));
 
         response.then(data => {
+
+            if(responseStatus === 200) {
 
             let usernames = document.querySelectorAll(".username");
 
@@ -311,6 +369,11 @@ userProfile.addEventListener("click", e => {
                 elem.innerHTML = data.username;
 
             });
+          }else if (responseStatus === 403) {
+
+          }else {
+
+          }
             console.log(data);
         });
     }
@@ -385,6 +448,41 @@ userProfile.addEventListener("click", e => {
           return (number/1048576).toFixed(1) + 'MB';
         }
       } 
+
+      // this funciton will remove all the forms that are currently in the profile modal
+      function removeAllForms(e) {
+        e.preventDefault();
+        e.currentTarget.style.display = "none";
+        // Remove all the div with class status
+        let statusDiv = userProfileModalBody.querySelector(".status");
+        if(statusDiv) statusDiv.remove();
+        let allForms = userProfileModalBody.querySelectorAll("form");
+
+        if(allForms) {
+          allForms.forEach(function(form) {
+            form.remove();
+          })
+        }
+      }
+
+      // This function resets the profile modal to its initial vlaue
+      function addCancelButton(e) {
+        let currentForm = userProfileModalBody.querySelector("form");
+        let allHiddenBtn = userProfileModalBody.querySelectorAll("[style='display: none;'");
+        cancelBtn.classList.add("btn", "btn-primary", "space-maker");
+        cancelBtn.innerHTML = "Cancel";
+        currentForm.lastChild.after(cancelBtn);
+        cancelBtn.addEventListener("click", function(e) {
+          e.preventDefault();
+          currentForm.remove();
+          // Remove all the div with class status
+           let statusDiv = userProfileModalBody.querySelector(".status");
+           if(statusDiv) statusDiv.remove();
+          allHiddenBtn.forEach(function(btn) {
+            btn.style.display = "inline";
+          })
+        })
+      }
     
 });
 

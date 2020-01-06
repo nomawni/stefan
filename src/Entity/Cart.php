@@ -29,7 +29,7 @@ class Cart
     private $orders;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="cart")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User")
      * @ORM\JoinColumn(nullable=false)
      */
     private $client;

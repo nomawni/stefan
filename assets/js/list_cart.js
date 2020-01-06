@@ -37,6 +37,27 @@ listCart.addEventListener('click', function(e) {
         modalTitle.innerHTML = "Your cart";
 
        let modalCartBody = document.getElementById('modalCartBody');
+       /**
+        * If the client does not have any item in his cart, we show him the modal indicating he has nothing
+        */
+
+       if(products === "undefined" || products.length == 0) {
+
+       if(!modalCartBody.querySelector(".empty-cart-info")){
+         let emptyCartInfo = `<h2 class="empty-cart-info"> Your cart is empty for now! </h2>`;
+         modalCartBody.insertAdjacentHTML('afterbegin', emptyCartInfo);
+         $('#listCartsModal').modal('show');
+       }
+       return;
+    }  
+       // If the client has some products in his cart we want to remove the the h2 if it exist
+       if(modalCartBody.querySelector(".empty-cart-info")){
+        modalCartBody.querySelector(".empty-cart-info").remove();
+       }
+      
+
+       let orderType = modalCartBody.querySelector("input[name='orderType']");
+       orderType.dataset.orderId  = products.id;
 
       /* ***** New table Items *****/
 
@@ -89,6 +110,7 @@ listCart.addEventListener('click', function(e) {
 
             rowBody.dataset.cartId = cart.id;
             rowBody.dataset.productId = item.id;
+            table.dataset.cartId = cart.id;
 
             tbody.appendChild(rowBody);
 
@@ -208,9 +230,11 @@ listCart.addEventListener('click', function(e) {
         //modalCartBody.innerHTML = "";
         let paymentForm = listCartsModal.querySelector("form");
         let listCartTable = listCartsModal.querySelector("table");
+        let transactionSucceeded = modalCartBody.querySelector(".transaction-succeeded");
         listCartTable.remove();
-        paymentForm.querySelectorAll(".tab")[1].style.display = "none";
-        paymentForm.style.display = "none";
+        transactionSucceeded ? transactionSucceeded.style.display = "none" :null;
+       // paymentForm.querySelectorAll(".tab")[1].style.display = "none";
+       paymentForm ? paymentForm.style.display = "none" : null;
     });
     
 });

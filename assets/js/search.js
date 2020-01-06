@@ -69,7 +69,7 @@ $(document).on("click", ".searched-result-item", function(e) {
   let search = new Search(elem);
   let url = Routing.generate("list_searched_item", {"name": itemValue});
   let response = search.ajax(url, "GET");
-  alert(url);
+  
   console.log(response);
   let data = response
              .then(function(response) {
@@ -79,6 +79,8 @@ $(document).on("click", ".searched-result-item", function(e) {
              });
 
   search.showModal();
+  // When the user closes the search modal we want to clear the search input
+  search.clearSearchInput();
   console.log(elem);
   console.log(data);
   

@@ -65,15 +65,19 @@ class ProductController extends AbstractController
         $product->setSize($content->size);
         $product->setDescription($content->description);
 
-        $shopId = intval($content->shop->name);
-        $shop = $entityManager->getRepository(Shop::class)->find($shopId);
-        if($shop) {
-            $product->setShop($shop);
+        if($content->shop) {
+           // $shopId =  $content->shop->name ? intval($content->shop->name) : null;
+           if(isset($content->shop->name)){
+            $shopId =  $content->shop->name;
+            if($shopId) {
+                $shop = $entityManager->getRepository(Shop::class)->find($shopId);
+                $product->setShop($shop);
+            }
         }
+      }
 
         $categoryId = intval($content->category->name);
         $category =  $entityManager->getRepository(Category::class)->find($categoryId);
-
         if($category){
           $product->setCategory($category);
         }
@@ -121,8 +125,10 @@ class ProductController extends AbstractController
 
         $productId = $product->getId();
 
-        //return  JsonResponse::fromJsonString($data); //$response;
-        return new JsonResponse($productId);
+       // $newProduct = $entityManager->getRepository(Product::class)->find($productId);
+
+       // return  JsonResponse::fromJsonString($data); //$response;
+         return new JsonResponse($productId);
       
     }
 
@@ -155,7 +161,20 @@ class ProductController extends AbstractController
      */
     public function edit(Request $request,Product $product): Response
     {
+        $user = $this->getUser();
+        if(!$user) {
+            return $this->json([
+                "message" => "You are not connected !",
+                "code" => 403
+            ], 403);
+        }
 
+        if($user !== $product->getClient()) {
+            return $this->json([
+                "message" => "You are not the owner of the product !",
+                "code" => 403
+            ], 403);
+        }
         $encoders = new JsonEncoder();
         $normalizer = new ObjectNormalizer();
         $serializer = new Serializer([$normalizer], [$encoders]);
@@ -165,33 +184,38 @@ class ProductController extends AbstractController
         //$content = $request->getContent();
         $content = $request->get('data');
         //$container = json_decode($request->getContent());
-        $container = \json_decode($content);
+        $container = json_decode($content);
 
         $tags = new Tag();
         $category = new Category();
         $productImage = new ProductImage();
-
         $productUpdate = new Product();
-
         $productUpdate->setClient($this->getUser());
         //$tagsContainer = [];
 
         $prodContent = $container->content;
-
         $prodContent->tags = explode(',',serialize($prodContent->tags));
     
-       $product->setName($prodContent->name);
+        $product->setName($prodContent->name);
         $product->setPrice($prodContent->price);
         $product->setQuantity($prodContent->quantity);
         $product->setSize($prodContent->size); 
         $product->setDescription($prodContent->description);
 
+        if($prodContent->shop && $prodContent->shop !== null) {
+            $shopId =  intval($prodContent->shop->name);
+            if($shopId) {
+                $shop = $this->getDoctrine()->getRepository(Shop::class)->find($shopId);
+                $product->setShop($shop);
+            }
+        }
+
         $prodContent = json_encode($prodContent);
 
         //var_dump($prodContent);
 
-         $this->get('serializer')->deserialize($prodContent, Product::class, 'json', 
-                                               ['object_to_populate' => $productUpdate]);
+        /* $this->get('serializer')->deserialize($prodContent, Product::class, 'json', 
+                                               ['object_to_populate' => $productUpdate]); */
         $prodContent = json_decode($prodContent);
 
         foreach($prodContent->tags as $tag) {
@@ -204,12 +228,9 @@ class ProductController extends AbstractController
 
         if(isset($_FILES["productImage"])){
 
-            $productFile = $_FILES["productImage"];
-                                        
-            $productImageToUpload = new UploadedFile($productFile["tmp_name"], $productFile["name"]);
-                                        
+            $productFile = $_FILES["productImage"];                              
+            $productImageToUpload = new UploadedFile($productFile["tmp_name"], $productFile["name"]);                          
             $productImage->setProductImage($productImageToUpload);
-            
             //$product->setProductImage($productImage);
             $product->addProductImage($productImage);
                                         
@@ -231,11 +252,17 @@ class ProductController extends AbstractController
          return $response;
         } 
 
+        $allUserShops = $this->getDoctrine()->getRepository(Shop::class)->findBy(["owner" => $user]);
+        $allCategories = $this->getDoctrine()->getRepository(Category::class)->findAll();
+
         $data = $serializer->serialize($product, 'json', [
             AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER => function($object){
                 return $object->getId();
             }
         ]);  
+
+        $responseContent = array("product" => $data, "shop" => $allUserShops, 
+                                 "categories" => $allCategories);
         $response = new Response($data);
 
         $response->headers->set("Content-Type", "application/json");

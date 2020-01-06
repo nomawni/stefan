@@ -4,7 +4,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta charset="UTF-8">
         <title>{% block title %}Welcome!{% endblock %}</title>
-        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <link rel="apple-touch-icon" sizes="180x180" href="{{asset('images/favicons/apple-touch-icon.png')}}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{asset('images/favicons/favicon-32x32.png')}}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{asset('images/favicon-16x16.png')}}">
+        <link rel="manifest" href="{{asset('images/favicons/site.webmanifest')}}">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
          {% block stylesheets %}
         
@@ -37,9 +40,6 @@
   // This function will display the specified tab of the form...
   //var x = document.getElementsByClassName("tab");
   var x = elem.querySelectorAll(".tab");
-  console.log("JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ");
-  console.log(elem);
-  console.log(x);
   x[n].style.display = "block";
   //... and fix the Previous/Next buttons:
   if (n == 0) {
@@ -68,8 +68,6 @@ function nextPrev(n, elem) {
   //var parentElem = elem.closest(".")
   var x = paymentForm.querySelectorAll(".tab");
   
-  console.log(elem);
-  console.log(x);
   // Exit the function if any field in the current tab is invalid:
   if (n == 1 && !validateForm(paymentForm)) return false;
   // Hide the current tab:

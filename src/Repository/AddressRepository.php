@@ -36,6 +36,19 @@ class AddressRepository extends ServiceEntityRepository
     }
     */
 
+    public function findAllByClient($client) {
+
+        return $this->createQueryBuilder('a')
+        //->andWhere(":client MEMBER OF a.users")
+        ->andWhere("a.client = :client")
+        ->setParameter("client", $client)
+        ->select("a.id, a.fullName, a.street, a.city, a.country, a.postalCode, a.careOf, a.phoneNumber")
+        ->orderBy('a.id', 'ASC')
+        ->setMaxResults(10)
+        ->getQuery()
+        ->getResult();
+    }
+
     /*
     public function findOneBySomeField($value): ?Address
     {

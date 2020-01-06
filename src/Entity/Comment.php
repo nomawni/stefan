@@ -35,7 +35,7 @@ class Comment
     private $publishedAt;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="comments")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User")
      * @ORM\JoinColumn(nullable=false)
      */
     private $author;
@@ -45,10 +45,21 @@ class Comment
      */
     private $commentRatings;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\CommentsReply", mappedBy="comment", orphanRemoval=true)
+     */
+    private $commentsReplies;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $editedAt;
+
     public function __construct()
     {
         $this->publishedAt = new \DateTimeImmutable();
         $this->commentRatings = new ArrayCollection();
+        $this->commentsReplies = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -157,5 +168,48 @@ class Comment
         }
         $response = array("amountLike" => $i, "amountDislike" => $j);
         return $response;
+    }
+
+    /**
+     * @return Collection|CommentsReply[]
+     */
+    public function getCommentsReplies(): Collection
+    {
+        return $this->commentsReplies;
+    }
+
+    public function addCommentsReply(CommentsReply $commentsReply): self
+    {
+        if (!$this->commentsReplies->contains($commentsReply)) {
+            $this->commentsReplies[] = $commentsReply;
+            $commentsReply->setComment($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommentsReply(CommentsReply $commentsReply): self
+    {
+        if ($this->commentsReplies->contains($commentsReply)) {
+            $this->commentsReplies->removeElement($commentsReply);
+            // set the owning side to null (unless already changed)
+            if ($commentsReply->getComment() === $this) {
+                $commentsReply->setComment(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getEditedAt(): ?\DateTimeInterface
+    {
+        return $this->editedAt;
+    }
+
+    public function setEditedAt(?\DateTimeInterface $editedAt): self
+    {
+        $this->editedAt = $editedAt;
+
+        return $this;
     }
 }

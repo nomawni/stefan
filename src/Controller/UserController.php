@@ -81,49 +81,53 @@ class UserController extends AbstractController
         $encoder = new JsonEncoder();
         $normalizer = new ObjectNormalizer();
         $serializer = new Serializer([$normalizer], [$encoder]);
+
+        $entityManager = $this->getDoctrine()->getManager();
         //$avatarName = $_FILES["avatarFile"] ?? "";
         //$content = $request->getContent();
         //$content = $request->get("data");
         $content = $request->get("data");
-        $contentObject = \json_decode($content);
-        //var_dump($contentObject);
-        //var_dump($content);
-        //var_dump($avatarName);
-       // $form = $this->createForm(UserType::class, $user);
-       // $form->handleRequest($request);
+        $contentObject = json_decode($content);
+        
+        $email = isset($contentObject->email) ? $contentObject->email : null;
+        $username = isset($contentObject->username) ? $contentObject->username : null;
 
-       // if ($form->isSubmitted() && $form->isValid()) { 
+        if(!$email || !$username) {
+            return $this->json([
+                "message" => "your username or email can not be null",
+                "code" => 403
+            ], 403);
+        }
 
-            //if($request->isMethod("POST")) {
-
-            if($contentObject->username && $contentObject->email) {
-            $user->setUsername($contentObject->username);
-            $user->setEmail($contentObject->email);
+            if($username && $email) {
+            $user->setUsername($username);
+            $user->setEmail($email);
             /* $this->get("serializer")->deserialize($content, User::class, 'json', 
                                  ['object_to_populate' => $user]); */
             
             //if($avatarName) {
             if(isset($_FILES["avatarFile"])) {
-
             $avatarFile = $_FILES["avatarFile"];
-            //$imgTmp = $_FILES["avatarFile"]["tmp_name"]; //$avatarFile["tmp_name"];
-            //var_dump($imgTmp);
-            //$imgName = $_FILES["avatarFile"]["name"]; //$avatarFile["name"];
-            //var_dump($imgName);
-            //$imgType = $_FILES["avatarFile"]["type"]; //$avatarFile["type"];
-            //var_dump($avatarFile["type"]);
-
-            //$avatarToUpload = new UploadedFile($imgTmp, $imgName, $imgType); 
+           
             $avatarToUpload = new UploadedFile($avatarFile["tmp_name"], $avatarFile["name"], $avatarFile["type"]);       
-            //var_dump($avatarToUpload);              
-            $avatar->setAvatarFile($avatarToUpload);             
+            //var_dump($avatarToUpload);     
+            // We first check if the avatar exists 
+            $oldAvatar = $user->getAvatar();
+            if($oldAvatar && $oldAvatar->getId()) {
+                $oldAvatar->setAvatarFile($avatarToUpload);
+                $user->setAvatar($oldAvatar);
+                $entityManager->persist($oldAvatar);
+            }else{
+            $avatar->setAvatarFile($avatarToUpload);  
+            $entityManager->persist($avatar);           
             $user->setAvatar($avatar);
-            var_dump($avatar); 
-            //var_dump($user);
+        
+                }
             
             }
 
-            $this->getDoctrine()->getManager()->flush();
+            //$this->getDoctrine()->getManager()->flush();
+            $entityManager->flush();
 
            /* $this->get("serializer")->deserialize($content, User::class, 'json', 
             ['object_to_populate' => $user]); */
@@ -138,12 +142,19 @@ class UserController extends AbstractController
 
             //var_dump($data);
 
-            $response = new Response($data);
-            $response->headers->set("Content-Type", "application/json");
-            return $response; //new JsonResponse($user);
-            }
+           // $response = new Response($data);
+           // $response->headers->set("Content-Type", "application/json");
+            return JsonResponse::fromJsonString($data); //$response; //new JsonResponse($user);
+            } 
+
+            $data = json_encode(array("message" => "An unknow error occured . Please try again later"));
+            return new Response(
+                 $data,
+                 Response::HTTP_BAD_REQUEST,
+                 ["Content-Type", "application/json"]
+            );
         //}
-            return  new JsonResponse($user); //$response;
+           //$response;
 
             //return $this->redirectToRoute('user_edit');
       /*  }
@@ -152,6 +163,7 @@ class UserController extends AbstractController
             'user' => $user,
             'form' => $form->createView(),
         ]); */
+          //  }
     }
 
     /**

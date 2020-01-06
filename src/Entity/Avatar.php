@@ -213,7 +213,7 @@ class Avatar
         return $this->avatarName;
     }
 
-    public function setAvatarName(string $avatarName): self
+    public function setAvatarName(?string $avatarName): self
     {
         $this->avatarName = $avatarName;
 

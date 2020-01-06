@@ -21,6 +21,7 @@ class SecurityController extends AbstractController
             
             return $this->redirectToRoute('app_homepage');
             $data = $this->get("serializer")->serialize($this->getUser(), 'json');
+           //$data = array("message" => "You have logged in successfully ");
             $response = new Response(
                 $data,
                 Response::HTTP_OK,
@@ -29,8 +30,8 @@ class SecurityController extends AbstractController
 
             return $response; 
          }
-
-       $this->saveTargetPath($request->getSession(), 'main', $this->generateUrl("app_homepage"));
+       
+       //$this->saveTargetPath($request->getSession(), 'main', $this->generateUrl("app_homepage"));
 
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();

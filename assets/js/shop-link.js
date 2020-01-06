@@ -1,6 +1,6 @@
 import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/public/js/router';
- import Routes from '../../public/js/fos_js_routes.json';
-
+import Routes from '../../public/js/fos_js_routes.json';
+import axios from 'axios';
 
 window.addEventListener('load', () => {
 
@@ -26,6 +26,7 @@ window.addEventListener('load', () => {
         let shopModalBody = shopModal.querySelector("#shopModalBody");
 
         let shopForm = shopModalBody.querySelector("#shopForm");
+        shopForm.style.display = "block";
 
         let displayShopInfo = shopModalBody.querySelector("#displayShopInfo");
 
@@ -37,9 +38,11 @@ window.addEventListener('load', () => {
 
         let submitForm = shopModal.querySelector(".submit-form"); 
 
-        // Check if the element containing the shop data is available
+        // Set the response state to empty
+        let responseState = shopModalBody.querySelector(".response-state");
+        responseState.innerHTML = "";
 
-        
+        // Check if the element containing the shop data is available
 
         if(shopLink.hasAttribute("data-shop-id")) {
 
@@ -48,9 +51,9 @@ window.addEventListener('load', () => {
             }
             let shopId = shopLink.dataset.shopId;
 
-            let url = Routing.generate("shop_show");
+            let url = Routing.generate("shop_show", {id: shopId});
 
-            url = url + `/${shopId}`;
+           // url = url + `/${shopId}`;
 
             let response = fetch(url, {
                 method: "GET", 
@@ -95,6 +98,9 @@ window.addEventListener('load', () => {
             });
 
             shopForm.style.display ="none";
+
+            // We serialize the the list of categories
+            serializeCategories();
 
             $("#shopModal").modal('show');
 
@@ -144,7 +150,6 @@ window.addEventListener('load', () => {
                 submitForm.removeEventListener("click", updateShop);
 
                 submitForm.onclick = function() {
-                    alert("Submit create");
 
                     let createData = $("#shopForm").serializeArray();
                     let content = deserializeShop(createData);
@@ -171,12 +176,14 @@ window.addEventListener('load', () => {
 
         }else {
             displayShopInfo.style.display = "none";
+            // We serialize the the list of categories
+            serializeCategories();
+
             $("#shopModal").modal('show');
 
             submitForm.removeEventListener("click", updateShop);
 
             submitForm.onclick = function() {
-                alert("Submit create");
 
                 let createData = $("#shopForm").serializeArray();
                 let content = deserializeShop(createData);
@@ -187,9 +194,32 @@ window.addEventListener('load', () => {
             }
         }
 
-    function editShop(url) {
+    // We serialize the list of all the categories
+    function serializeCategories(){
 
-        alert("Edit product");
+        let url = Routing.generate("shop_category_show_all");
+        let method = "GET";
+        let response = ajax(url, method);
+     
+        console.log(response);
+     
+        if(response){
+         let productCategory = shopModal.querySelector("#shopCategory");
+         productCategory.innerHTML = "";
+           response.then(res => {
+             res.map(data => {
+            //$("#productCategory").append("<option value=")
+            let option = document.createElement("option");
+            option.setAttribute("value", data.id);
+            option.innerHTML = data.name;
+            productCategory.appendChild(option);
+             });
+     
+           });
+        }
+     }
+
+    function editShop(url) {
 
         if(!url) 
            return;
@@ -213,7 +243,6 @@ window.addEventListener('load', () => {
     }
     
     function updateShop(url, data) {
-        //alert("Edit product");
 
         if(!url || !data)
           return;
@@ -230,13 +259,43 @@ window.addEventListener('load', () => {
     }
 
     function createShop(url, data) {
-        alert("create product");
-
+ 
         if(!data || !url) 
           return;
+        
+        let responseState = shopModalBody.querySelector(".response-state");
+        responseState.innerHTML = "";
 
         let method = "POST";
-        let response = ajax(url, method, true, data);
+        let response =  axios.post(url, data)
+                        .then(response => {
+                            if(response.status === 200) {
+                                shopForm.style.display = "none";
+                                let responseMessage = `<div class="alert alert-success" role="alert">
+                                                 Your shop has been created successfully
+                                                  </div>`;
+                                responseState.insertAdjacentHTML("afterbegin", responseMessage);
+                                
+                                setTimeout(function(){
+                                    $("#shopModal").modal("hide");
+                                }, 3000);
+
+                            }else if (response.status === 403) {
+                                let responseMessage = `<div class="alert alert-success" role="alert">
+                                                     ${response.data.message}
+                                                     </div>`;
+                                responseState.insertAdjacentHTML("afterbegin", responseMessage);
+                            }else {
+                                let responseMessage = `<div class="alert alert-success" role="alert">
+                                                 An error occured on the server. Please try again later !
+                                                     </div>`;
+                                 responseState.insertAdjacentHTML("afterbegin", responseMessage);
+                            }
+                        })
+                        .catch(error => {
+                            console.error(error);
+                        })
+                             //ajax(url, method, true, data);
 
         if(response) {
 
@@ -251,7 +310,6 @@ window.addEventListener('load', () => {
         if(!shopId)
           return;
 
-        //alert("delete product");
         let url = Routing.generate("shop_delete", {id: shopId});
 
         let response = fetch(url, {
@@ -320,11 +378,6 @@ window.addEventListener('load', () => {
 
     function serializeShop(data, formList) {
 
-        //if(!Array.isArray(formList)) 
-         //   return;
-        
-        //let dataToArray = Object.entries(data);
-
         let listContainer = formList.querySelectorAll("input");
 
         listContainer.forEach(function(elem,pos) {
@@ -335,7 +388,8 @@ window.addEventListener('load', () => {
             for(var name in data) {
                 if(attrNameValue == name) {
                     console.log(typeof data[name]);
-                    console.log(`name Value ${name}`);
+                    console.log(`name Value ${name} attr ${attrNameValue} name value = ${data[name]}`);
+                    console.log(typeof data[name] === 'object');
                     if(typeof data[name] === 'object') {
                         console.log("**************************");
                         console.log("Object");
@@ -352,9 +406,14 @@ window.addEventListener('load', () => {
                     }else {
                     //console.log(data[name])
                     //elem.value = data[name];
-                    if(data[name].name){
-                    elem.setAttribute("value",data[name]);
-                        }
+                    //if(data[name].name){
+                    console.log(elem);
+                    console.log(`..................text-truncate...... ${data[name]}`);
+                    
+                    //elem.setAttribute("value", data[name]);
+                    elem.value = data[name];
+                    console.log(elem);
+                    //    }
                     }
                 }
                 else if(data[name].hasOwnProperty(attrNameValue)){

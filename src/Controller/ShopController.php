@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Shop;
+use App\Entity\ShopCategory;
 use App\Form\ShopType;
 use App\Repository\ShopRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -36,17 +37,30 @@ class ShopController extends AbstractController
     public function new(Request $request): Response
     {
         $content = $request->getContent();
+        $deserializedData = json_decode($content);
         $shop = new Shop();
+        // We serialize the shop category first 
+        $shopId = intval($deserializedData->shopCategory->name);
+        $findShopCat = $this->getDoctrine()->getRepository(ShopCategory::class)->find($shopId);
+
+        if(!$findShopCat) {
+            return $this->json([
+                "message" => "The shop category can not be null",
+                "code" => 403
+            ], 403);
+        }
+
+        $shop->setShopCategory($findShopCat);
         $form = $this->createForm(ShopType::class, $shop);
         $form->handleRequest($request);
-
         //if ($form->isSubmitted() && $form->isValid()) {
+        $shop->setManager($this->getUser());
+        $shop->setOwner($this->getUser());
 
-            $shop->setManager($this->getUser());
-            $shop->setOwner($this->getUser());
-
-            $this->get("serializer")->deserialize($content, Shop::class, 'json', 
-                                      ['object_to_populate' => $shop]);
+            $this->get("serializer")->deserialize($content, Shop::class, 'json', [
+                 AbstractNormalizer::IGNORED_ATTRIBUTES => ["shopCategory"],
+                                          'object_to_populate' => $shop
+                                          ]);
 
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($shop);

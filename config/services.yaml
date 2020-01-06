@@ -4,7 +4,8 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-
+    # The email of the administrator
+    app.admin_email: "alimou.web@gmail.com"
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -33,7 +34,23 @@ services:
             - { name: doctrine.event_listener, event: preRemove }
             - { name: kernel.event_listener, event: vich_uploader.post_remove, method: onPostRemove}
 
-
+    App\EventListener\TransactionsListener:
+        tags:
+            - { name: "doctrine.event_listener", event: "postPersist" }
+        arguments: 
+            $adminMail: "alimou.web@gmail.com"
+    # Activate the user account
+    App\EventSubscriber\ValidateAccountSubscriber:
+        arguments: 
+            $adminMail: "alimou.web@gmail.com"
+        tags:
+            - { name: "doctrine.event_subscriber"}
+    # Reset user password 
+    App\EventListener\ResetPasswordListener:
+        tags:
+            - { name: "doctrine.event_listener", event: "postPersist" }
+        arguments:
+            $adminMail: '%app.admin_email%'
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
     directory_namer.avatar_namer:

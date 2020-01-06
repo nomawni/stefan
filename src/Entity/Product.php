@@ -56,7 +56,7 @@ class Product
     private $category;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Shop", inversedBy="products")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Shop")
      */
     private $shop;
 
@@ -86,7 +86,7 @@ class Product
     private $whishlists;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="products")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User")
      * @ORM\JoinColumn(nullable=false)
      */
     private $client;
@@ -242,7 +242,7 @@ class Product
         $this->shop = $shop;
 
         return $this;
-    }
+    } 
 
     public function getAddedAt(): ?\DateTimeInterface
     {

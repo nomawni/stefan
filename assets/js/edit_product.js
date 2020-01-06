@@ -13,8 +13,8 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
         Routing.setRoutingData(Routes);
 
         let productItemModal = document.querySelector('#productItemModal');
-
         let productItemModalBody = productItemModal.querySelector(".modal-body");
+        let productItemWrapper = productItemModalBody.querySelector("#productItemWrapper");
 
         //let modalBodyBackup = productItemModalBody.cloneNode(true);
 
@@ -23,17 +23,16 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
 
         /* The begining of the cloning of the product new Modal */
 
-        let modalProductNewBody = document.getElementById("modalProductNewBody");
-
-        let clonedProductNewBody = modalProductNewBody.cloneNode(true);
+        //let modalProductNewBody =  //document.getElementById("modalProductNewBody");
+        let createEditTemplate = document.querySelector("#createEditProductTTemplate");
+        let clonedProductNewBody = document.importNode(createEditTemplate.content, true);//createEditTemplate.cloneNode(true);
 
         /* End */
 
         /*let ModalTitel = */ 
         productItemModal.querySelector('.modal-title').innerHTML = "Edit Product";
-
         let productId = productItemModal.dataset.productId;
-
+        
         productId = parseInt(productId);
 
         if (!productId)
@@ -64,32 +63,30 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
         .then(response => response.json())
         .then(data => {
             console.log(JSON.stringify(data));
-
             return data;
         })
         .catch(error => console.error(error));
 
         response.then(data => {
-
+            
+            console.log(data);
             let productNewModalTitle = productItemModal.querySelector("#productItemModalTitle");
-
+            //let modalProductNewBody = productItemModal.querySelector("#modalProductNewBody");
             let modalFooter = productItemModal.querySelector('.modal-footer');
-
             productNewModalTitle.innerHTML = "Edit Product";
 
             let productName = clonedProductNewBody.querySelector("#productName");
-
             let productPrice = clonedProductNewBody.querySelector("#productPrice");
 
             let productQt = clonedProductNewBody.querySelector("#productQt");
-
             let productSize = clonedProductNewBody.querySelector("#productSize");
 
             let productDescription = clonedProductNewBody.querySelector("#productDescription");
-
             let productCategory = clonedProductNewBody.querySelector("#productCategory");
 
             let productTags = clonedProductNewBody.querySelector("#productTags");
+
+            console.log(createEditTemplate);
 
             productName.value = data.name;
 
@@ -104,8 +101,8 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
             //productCategory.value = data.category.name;
 
             serializeCategory(productCategory, data.category);
-
-            var tagsString = "";
+            
+           /* var tagsString = "";
 
             data.tags.forEach(function(elem,pos) {
                tagsString += elem.name + ','
@@ -114,15 +111,22 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
 
             tagsString = tagsString.slice(0,-2);
 
-            productTags.value = tagsString;
+            productTags.value = tagsString; */
 
-           productItemModalBody.style.display = "none";
+           //productItemModalBody.style.display = "none";
+            productItemWrapper.style.display = "none";
 
-           productItemModalBody.parentNode.insertBefore(clonedProductNewBody, productItemModalBody.nextSibling);
+           //productItemModalBody.parentNode.insertBefore(clonedProductNewBody, productItemModalBody.nextSibling);
+            
+           productItemModalBody.appendChild(clonedProductNewBody);
+
+           // We serialize the list of all the tags
+           serializeTags(data.tags);
 
             let newProductForm = clonedProductNewBody.querySelector("#newProductForm");
 
-            newProductForm.id = "editProductForm";
+            //newProductForm.id = "editProductForm";
+            clonedProductNewBody.id = "editProductForm";
 
             let buttonFooter = modalFooter.querySelectorAll("button");
 
@@ -131,18 +135,23 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
            updateProductBtn.innerHTML = "Update";
            updateProductBtn.style.display = "inline";
 
-           //let productImage = productItemModalBody.querySelector("#productImage");
-           let productImage = clonedProductNewBody.querySelector("#productImage");
+           let productImage = productItemModalBody.querySelector("#productImage");//clonedProductNewBody.querySelector("#productImage");
+           //let productImage = clonedProductNewBody.querySelector("#productImage");
 
-           updateProductBtn.onclick = function() { 
+           updateProductBtn.onclick = function(e) { 
+
+            let editModal = e.currentTarget.parentNode.parentNode.querySelector("#newProductForm");
+            let productImageTag = editModal.querySelector("#productImage");
+            let productImages = productImageTag.files;
                
             let editProductForm = $("#editProductForm").serializeArray();
+
             let dataContainer = deserializeProduct(editProductForm);
 
             console.log(dataContainer);
             console.log(editProductForm);
 
-            let prodImageFile = productImage ? {productImage: productImage[0]} : null;
+            let prodImageFile = productImages ? productImages : null;
 
             editProductForm.push(prodImageFile);
             
@@ -155,18 +164,22 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
             */
 
            //document.getElementById("productImage");
-           productImage.style.display = "none";
+           //productImage.style.display = "none";
            //productImage.addEventListener("change", updateImageDisplay);
-           productImage.onchange = function() { updateImageDisplay(productImage)};
-           
+           productImage.onchange = function(e) { 
+             alert(e.currentTarget);
+            updateImageDisplay(productImage)};
+            //productImage.style.display = "none";
 
            /** The preview of the product images when the user select the images */
 
              // Serialize the list of all images 
-             let imgPreview = clonedProductNewBody.querySelector(".preview");
+             //let imgPreview = clonedProductNewBody.querySelector(".preview");
+             let imgPreview = productItemModalBody.querySelector(".preview");
              serializeImages(imgPreview, data.productImages);
              //let productItemWrapper = productItemModalBody.querySelector("#productItemWrapper");
-             clonedProductNewBody.parentNode.insertBefore(modalFooter, clonedProductNewBody.nextSibling);
+            // clonedProductNewBody.parentNode.parentNode.insertBefore(modalFooter, clonedProductNewBody.nextSibling);
+            productItemModalBody.parentNode.insertBefore(modalFooter, productItemModalBody.nextSibling);
 
         });
 
@@ -186,8 +199,16 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
         console.log(footerToDisable);
         footerToDisable.querySelectorAll("button")[1].style.display = "none";
         
-        clonedProductNewBody.remove();
-        productItemModalBody.style.display = "block";
+        // We remove the message holder for the edit response if it exists
+        if(productItemModalBody.querySelector(".response-message-holder")) {
+          productItemModalBody.querySelector(".response-message-holder").remove();
+        }
+
+        if(productItemModalBody.querySelector("#newProductForm")) {
+        productItemModalBody.querySelector("#newProductForm").remove();
+        }
+        //productItemModalBody.style.display = "block";
+         productItemWrapper.style.display = "block";
 
        });
 
@@ -276,12 +297,41 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
         });
    }
 
+   function serializeTags(listTags) {
+      if(!listTags) return;
+      let newProductForm = productItemModalBody.querySelector("#newProductForm");
+      let productTagsInput = productItemModalBody.querySelector("#productTags").parentNode;
+      let listTagsHolder = document.createElement("div");
+      listTagsHolder.classList.add("list-tags-holder");
+
+      productTagsInput.parentNode.insertBefore(listTagsHolder, productTagsInput);
+
+      listTags.forEach(function(tag, index) {
+
+        let tagHolder = `<div class="input-group">
+                            <span class="delete-tag"> ${tag.name} </span>
+                            <div class="input-group-append">
+                            <span class="badge badge-secondary"> x </span>
+                            </div>
+                          </div>`;
+           listTagsHolder.insertAdjacentHTML("beforeend", tagHolder);
+          let deleteTag = listTagsHolder.querySelector(".delete-tag:last-child");
+          deleteTag.addEventListener("click", function(e){ removeTag(e); });
+      });
+   }
+
+   function removeTag(e) {
+       e.preventDefault();
+       alert("Hello...");
+   }
+
     function editProductItem(elem) {
 
 
         let productItemModal = document.querySelector('#productItemModal');
 
         let productItemModalBody = productItemModal.querySelector(".modal-body");
+        let productItemWrapper = productItemModalBody.querySelector("#productItemWrapper");
 
         //let modalBodyBackup = productItemModalBody.cloneNode(true);
 
@@ -458,12 +508,10 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
     function updateProductItem(prodToUpdate) {
 
         console.log(prodToUpdate);
-
         //console.log(prodToUpdate[7].productImage);
-
         let prodObject = deserializeProduct(prodToUpdate); //new Object();
-
-        let editProductForm = document.getElementById("editProductForm");
+        
+        let editProductForm = productItemModalBody.querySelector("#newProductForm");
         let productImage = editProductForm.querySelector("#productImage");
 
         console.log(productImage);
@@ -471,10 +519,10 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
         let prodImageFile = productImage.files ? productImage.files[0] : null;
 
         console.log(prodImageFile)
-
         delete prodObject["undefined"];
-
         console.log(prodObject);
+
+        let responseStatus = null;
 
         let data = {
             content: prodObject,
@@ -482,7 +530,6 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
         }
 
         data = JSON.stringify(data);
-
         let formData = new FormData();
 
         formData.append("data", data);
@@ -498,7 +545,10 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
             },
             body: formData,
         })
-        .then(response => response.json())
+        .then(response => { 
+          responseStatus = response.status;
+          return response.json();
+        })
         .then(data => {
             console.log(JSON.stringify(data));
 
@@ -507,7 +557,17 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
         .catch(error => console.error(error));
 
         response.then(data => {
-            console.log(data);
+
+            if(responseStatus === 200) {
+              serializeProduct(data);
+              // This function remoes the form and display a successfull message
+            }
+            successMessageHolder(responseStatus, data);
+            /*else if (responseStatus === 403) {
+
+            }else {
+
+            } */
         });
 
         $("#productItemModal").on('hidden.bs.modal', e => {
@@ -534,7 +594,7 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
 
     function updateImageDisplay(productImage) {
          alert("Update preview image");
-         let editProductForm = document.getElementById("editProductForm");
+         let editProductForm = document.getElementById("#newProductForm");
       //let productImage = editProductForm.querySelector("#productImage");
          //let productImage = editProductForm.querySelector("#productImage"); //modalProductNewBody.querySelector("#editProductForm"); //productItemModalBody.querySelector("#productImage");
          //productImage = productImage ? productImage : null;
@@ -599,8 +659,12 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
       } 
 
     
-      function deserializeProduct(content) {
-     
+      function deserializeProduct(contentForm) {
+      
+        console.log("ddddddddddddddddddddddddddddddddddddd");
+        let content = productItemModal.querySelector("#newProductForm");
+        console.log(content);
+        console.log(contentForm);
         if(!content)
           return;
     
@@ -635,6 +699,59 @@ import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/pu
     
             return data;
     
+      }
+
+      // This function update the updated product
+     function serializeProduct(data) {
+        if(!data) return;
+
+        let product = document.querySelector(`[data-product-id='${productId}']`);
+        console.log(product);
+
+        let cardTitle = product.querySelector(".card-title");
+        cardTitle.innerHTML = data.name;
+
+        let prodCat = product.querySelector("h6");
+        prodCat.innerHTML = data.category.name;
+
+        let productPrice = product.querySelector(".product-price");
+        productPrice.innerHTML = data.price;
+
+      }
+     // Basically this function removes the the editForm and this a message indication that the 
+     // was successfully edited and then remove it
+     function successMessageHolder(responseStatus, data) {
+       
+       let newProductForm  = productItemModalBody.querySelector("#newProductForm");
+       let messageHolder = document.createElement("div");
+       messageHolder.classList.add("response-message-holder");
+       newProductForm.parentNode.insertBefore(messageHolder, newProductForm);
+        
+       let statusMessage  = null;
+       if(responseStatus === 200) {
+         statusMessage = `<div class="alert alert-success" role="alert">
+                            The product has been updated successfully check below to see the changes
+                           </div>`;
+               // We remove the form
+              newProductForm.remove();
+              messageHolder.insertAdjacentHTML("afterbegin", statusMessage);
+
+             setTimeout(function() {
+                 messageHolder.remove();
+                 $("#productItemModal").modal("hide");
+             }, 3000);
+       }else if (responseStatus === 403){
+        statusMessage = `<div class="alert alert-danger" role="alert">
+                           ${data.message}
+                         </div>`;
+         messageHolder.insertAdjacentHTML("afterbegin", statusMessage);
+       }else {
+        statusMessage = `<div class="alert alert-danger" role="alert">
+                       An unknown error occured on the server. Please try again later !
+                       </div>`;
+         messageHolder.insertAdjacentHTML("afterbegin", statusMessage);
+       }
+
       }
 
 });

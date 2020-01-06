@@ -14,8 +14,13 @@
 
        <form action="/charge" method="post" class="payment-form" style="display:none;">
        <!-- start of the delivery address div -->
+
+        <div class="checkout-errors">
+       </div>
+       <div class="list-client-addresses">
+       </div>
        
-       <div class="tab" style="display:block;">
+      {# <div class="tab" style="display:block;">
 
              Delivery Address
              <input type="text" name="fullName" id="fulllName" class="form-control" placeholder="your full name" required />
@@ -27,12 +32,12 @@
              <p>Add delivery instructions (optional) </p>
              <textarea name="instructions" id="instructions" class="form-control" placeholder="do we need additional instructions to find this address">
               </textarea>
-        </div>
+        </div> #}
         
        <!-- end of the delivery address div -->
 
        <!-- start of the stripe pament div -->
-       <div class="tab">
+       <div class="payment-section" style="display:none;">
        <div class="form-row">
        <label for="card-element">
         Credit or debit card
@@ -45,13 +50,19 @@
       <div class="card-errors" id="card-errors" role="alert"></div>
       <!--</div> -->
 
-     <button>Submit Payment</button>
+   <!--  <button>Submit Payment</button> -->
      </div>
      </div>
 
      <!-- begining of the navigation tabs -->
 
      <div style="overflow:auto;">
+         <button class="btn btn-primary space-maker address-next"> next </button>
+         <button class="btn btn-primary space-maker credit-card-confirm" style="display:none;"> Submit Payment </button>
+         <button class="btn btn-primary space-maker" style="display:none;"> finish </button>
+     </div>
+
+    {# <div style="overflow:auto;">
          <div style="float:right;">
              <button type="button" id="prevBtn" onclick="nextPrev(-1, this)">Previous</button>
              <button type="button" id="nextBtn" onclick="nextPrev(1, this)">Next</button>
@@ -64,12 +75,16 @@
          <span class="step"></span>
        <!--  <span class="step"></span>
          <span class="step"></span> -->
-     </div>
+     </div> #}
 
      <!-- end of the navigation tabs -->
+     <input type="hidden" name="orderType" data-order-type="wishlist" />
     </form>
 
        <!-- End of the payment form -->
+      <!-- Display the succes of the payment if it was successfull -->
+       <div class="transaction-succeeded" style="display:none;">
+     </div>
       
       </div>
       <div class="modal-footer">

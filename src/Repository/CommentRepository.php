@@ -56,6 +56,18 @@ class CommentRepository extends ServiceEntityRepository
                ->getResult();
     }
 
+    public function listReplies($commentId) {
+        return $this->createQueryBuilder("c")
+               ->innerJoin("c.commentsReplies","replies")
+               ->innerJoin("replies.client", "client")
+               ->select("replies")
+               //->select("replies.id, replies.content, replies.repliedAt")
+               ->where("c.id = :id")
+               ->setParameter("id", $commentId)
+               ->getQuery()
+               ->getResult();
+    }
+
     /*
     public function findOneBySomeField($value): ?Comment
     {

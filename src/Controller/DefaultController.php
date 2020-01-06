@@ -5,11 +5,14 @@ use App\Entity\Cart;
 use App\Entity\Product;
 use App\Entity\WhishLists;
 use App\Repository\ProductRepository;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -113,5 +116,28 @@ class DefaultController extends AbstractController {
 
         //return new JsonResponse($response);
         return  $response;
+    }
+
+    /**
+     * @Route("/mail")
+     */
+    public function sendMail(MailerInterface $mailer): Response {
+        
+        $email = (new Email())
+                ->from("alimou.web@gmail.com")
+                ->to("kolonbah15@gmail.com")
+                ->subject('Time for Symfony Mailer!')
+                ->text('Sending emails is fun again!')
+                ->html('<p>See Twig integration for better HTML integration!</p>');
+
+                try {
+                    $sentMail = $mailer->send($email);
+                   // $sentMail->getMessage();
+                    print_r($sentMail);
+                    return new Response($sentMail);
+                }catch(Exception $e) {
+                    echo 'Caught exception: '. $e->getMessage() ."\n";
+                    return new Response($e->getMessage());
+                }
     }
 }

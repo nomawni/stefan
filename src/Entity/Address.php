@@ -19,12 +19,6 @@ class Address
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Customer", inversedBy="addresses")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $customer;
-
-    /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $phoneNumber;
@@ -50,16 +44,6 @@ class Address
     private $postalCode;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\User", mappedBy="addresses")
-     */
-    private $users;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Shipment", inversedBy="address")
-     */
-    private $shipment;
-
-    /**
      * @ORM\Column(type="string", length=255)
      */
     private $fullName;
@@ -69,26 +53,26 @@ class Address
      */
     private $instructions;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $careOf;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\User")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $client;
+
     public function __construct()
     {
-        $this->users = new ArrayCollection();
+       
+        
     }
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getCustomer(): ?Customer
-    {
-        return $this->customer;
-    }
-
-    public function setCustomer(?Customer $customer): self
-    {
-        $this->customer = $customer;
-
-        return $this;
     }
 
     public function getPhoneNumber(): ?string
@@ -151,46 +135,6 @@ class Address
         return $this;
     }
 
-    /**
-     * @return Collection|User[]
-     */
-    public function getUsers(): Collection
-    {
-        return $this->users;
-    }
-
-    public function addUser(User $user): self
-    {
-        if (!$this->users->contains($user)) {
-            $this->users[] = $user;
-            $user->addAddress($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUser(User $user): self
-    {
-        if ($this->users->contains($user)) {
-            $this->users->removeElement($user);
-            $user->removeAddress($this);
-        }
-
-        return $this;
-    }
-
-    public function getShipment(): ?Shipment
-    {
-        return $this->shipment;
-    }
-
-    public function setShipment(?Shipment $shipment): self
-    {
-        $this->shipment = $shipment;
-
-        return $this;
-    }
-
     public function getFullName(): ?string
     {
         return $this->fullName;
@@ -211,6 +155,30 @@ class Address
     public function setInstructions(?string $instructions): self
     {
         $this->instructions = $instructions;
+
+        return $this;
+    }
+
+    public function getCareOf(): ?string
+    {
+        return $this->careOf;
+    }
+
+    public function setCareOf(?string $careOf): self
+    {
+        $this->careOf = $careOf;
+
+        return $this;
+    }
+
+    public function getClient(): ?User
+    {
+        return $this->client;
+    }
+
+    public function setClient(?User $client): self
+    {
+        $this->client = $client;
 
         return $this;
     }

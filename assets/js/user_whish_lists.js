@@ -34,6 +34,28 @@ whishlists.addEventListener('click', function(e) {
 
         let modalWhishListBody = document.getElementById('modalWhishListBody');
 
+        /**
+        * If the client does not have any item in his cart, we show him the modal indicating he has nothing
+        */
+
+       if(products === "undefined" || products.length == 0) {
+
+       if(!modalWhishListBody.querySelector(".empty-wishlist-info")){
+          let emptyCartInfo = `<h2 class="empty-wishlist-info"> Your Wishlist is empty for now! </h2>`;
+          modalWhishListBody.insertAdjacentHTML('afterbegin', emptyCartInfo);
+          $('#whishlistModal').modal('show');
+         
+        }
+        return;
+     }  
+        // If the client has some products in his cart we want to remove the the h2 if it exist
+        if(modalWhishListBody.querySelector(".empty-wishlist-info")){
+            modalWhishListBody.querySelector(".empty-wishlist-info").remove();
+        }
+
+        let orderType = modalWhishListBody.querySelector("input[name='orderType']");
+        orderType.dataset.orderId = products.id;
+
         if(!products) {
             modalWhishListBody.innerHTML = "Your whishList is empty";
             return;
@@ -95,6 +117,7 @@ whishlists.addEventListener('click', function(e) {
 
             rowBody.dataset.whishListId = whishList.id
             rowBody.dataset.productId = item.id;
+            table.dataset.whishListId = whishList.id;
            
             tbody.appendChild(rowBody);
 
@@ -206,9 +229,11 @@ whishlists.addEventListener('click', function(e) {
         //modalWhishListBody.innerHTML = "";
         let paymentForm = whishlistModal.querySelector("form");
         let listCartTable = whishlistModal.querySelector("table");
+        let transactionSucceeded = modalWhishListBody.querySelector(".transaction-succeeded");
         listCartTable.remove();
-        paymentForm.querySelectorAll(".tab")[1].style.display = "none";
-        paymentForm.style.display = "none";
+       // paymentForm.querySelectorAll(".tab")[1].style.display = "none";
+       transactionSucceeded ? transactionSucceeded.style.display = "none" :null;
+        paymentForm ? paymentForm.style.display = "none" : null;
     });
 });
 
