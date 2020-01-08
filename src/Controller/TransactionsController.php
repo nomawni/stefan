@@ -50,8 +50,6 @@ class TransactionsController extends AbstractController
             ], 403);
         }
 
-        \Stripe\Stripe::setApiKey('sk_test_NeNOBIViQeKQ131VLoDDWGo100MdUuK7tZ');
-
         $entityManager = $this->getDoctrine()->getManager();
         $transaction = new Transactions();
 
